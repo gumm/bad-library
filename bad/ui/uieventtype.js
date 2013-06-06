@@ -1,4 +1,3 @@
-// Copyright 2011 Trinity Telecomms (Pty) Ltd. All Rights Reserved.
 /**
  * @fileoverview Panel Event Types.
  *

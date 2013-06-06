@@ -1,5 +1,3 @@
-// Copyright 2011 Trinity Telecomms (Pty) Ltd. All Rights Reserved.
-
 /**
  * @fileoverview  Class for building a 3 panel dynamic resizeable layout.
  */
