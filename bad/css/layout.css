@@ -1,0 +1,32 @@
+/*----------------------------------------------------------------[ Layout ]--*/
+
+.layout {
+    overflow:hidden;
+    position: absolute;
+}
+
+.layout-drag-handle {
+    position: absolute;
+    overflow: hidden;
+    border: 0;
+    cursor: col-resize;
+    background:#ddd;
+}
+
+.layout-drag-handle.grabber {
+    background:#ddd url(data:image/gif;base64,R0lGODlhAgAIAIABADMzM/Hx8SH5BAEAAAEALAAAAAACAAgAAAIFhBFxqFcAOw==) center center no-repeat;
+}
+
+/* Layout Nests */
+.layout-nest {
+    position: absolute;
+    /*overflow: hidden;*/
+}
+
+.layout-drag-handle-vert {
+    cursor: row-resize;
+}
+
+.layout-drag-handle-vert.grabber {
+    background:#ddd url(data:image/gif;base64,R0lGODlhCAACAIABAGRkZP///yH5BAEAAAEALAAAAAAIAAIAAAIFBGJol1YAOw==) center center no-repeat;
+}

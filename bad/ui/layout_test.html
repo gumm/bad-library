@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Layout Unit Tests - bad.ui.Layout</title>
+    <script type="text/javascript" src="../../../closure-library/closure/goog/base.js"></script>
+    <script type="text/javascript" src="../../../deps.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/layout.css">
+    <script type="text/javascript">
+        goog.require('bad.ui.Layout');
+        goog.require('goog.debug.Console');
+        goog.require('goog.debug.LogManager');
+        goog.require('goog.dom');
+        goog.require('goog.events');
+        goog.require('goog.testing.jsunit');
+    </script>
+    <style class="text/css">
+
+        h1 {
+            font-family: Helvetica;
+            padding:30px;
+        }
+
+        #layout_target {
+            width: 800px;
+            height: 500px;
+            margin:30px;
+            left: 30px;
+            position: relative;
+            background-color: rgb(230,230,230);
+        }
+
+        div[class$='left'] {
+            background-color: rgba(255, 0, 0, 0.2);
+        }
+
+        div[class$='center'] {
+            background-color: rgba(0, 255, 0, 0.2);
+        }
+
+        div[class$='right'] {
+            background-color: rgba(0, 0, 255, 0.2);
+        }
+
+        div[class$='-top'] {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        div[class$='-mid'] {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        div[class$='-bot'] {
+            background-color: rgba(0, 0, 0, 0);
+        }
+
+        div[class$='-x'] {
+            background-color: rgba(255, 255, 0, 0.3);
+        }
+
+        div[class$='-y'] {
+            background-color: rgba(255, 255, 0, 0.2);
+        }
+
+        div[class$='-z'] {
+            background-color: rgba(255, 255, 0, 0.1);
+        }
+
+        div[class$='-a'] {
+            background-color: rgba(255, 0, 255, 0.3);
+        }
+
+        div[class$='-c'] {
+            background-color: rgba(255, 0, 255, 0.1);
+        }
+
+        .layout-nest-left-mid-z-b {
+            background-color: orange;
+        }
+    </style>
+</head>
+<body>
+<div id="layout_target"><h1>Layout</h1></div>
+<script type="text/javascript">
+    function setUp() {
+        goog.debug.LogManager.getRoot().setLevel(
+                goog.debug.Logger.Level.WARNING
+        );
+
+        var debugConsole = new goog.debug.Console();
+        debugConsole.setCapturing(true);
+
+        var relativeTarget = document.getElementById('layout_target');
+        var bodyTarget = goog.dom.getDocument().body;
+        var id = Math.floor(Math.random() * 2147483648).toString(36);
+        var mainCells = ['left', 'center', 'right'];
+        var innerCells = ['top', 'mid', 'bot'];
+        var innerInnerCells = ['x', 'y', 'z'];
+        var innerInnerInnerCells = ['a', 'b', 'c'];
+        var topMargin = 90;
+        var rightMargin = 30;
+        var bottomMargin = 20;
+        var leftMargin = 10;
+        var draggerThickness = 3;
+        var initialSizeOfLeftCell = 260;
+        var initialSizeOfRightCell = 200;
+        var minSizeLeftCellCanBeDraggedTo = 30;
+        var minSizeRightCellCanBeDraggedTo = 50;
+
+        /**
+         * Create a new layout
+         * @type {bad.ui.Layout}
+         * @private
+         */
+        layout = new bad.ui.Layout(id, mainCells,
+            bad.ui.Layout.Orientation.HORIZONTAL
+        );
+
+        // Set the defaults for the site.
+        layout.setTarget(relativeTarget);
+
+        /* When the bodyTarget is used, uncomment these two
+         * to have the layout follow the width and height of the
+         * view-port.
+         */
+
+        // layout.setWidthToViewport(true);
+        // layout.setHeightToViewport(true);
+
+
+        layout.setInitialSize(mainCells[0], initialSizeOfLeftCell);
+        layout.setInitialSize(mainCells[2], initialSizeOfRightCell);
+        layout.setDraggerThickness(draggerThickness);
+        layout.setGrabberClass('grabber');
+        layout.setMargin(topMargin, rightMargin, bottomMargin, leftMargin);
+        layout.setMinimumSize(mainCells[0], minSizeLeftCellCanBeDraggedTo);
+        layout.setMinimumSize(mainCells[2], minSizeRightCellCanBeDraggedTo);
+
+        // Create a west layout.
+        var leftInnerLayout = layout.setInnerLayout(
+                innerCells,
+                mainCells[0],
+                bad.ui.Layout.Orientation.VERTICAL
+        );
+
+        // Create an middle layout
+        layout.setInnerLayout(
+                innerCells,
+                mainCells[1],
+                bad.ui.Layout.Orientation.VERTICAL
+        );
+
+        // Create an east layout
+        layout.setInnerLayout(
+                innerCells,
+                mainCells[2],
+                bad.ui.Layout.Orientation.VERTICAL
+        );
+
+        // Create an inner inner layout.
+        var leftInnerMidLayout = leftInnerLayout.setInnerLayout(
+                innerInnerCells,
+                innerCells[1],
+                bad.ui.Layout.Orientation.HORIZONTAL
+        );
+
+        // And an inner inner inner layout.
+        leftInnerMidLayout.setInnerLayout(
+                innerInnerInnerCells,
+                innerInnerCells[2],
+                bad.ui.Layout.Orientation.VERTICAL
+        );
+
+        goog.events.listen(
+            layout,
+            bad.ui.Layout.EventType.LAYOUT_READY,
+            function(e) {
+                if (e.target.getId() === id) {
+                    console.debug('ALL LAYOUTS ARE READY AND IN THE DOM!');
+                }
+            }
+        );
+    }
+
+    function tearDown() {
+        // layout.dispose();
+    }
+
+    function test_realWorld() {
+        // Create the layout in the DOM
+        layout.render();
+        var nest1 = layout.getNest('left', 'mid', 'z', 'a');
+        var nest2 = layout.getNest('left', 'mid', 'x');
+        var nest3 = layout.getNest('right', 'top');
+        var nest4 = layout.getNest('right');
+        var nest5 = layout.getNest('center', 'bot');
+        var nest6 = layout.getNest('left', 'top');
+
+        console.debug('Nest1 Closed');
+        nest1.close(function() {
+            console.debug('Nest1 Slide Open to 50%');
+            nest1.slideOpen(50, undefined, function() {
+                console.debug('Nest1 Slide Closed');
+                nest1.slideClosed(function() {
+                    console.debug('Nest1 Toggle');
+                    nest1.toggle(function() {
+                        console.debug('Nest1 Slide to 30px');
+                        nest1.slideTo(undefined, 30, function() {
+                            console.debug('Nest1 Slide to 50%');
+                            nest1.slideTo(50, undefined, function() {
+                                console.debug('Nest1 Close');
+                                nest1.close(function() {
+                                    console.debug('Nest1 Show at 75%');
+                                    nest1.show(75, undefined, function() {
+                                        console.debug('Nest1 hide');
+                                        nest1.hide(function() {
+                                            console.debug('Slide Open to 40%');
+                                            nest1.slideOpen(40);
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        console.debug('Nest2 Closed');
+        nest2.close(function() {
+            console.debug('Nest2 Slide Open to 50%');
+            nest2.slideOpen(50, undefined, function() {
+                console.debug('Nest2 Slide Closed');
+                nest2.slideClosed(function() {
+                    console.debug('Nest2 Toggle');
+                    nest2.toggle(function() {
+                        console.debug('Nest2 Slide to 30px');
+                        nest2.slideTo(undefined, 30, function() {
+                            console.debug('Nest2 Slide to 50%');
+                            nest2.slideTo(50, undefined, function() {
+                                console.debug('Nest2 Close');
+                                nest2.close(function() {
+                                    console.debug('Nest2 Show at 75%');
+                                    nest2.show(75, undefined, function() {
+                                        console.debug('Nest2 hide');
+                                        nest2.hide(function() {
+                                            console.debug('Slide Open to 40%');
+                                            nest2.slideOpen(40);
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        console.debug('Nest3 Closed');
+        nest3.close(function() {
+            console.debug('Nest3 Slide Open to 50%');
+            nest3.slideOpen(50, undefined, function() {
+                console.debug('Nest3 Slide Closed');
+                nest3.slideClosed(function() {
+                    console.debug('Nest3 Toggle');
+                    nest3.toggle(function() {
+                        console.debug('Nest3 Slide to 30px');
+                        nest3.slideTo(undefined, 30, function() {
+                            console.debug('Nest3 Slide to 50%');
+                            nest3.slideTo(50, undefined, function() {
+                                console.debug('Nest3 Close');
+                                nest3.close(function() {
+                                    console.debug('Nest3 Show at 75%');
+                                    nest3.show(75, undefined, function() {
+                                        console.debug('Nest3 hide');
+                                        nest3.hide(function() {
+                                            console.debug('Slide Open to 40%');
+                                            nest3.slideOpen(40);
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        console.debug('Nest4 Closed');
+        nest4.close(function() {
+            console.debug('Nest4 Slide Open to 50%');
+            nest4.slideOpen(50, undefined, function() {
+                console.debug('Nest4 Slide Closed');
+                nest4.slideClosed(function() {
+                    console.debug('Nest4 Toggle');
+                    nest4.toggle(function() {
+                        console.debug('Nest4 Slide to 30px');
+                        nest4.slideTo(undefined, 30, function() {
+                            console.debug('Nest4 Slide to 50%');
+                            nest4.slideTo(50, undefined, function() {
+                                console.debug('Nest4 Close');
+                                nest4.close(function() {
+                                    console.debug('Nest4 Show at 75%');
+                                    nest4.show(75, undefined, function() {
+                                        console.debug('Nest4 hide');
+                                        nest4.hide(function() {
+                                            console.debug('Slide Open to 40%');
+                                            nest4.slideOpen(40);
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        console.debug('Nest5 Closed');
+        nest5.close(function() {
+            console.debug('Nest5 Slide Open to 50%');
+            nest5.slideOpen(50, undefined, function() {
+                console.debug('Nest5 Slide Closed');
+                nest5.slideClosed(function() {
+                    console.debug('Nest5 Toggle');
+                    nest5.toggle(function() {
+                        console.debug('Nest5 Slide to 30px');
+                        nest5.slideTo(undefined, 30, function() {
+                            console.debug('Nest5 Slide to 50%');
+                            nest5.slideTo(50, undefined, function() {
+                                console.debug('Nest5 Close');
+                                nest5.close(function() {
+                                    console.debug('Nest5 Show at 75%');
+                                    nest5.show(75, undefined, function() {
+                                        console.debug('Nest5 hide');
+                                        nest5.hide(function() {
+                                            console.debug('Slide Open to 40%');
+                                            nest5.slideOpen(40);
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        console.debug('Nest6 Closed');
+        nest6.close(function() {
+            console.debug('Nest6 Slide Open to 50%');
+            nest6.slideOpen(50, undefined, function() {
+                console.debug('Nest6 Slide Closed');
+                nest6.slideClosed(function() {
+                    console.debug('Nest6 Toggle');
+                    nest6.toggle(function() {
+                        console.debug('Nest6 Slide to 30px');
+                        nest6.slideTo(undefined, 30, function() {
+                            console.debug('Nest6 Slide to 50%');
+                            nest6.slideTo(50, undefined, function() {
+                                console.debug('Nest6 Close');
+                                nest6.close(function() {
+                                    console.debug('Nest6 Show at 75%');
+                                    nest6.show(75, undefined, function() {
+                                        console.debug('Nest6 hide');
+                                        nest6.hide(function() {
+                                            console.debug('Slide Open to 40%');
+                                            nest6.slideOpen(40);
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+
+    }
+
+</script>
+</body>
+</html>
