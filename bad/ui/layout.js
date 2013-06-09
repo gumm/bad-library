@@ -1327,7 +1327,7 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
      * Helper function to close the A cell.
      * @type {function(Function=):boolean}
      */
-    compA.close = goog.bind(function(opt_callback, opt_slide) {
+    compA.close = goog.bind(function(opt_callback) {
         this.memoryAB_ = Math.max(
             dragAB.rect[this.flipLeft_()],
             this.getMinimumSize_(this.cell_.A)
@@ -1477,6 +1477,7 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
 
         if (this.animate_) {
             this.animate_ = false;
+            console.debug('We should animate');
             this.doAnimate_(dragBC, closeTo, opt_callback);
         } else {
             dragBC.rect[this.flipLeft_()] = closeTo;
@@ -1698,3 +1699,5 @@ bad.ui.Layout.Event = function(type, target, data) {
     var nestId = data.nestId;
 };
 goog.inherits(bad.ui.Layout.Event, goog.events.Event);
+
+// Something musth have changed...
