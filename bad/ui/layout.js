@@ -244,7 +244,6 @@ bad.ui.Layout.ORIENT = {
  * @enum {string}
  */
 bad.ui.Layout.CssClassMap = {
-    LAYOUT_ROOT: goog.getCssName(bad.CssPrefix.LAYOUT, ''),
     LAYOUT_CELL: goog.getCssName(bad.CssPrefix.LAYOUT, 'nest'),
     CELL_FRAGMENT: goog.getCssName(bad.CssPrefix.LAYOUT, 'nest'),
     DRAG_HANDLE: goog.getCssName(bad.CssPrefix.LAYOUT, 'drag-handle'),
@@ -267,7 +266,7 @@ bad.ui.Layout.prototype.createDom = function() {
         dom.createDom(
             goog.dom.TagName.DIV, {
                 'id': this.getId(),
-                'class': bad.ui.Layout.CssClassMap.LAYOUT_ROOT
+                'class': bad.CssPrefix.LAYOUT
             }
         );
 
