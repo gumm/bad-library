@@ -2,8 +2,11 @@
  * @fileoverview  An extension of goog.ui.Component to extend the workflow.
  */
 
+goog.provide('bad.ComponentEvent');
 goog.provide('bad.ui.Component');
 
+goog.require('bad.ui.EventType');
+goog.require('goog.events.Event');
 goog.require('goog.ui.Component');
 
 
@@ -102,4 +105,46 @@ bad.ui.Component.prototype.hide = function() {
 
 bad.ui.Component.prototype.show = function() {
     goog.style.setElementShown(this.getElement(), true);
+};
+
+//---------------------------------------------------------[ Component Event ]--
+
+/**
+ * Dispatches a trin.ui.EventType.PANEL_ACTION event.
+ * A shorthand method to get panels to dispatch uniform events.
+ * Views may listen just to this event, and act on the supplied value or
+ * data payload.
+ * @param {string} value
+ * @param {Object=} opt_data
+ * @return {boolean} If anyone called preventDefault on the event object (or
+ *     if any of the handlers returns false this will also return false.
+ */
+bad.ui.Component.prototype.dispatchComponentEvent = function(value, opt_data) {
+    var event = new bad.ComponentEvent(this, value, opt_data);
+    return this.dispatchEvent(event);
+};
+
+//-------------------------------------------------------------[ Panel Event ]--
+
+/**
+ * @param {bad.ui.Component} target
+ * @param {string} value
+ * @param {Object=} opt_data
+ * @constructor
+ * @extends {goog.events.Event}
+ */
+bad.ComponentEvent = function(target, value, opt_data) {
+    goog.events.Event.call(this, bad.ui.EventType.PANEL_ACTION, target);
+
+    this.value_ = value;
+    this.data_ = opt_data || {};
+};
+goog.inherits(bad.ComponentEvent, goog.events.Event);
+
+bad.ComponentEvent.prototype.getValue = function() {
+    return this.value_;
+};
+
+bad.ComponentEvent.prototype.getData = function() {
+    return this.data_;
 };
