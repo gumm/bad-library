@@ -49,38 +49,10 @@ bad.ui.Component.prototype.render = function(opt_target) {
     }
 };
 
-/**
- * Creates the initial DOM representation for the component.  The default
- * implementation is to set this.element_ = div.
- */
-bad.ui.Component.prototype.createDom = function() {
-    bad.ui.Component.superClass_.createDom.call(this);
-
-    // Function stub for sub-classing
-};
-
-/**
- * Called when the component's element is known to be in the document. Anything
- * using document.getElementById etc. should be done at this stage. If the
- * component contains child components, this call is propagated to its
- * children.
- */
 bad.ui.Component.prototype.enterDocument = function() {
     bad.ui.Component.superClass_.enterDocument.call(this);
 
-    // Function stub for sub-classing
-};
-
-bad.ui.Component.prototype.exitDocument = function() {
-    bad.ui.Component.superClass_.exitDocument.call(this);
-
-    // Function stub for sub-classing
-};
-
-bad.ui.Component.prototype.disposeInternal = function() {
-    bad.ui.Component.superClass_.disposeInternal.call(this);
-
-    // Function stub for sub-classing
+    this.dispatchComponentEvent(bad.ui.EventType.PANEL_READY);
 };
 
 /**
@@ -115,7 +87,7 @@ bad.ui.Component.prototype.show = function() {
  * Views may listen just to this event, and act on the supplied value or
  * data payload.
  * @param {string} value
- * @param {Object=} opt_data
+ * @param {(string|number|Object)=} opt_data
  * @return {boolean} If anyone called preventDefault on the event object (or
  *     if any of the handlers returns false this will also return false.
  */
@@ -128,23 +100,38 @@ bad.ui.Component.prototype.dispatchComponentEvent = function(value, opt_data) {
 
 /**
  * @param {bad.ui.Component} target
- * @param {string} value
- * @param {Object=} opt_data
+ * @param {!string} value
+ * @param {(string|number|Object)=} opt_data
  * @constructor
  * @extends {goog.events.Event}
  */
 bad.ComponentEvent = function(target, value, opt_data) {
     goog.events.Event.call(this, bad.ui.EventType.PANEL_ACTION, target);
 
+    /**
+     * @type {!string}
+     * @private
+     */
     this.value_ = value;
+
+    /**
+     * @type {(string|number|Object)}
+     * @private
+     */
     this.data_ = opt_data || {};
 };
 goog.inherits(bad.ComponentEvent, goog.events.Event);
 
+/**
+ * @return {!string}
+ */
 bad.ComponentEvent.prototype.getValue = function() {
     return this.value_;
 };
 
+/**
+ * @return {(string|number|Object)}
+ */
 bad.ComponentEvent.prototype.getData = function() {
     return this.data_;
 };

@@ -1,42 +1,37 @@
 goog.provide('bad.ui.Form');
 
-goog.require('bad.ui.Component');
-goog.require('goog.dom.forms');
-goog.require('goog.uri.utils');
+goog.require('bad.ui.Panel');
 
 /**
- * @param {!string} id
+ * @param {!string} id The form element id.
  * @param {!goog.Uri} uri
  * @param {Object} targetNest
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
- * @extends {bad.ui.Component}
+ * @extends {bad.ui.Panel}
  * @constructor
  */
 bad.ui.Form = function(id, uri, targetNest, opt_domHelper) {
-    bad.ui.Component.call(this, opt_domHelper);
+    bad.ui.Panel.call(this, uri, targetNest, opt_domHelper);
 
     /**
      * @type {!string}
      * @private
      */
-    this.id_ = id;
+    this.formElId_ = id;
 
     /**
-     * @type {!goog.Uri}
+     * @type {?HTMLFormElement}
      * @private
      */
-    this.uri_ = uri;
-
-    /**
-     * @type {Object}
-     * @private
-     */
-    this.nest_ = targetNest;
+    this.form_ = null;
 };
-goog.inherits(bad.ui.Form, bad.ui.Component);
+goog.inherits(bad.ui.Form, bad.ui.Panel);
 
-bad.ui.Form.prototype.getNest = function() {
-    return this.nest_;
+
+bad.ui.Form.prototype.enterDocument = function() {
+    this.form_ = this.getSterileFormFromId(this.formElId_);
+
+    bad.ui.Form.superClass_.enterDocument.call(this);
 };
 
 /**
