@@ -1,13 +1,13 @@
 goog.provide('bad.ui.View');
 
-goog.require('goog.ui.Component');
+goog.require('goog.events.EventTarget');
 
 /**
  * @constructor
- * @extends {goog.ui.Component}
+ * @extends {goog.events.EventTarget}
  */
 bad.ui.View = function() {
-    goog.ui.Component.call(this);
+    goog.events.EventTarget.call(this);
 
     /**
      * @type {bad.Net}
@@ -25,7 +25,18 @@ bad.ui.View = function() {
      */
     this.panelMap = {};
 };
-goog.inherits(bad.ui.View, goog.ui.Component);
+goog.inherits(bad.ui.View, goog.events.EventTarget);
+
+/**
+ * Returns the event handler for this component, lazily created the first time
+ * this method is called.
+ * @return {!goog.events.EventHandler} Event handler for this component.
+ * @protected
+ */
+bad.ui.View.prototype.getHandler = function() {
+  return this.googUiComponentHandler_ ||
+         (this.googUiComponentHandler_ = new goog.events.EventHandler(this));
+};
 
 /**
  * Render each of the panels in this view.
@@ -45,6 +56,11 @@ bad.ui.View.prototype.renderInternal = function() {
 };
 
 bad.ui.View.prototype.dispose = function() {
+    if (this.googUiComponentHandler_) {
+        this.googUiComponentHandler_.dispose();
+        delete this.googUiComponentHandler_;
+    }
+
     goog.object.forEach(this.panelMap, function(panel) {
         panel.dispose();
     }, this);
@@ -83,7 +99,7 @@ bad.ui.View.prototype.setLayout = function(layout) {
 };
 
 /**
- * @returns {bad.ui.Layout}
+ * @return {bad.ui.Layout}
  */
 bad.ui.View.prototype.getLayout = function() {
     return this.layout_;
@@ -97,7 +113,7 @@ bad.ui.View.prototype.setXMan = function(xMan) {
 };
 
 /**
- * @returns {bad.Net}
+ * @return {bad.Net}
  */
 bad.ui.View.prototype.getXMan = function() {
     return this.xMan_;

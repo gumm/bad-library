@@ -4,14 +4,12 @@ goog.require('bad.ui.Panel');
 
 /**
  * @param {!string} id The form element id.
- * @param {!goog.Uri} uri
- * @param {Object} targetNest
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  * @extends {bad.ui.Panel}
  * @constructor
  */
-bad.ui.Form = function(id, uri, targetNest, opt_domHelper) {
-    bad.ui.Panel.call(this, uri, targetNest, opt_domHelper);
+bad.ui.Form = function(id, opt_domHelper) {
+    bad.ui.Panel.call(this, opt_domHelper);
 
     /**
      * @type {!string}
@@ -32,6 +30,10 @@ bad.ui.Form.prototype.enterDocument = function() {
     this.form_ = this.getSterileFormFromId(this.formElId_);
 
     bad.ui.Form.superClass_.enterDocument.call(this);
+};
+
+bad.ui.Form.prototype.getForm = function() {
+    return this.form_;
 };
 
 /**

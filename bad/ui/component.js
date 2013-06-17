@@ -12,7 +12,7 @@ goog.require('goog.ui.Component');
 
 /**
  * Create a bad.ui.Component. This is an extension of the basic
- * goog.ui.Compoent, and provides more control over the component targeting
+ * goog.ui.Component, and provides more control over the component targeting
  * and rendering.
  *
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
