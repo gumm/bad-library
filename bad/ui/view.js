@@ -1,31 +1,31 @@
 goog.provide('bad.ui.View');
 
-goog.require('goog.events.EventHandler');
+goog.require('goog.ui.Component');
 
 /**
  * @constructor
- * @extends {goog.events.EventHandler}
+ * @extends {goog.ui.Component}
  */
 bad.ui.View = function() {
-    goog.events.EventHandler.call(this, this);
+    goog.ui.Component.call(this);
 
     /**
      * @type {bad.Net}
      */
-    this.xMan_ = undefined;
+    this.xMan_ = null;
 
     /**
      * @type {bad.ui.Layout}
      * @private
      */
-    this.layout_ = undefined;
+    this.layout_ = null;
 
     /**
      * @type {Object.<string, bad.ui.Panel>}
      */
     this.panelMap = {};
 };
-goog.inherits(bad.ui.View, goog.events.EventHandler);
+goog.inherits(bad.ui.View, goog.ui.Component);
 
 /**
  * Render each of the panels in this view.
@@ -60,7 +60,7 @@ bad.ui.View.prototype.addPanelToView = function(name, panel) {
 };
 
 bad.ui.View.prototype.initListenersForPanel_ = function(panel) {
-    this.listen(
+    this.getHandler().listen(
         panel,
         bad.ui.EventType.PANEL_ACTION,
         goog.bind(this.onPanelAction, this)

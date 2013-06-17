@@ -1396,6 +1396,8 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
         if (size > 0) {
             this.animate_ = true;
             compA.close(opt_callback);
+        } else {
+            compA.close(opt_callback);
         }
     }, this);
 
@@ -1545,12 +1547,15 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
 
     /**
      * Helper function to slide the C cell closed.
+     * If the cell is already closed, it simply calls hide
      * @type {function(Function=)}
      */
     compC.slideClosed = goog.bind(function(opt_callback) {
         var size = compC.rect[this.flipWidth_()];
         if (size > 0) {
             this.animate_ = true;
+            compC.close(opt_callback);
+        } else {
             compC.close(opt_callback);
         }
     }, this);
