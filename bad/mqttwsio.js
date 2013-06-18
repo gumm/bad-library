@@ -152,3 +152,7 @@ bad.MqttWsIo.prototype.mqttSubscribe = function(topic) {
         'topic': topic
     }));
 };
+
+app.user.LoginForm.prototype.createDom = function() {
+    app.user.LoginForm.superClass_.createDom.call(this);
+};
