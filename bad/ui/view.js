@@ -62,7 +62,7 @@ bad.ui.View.prototype.dispose = function() {
     }
 
     goog.object.forEach(this.panelMap, function(panel) {
-        panel.dispose();
+        panel.disposeInternal();
     }, this);
 };
 
@@ -117,4 +117,18 @@ bad.ui.View.prototype.setXMan = function(xMan) {
  */
 bad.ui.View.prototype.getXMan = function() {
     return this.xMan_;
+};
+
+/**
+ * @param {Object} user
+ */
+bad.ui.View.prototype.setUser = function(user) {
+    this.user_ = user;
+};
+
+/**
+ * @return {Object}
+ */
+bad.ui.View.prototype.getUser = function() {
+    return this.user_;
 };

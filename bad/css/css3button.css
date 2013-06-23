@@ -10,44 +10,86 @@
 
 /* Imageless button styles. */
 .goog-css3-button {
-  /*margin: 0 2px;*/
-  /*padding: 3px 6px;*/
-  /*text-align: center;*/
-  /*vertical-align: middle;*/
-  /*white-space: nowrap;*/
-  /*cursor: default;*/
-  outline: none;
-  /*font-family: Arial, sans-serif;*/
-  /*color: #000;*/
-  /*border: 1px solid #bbb;*/
-  /*-webkit-border-radius: 3px;*/
-  /*-moz-border-radius: 3px;*/
-  /* TODO(eae): Change this to -webkit-linear-gradient once*/
-                /*https://bugs.webkit.org/show_bug.cgi?id=28152 is resolved. */
-  /*background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#f9f9f9),*/
-      /*to(#e3e3e3));*/
-  /* @alternate *//* background: -moz-linear-gradient(top, #f9f9f9, #e3e3e3);*/
+display: inline-block;
+min-width: 46px;
+text-align: center;
+color: rgb(68, 68, 68);
+font-size: 11px;
+font-weight: bold;
+height: 27px;
+padding: 0 8px;
+line-height: 27px;
+-webkit-border-radius: 2px;
+-moz-border-radius: 2px;
+border-radius: 2px;
+-webkit-transition: all 0.218s;
+-moz-transition: all 0.218s;
+-ms-transition: all 0.218s;
+-o-transition: all 0.218s;
+transition: all 0.218s;
+border: 1px solid rgb(220, 220, 220);
+background-color: rgb(245, 245, 245);
+background-image: -webkit-gradient(linear,left top,left bottom,from(rgb(245, 245, 245)),to(rgb(241, 241, 241)));
+background-image: -webkit-linear-gradient(top,rgb(245, 245, 245),rgb(241, 241, 241));
+background-image: -moz-linear-gradient(top,rgb(245, 245, 245),rgb(241, 241, 241));
+background-image: -ms-linear-gradient(top,rgb(245, 245, 245),rgb(241, 241, 241));
+background-image: -o-linear-gradient(top,rgb(245, 245, 245),rgb(241, 241, 241));
+background-image: linear-gradient(top,rgb(245, 245, 245),rgb(241, 241, 241));
+-webkit-user-select: none;
+-moz-user-select: none;
+user-select: none;
+cursor: default;
+outline: none !important;
+}
+
+.goog-css3-button:active {
+}
+
+.goog-css3-button:hover {
+}
+
+.goog-css3-button:visited {
+color: rgb(102, 102, 102);
 }
 
 
 /* Styles for different states (hover, active, focused, open, checked). */
 .goog-css3-button-hover {
-  /*border-color: #939393 !important;*/
+border: 1px solid rgb(198, 198, 198);
+color: rgb(51, 51, 51);
+text-decoration: none;
+-webkit-transition: all 0.0s;
+-moz-transition: all 0.0s;
+-ms-transition: all 0.0s;
+-o-transition: all 0.0s;
+transition: all 0.0s;
+background-color: rgb(248, 248, 248);
+background-image: -webkit-gradient(linear,left top,left bottom,from(rgb(248, 248, 248)),to(rgb(241, 241, 241)));
+background-image: -webkit-linear-gradient(top,rgb(248, 248, 248),rgb(241, 241, 241));
+background-image: -moz-linear-gradient(top,rgb(248, 248, 248),rgb(241, 241, 241));
+background-image: -ms-linear-gradient(top,rgb(248, 248, 248),rgb(241, 241, 241));
+background-image: -o-linear-gradient(top,rgb(248, 248, 248),rgb(241, 241, 241));
+background-image: linear-gradient(top,rgb(248, 248, 248),rgb(241, 241, 241));
+-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+-moz-box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
-.btn:focus,
 .goog-css3-button-focused {
   /*border-color: #444;*/
-    /*outline: thin dotted rgb(51, 51, 51);*/
-    outline: none;
-    /*outline-offset: -2px;*/
 }
 
 .goog-css3-button-active, .goog-css3-button-open, .goog-css3-button-checked {
-  /*border-color: #444 !important;*/
-  /*background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#e3e3e3),*/
-      /*to(#f9f9f9));*/
-  /* @alternate *//* background: -moz-linear-gradient(top, #e3e3e3, #f9f9f9);*/
+background-color: rgb(246, 246, 246);
+background-image: -webkit-gradient(linear,left top,left bottom,from(rgb(246, 246, 246)),to(rgb(241, 241, 241)));
+background-image: -webkit-linear-gradient(top,rgb(246, 246, 246),rgb(241, 241, 241));
+background-image: -moz-linear-gradient(top,rgb(246, 246, 246),rgb(241, 241, 241));
+background-image: -ms-linear-gradient(top,rgb(246, 246, 246),rgb(241, 241, 241));
+background-image: -o-linear-gradient(top,rgb(246, 246, 246),rgb(241, 241, 241));
+background-image: linear-gradient(top,rgb(246, 246, 246),rgb(241, 241, 241));
+-webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+-moz-box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .goog-css3-button-disabled {
@@ -78,4 +120,106 @@
   -webkit-border-bottom-left-radius: 0px;
   -moz-border-radius-topleft: 0px;
   -moz-border-radius-bottomleft: 0px;
+}
+
+/*----------------------------------------------------------------------------*/
+.g-button-red {
+border: 1px solid rgba(0, 0, 0, 0);
+color: rgb(255, 255, 255);
+text-shadow: 0 1px rgba(0, 0, 0, 0.1);
+text-transform: uppercase;
+background-color: rgb(209, 72, 54);
+background-image: -webkit-gradient(linear,left top,left bottom,from(rgb(221, 75, 57)),to(rgb(209, 72, 54)));
+background-image: -webkit-linear-gradient(top,rgb(221, 75, 57),rgb(209, 72, 54));
+background-image: -moz-linear-gradient(top,rgb(221, 75, 57),rgb(209, 72, 54));
+background-image: -ms-linear-gradient(top,rgb(221, 75, 57),rgb(209, 72, 54));
+background-image: -o-linear-gradient(top,rgb(221, 75, 57),rgb(209, 72, 54));
+background-image: linear-gradient(top,rgb(221, 75, 57),rgb(209, 72, 54));
+    outline: none;
+}
+
+.g-button-red:hover {
+border: 1px solid rgb(176, 40, 26);
+color: rgb(255, 255, 255);
+text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+background-color: rgb(197, 55, 39);
+background-image: -webkit-gradient(linear,left top,left bottom,from(rgb(221, 75, 57)),to(rgb(197, 55, 39)));
+background-image: -webkit-linear-gradient(top,rgb(221, 75, 57),rgb(197, 55, 39));
+background-image: -moz-linear-gradient(top,rgb(221, 75, 57),rgb(197, 55, 39));
+background-image: -ms-linear-gradient(top,rgb(221, 75, 57),rgb(197, 55, 39));
+background-image: -o-linear-gradient(top,rgb(221, 75, 57),rgb(197, 55, 39));
+background-image: linear-gradient(top,rgb(221, 75, 57),rgb(197, 55, 39));
+-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+-moz-box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+-ms-box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+-o-box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.g-button-red:focus {
+border-color: rgb(209, 72, 54);
+}
+
+.g-button-red:active {
+border: 1px solid rgb(153, 42, 27);
+background-color: rgb(176, 40, 26);
+background-image: -webkit-gradient(linear,left top,left bottom,from(rgb(221, 75, 57)),to(rgb(176, 40, 26)));
+background-image: -webkit-linear-gradient(top,rgb(221, 75, 57),rgb(176, 40, 26));
+background-image: -moz-linear-gradient(top,rgb(221, 75, 57),rgb(176, 40, 26));
+background-image: -ms-linear-gradient(top,rgb(221, 75, 57),rgb(176, 40, 26));
+background-image: -o-linear-gradient(top,rgb(221, 75, 57),rgb(176, 40, 26));
+background-image: linear-gradient(top,rgb(221, 75, 57),rgb(176, 40, 26));
+-webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+-moz-box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+color: rgb(255, 255, 255);
+}
+
+/*----------------------------------------------------------------------------*/
+.g-button-submit {
+border: 1px solid rgb(48, 121, 237);
+color: rgb(255, 255, 255);
+text-shadow: 0 1px rgba(0, 0, 0, 0.1);
+background-color: rgb(77, 144, 254);
+background-image: -webkit-gradient(linear,left top,left bottom,from(rgb(77, 144, 254)),to(rgb(71, 135, 237)));
+background-image: -webkit-linear-gradient(top,rgb(77, 144, 254),rgb(71, 135, 237));
+background-image: -moz-linear-gradient(top,rgb(77, 144, 254),rgb(71, 135, 237));
+background-image: -ms-linear-gradient(top,rgb(77, 144, 254),rgb(71, 135, 237));
+background-image: -o-linear-gradient(top,rgb(77, 144, 254),rgb(71, 135, 237));
+background-image: linear-gradient(top,rgb(77, 144, 254),rgb(71, 135, 237));
+    outline: none;
+}
+
+.g-button-submit:active {
+background-color: rgb(53, 122, 232);
+background-image: -webkit-gradient(linear,left top,left bottom,from(rgb(77, 144, 254)),to(rgb(53, 122, 232)));
+background-image: -webkit-linear-gradient(top,rgb(77, 144, 254),rgb(53, 122, 232));
+background-image: -moz-linear-gradient(top,rgb(77, 144, 254),rgb(53, 122, 232));
+background-image: -ms-linear-gradient(top,rgb(77, 144, 254),rgb(53, 122, 232));
+background-image: -o-linear-gradient(top,rgb(77, 144, 254),rgb(53, 122, 232));
+background-image: linear-gradient(top,rgb(77, 144, 254),rgb(53, 122, 232));
+-webkit-box-shadow: inset 0 1px 2px rgb	a(0,0,0,0.3);
+-moz-box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.g-button-submit.goog-css3-button-focused,
+.g-button-share.goog-css3-button-focused,
+.g-button-red.goog-css3-button-focused {
+-webkit-box-shadow: inset 0 0 0 1px rgb(255, 255, 255);
+-moz-box-shadow: inset 0 0 0 1px #fff;
+box-shadow: inset 0 0 0 1px rgb(255, 255, 255);
+}
+
+.g-button-submit:hover {
+border: 1px solid rgb(47, 91, 183);
+color: rgb(255, 255, 255);
+text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+background-color: rgb(53, 122, 232);
+background-image: -webkit-gradient(linear,left top,left bottom,from(rgb(77, 144, 254)),to(rgb(53, 122, 232)));
+background-image: -webkit-linear-gradient(top,rgb(77, 144, 254),rgb(53, 122, 232));
+background-image: -moz-linear-gradient(top,rgb(77, 144, 254),rgb(53, 122, 232));
+background-image: -ms-linear-gradient(top,rgb(77, 144, 254),rgb(53, 122, 232));
+background-image: -o-linear-gradient(top,rgb(77, 144, 254),rgb(53, 122, 232));
+background-image: linear-gradient(top,rgb(77, 144, 254),rgb(53, 122, 232));
 }

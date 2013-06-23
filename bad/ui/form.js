@@ -22,6 +22,13 @@ bad.ui.Form = function(id, opt_domHelper) {
      * @private
      */
     this.form_ = null;
+
+    /**
+     * An array of alert messages displayed on the form
+     * @type {Array}
+     * @private
+     */
+    this.fieldAlerts_ = [];
 };
 goog.inherits(bad.ui.Form, bad.ui.Panel);
 
@@ -70,4 +77,62 @@ bad.ui.Form.prototype.getPostContentFromForm = function(form) {
     return goog.uri.utils.buildQueryDataFromMap(
         goog.dom.forms.getFormDataMap(form).toObject()
     );
+};
+
+//----------------------------------------------------------[ Alert Messages ]--
+
+bad.ui.Form.prototype.checkValidation = function() {
+    this.clearAlerts();
+    var fields = this.form_.elements;
+    goog.object.forEach(fields, function(field) {
+        if (field.willValidate && !field.checkValidity()) {
+            this.displayError(field, field.validationMessage);
+        }
+    }, this);
+};
+
+bad.ui.Form.prototype.clearAlerts = function() {
+    goog.object.forEach(this.form_.elements, function(field) {
+        goog.dom.classes.remove(field, 'error');
+    }, this);
+    while (this.fieldAlerts_.length > 0) {
+        goog.dom.removeNode(this.fieldAlerts_.pop());
+    }
+};
+
+bad.ui.Form.prototype.displayErrors = function(data) {
+    var fields = this.form_.elements;
+    goog.object.forEach(data.error, function(message, name) {
+        var field = fields[name];
+        if (message) {
+            this.displayError(field, message);
+        }
+    }, this);
+};
+
+bad.ui.Form.prototype.displayError = function(field, message) {
+    goog.dom.classes.add(field, 'error');
+    this.displayAlert(field, message,
+        'alert-error', null, 'icon-remove-sign');
+};
+
+bad.ui.Form.prototype.displaySuccess = function(field, message) {
+    this.displayAlert(field, message,
+        'alert-success', null, 'icon-ok-sign');
+};
+
+bad.ui.Form.prototype.displayInfo = function(field, message) {
+    this.displayAlert(field, message,
+        'alert-info', null, 'icon-info-sign');
+};
+
+bad.ui.Form.prototype.displayAlert = function(
+        field, message, css, opt_itr, opt_icon) {
+
+    var icon = opt_icon ? goog.dom.createDom('i', opt_icon, ' ') : '';
+    var intro = opt_itr ? goog.dom.createDom('strong', {}, opt_itr + ' ') : '';
+    var alertDom = goog.dom.createDom('div', 'alert ' + css,
+        icon, intro, message);
+    goog.dom.insertSiblingAfter(alertDom, field);
+    this.fieldAlerts_.push(alertDom);
 };
