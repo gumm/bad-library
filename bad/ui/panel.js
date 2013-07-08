@@ -83,6 +83,20 @@ bad.ui.Panel.prototype.getUri = function() {
     return this.uri_;
 };
 
+/**
+ * @param {Object} user
+ */
+bad.ui.Panel.prototype.setUser = function(user) {
+    this.user_ = user;
+};
+
+/**
+ * @return {Object}
+ */
+bad.ui.Panel.prototype.getUser = function() {
+    return this.user_;
+};
+
 //------------------------------------------------------------[ Ajax Control ]--
 
 /**

@@ -51,15 +51,13 @@ bad.MqttWsIo.prototype.init_ = function(mqttEl, sysEl) {
     this.MQTTElement_ = mqttEl;
     this.sysElement_ = sysEl;
 
-//    var topic = '$SYS/broker/clients/active';
-
 //    this.listen(
 //        goog.dom.getElement('subscrGo'),
 //        goog.events.EventType.CLICK,
 //        function(e) {
 //            var topic = document.getElementById('subscrIn').value;
 //            this.mqttSubscribe(topic);
-            this.mqttSubscribe('blah');
+//            this.mqttSubscribe('blah');
 //        }, undefined, this);
 //
 //    this.listen(
@@ -103,7 +101,6 @@ bad.MqttWsIo.prototype.openWebsocket = function() {
             }
         }
     );
-    console.debug('Opening a socket');
     this.webSocket.open('ws://' + this.wsServer + ':' + this.wsPort);
 };
 
@@ -153,7 +150,6 @@ bad.MqttWsIo.prototype.trackBytesSent = function(el) {
 };
 
 bad.MqttWsIo.prototype.receivedMQTT = function(topic, payload) {
-    console.debug(topic, payload);
     var wasSysMessage = goog.object.some(this.sysTopics, function(registred) {
         if (registred.element && registred.topic === topic) {
             goog.dom.setTextContent(registred.element, payload);
