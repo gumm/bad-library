@@ -1,6 +1,7 @@
 goog.provide('bad.ui.Panel');
 
 goog.require('bad.ui.Component');
+goog.require('goog.Uri');
 goog.require('goog.uri.utils');
 
 /**

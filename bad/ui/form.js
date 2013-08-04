@@ -1,6 +1,7 @@
 goog.provide('bad.ui.Form');
 
 goog.require('bad.ui.Panel');
+goog.require('goog.dom.forms');
 
 /**
  * @param {!string} id The form element id.
