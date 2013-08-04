@@ -22,6 +22,11 @@ bad.ui.Panel = function(opt_domHelper) {
      * @private
      */
     this.nest_ = null;
+
+    this.responseObject = {
+        html: '',
+        scripts: ''
+    };
 };
 goog.inherits(bad.ui.Panel, bad.ui.Component);
 

@@ -158,7 +158,7 @@ bad.MqttWsIo.prototype.receivedMQTT = function(topic, payload) {
         return false;
     }, this);
 
-    if(this.MQTTElement_ && !wasSysMessage) {
+    if (this.MQTTElement_ && !wasSysMessage) {
         this.MQTTElement_.appendChild(
             this.displayMQTT(topic, payload, '', 'text-warning')
         );
@@ -166,7 +166,7 @@ bad.MqttWsIo.prototype.receivedMQTT = function(topic, payload) {
 };
 
 bad.MqttWsIo.prototype.publishedMQTT = function(topic, payload) {
-    if(this.MQTTElement_) {
+    if (this.MQTTElement_) {
         this.MQTTElement_.appendChild(
             this.displayMQTT(topic, payload, 'pull-right', 'text-success')
         );
@@ -184,7 +184,7 @@ bad.MqttWsIo.prototype.displayMQTT = function(topic, payload, pull, col) {
 };
 
 bad.MqttWsIo.prototype.displaySys = function(topic, payload) {
-    if(this.sysElement_) {
+    if (this.sysElement_) {
         this.sysElement_.appendChild(
             goog.dom.createDom('li', {},
                 goog.dom.createDom('code', 'muted', topic),
