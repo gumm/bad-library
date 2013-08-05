@@ -36,7 +36,6 @@ goog.inherits(bad.ui.Form, bad.ui.Panel);
 
 bad.ui.Form.prototype.enterDocument = function() {
     this.form_ = this.getSterileFormFromId(this.formElId_);
-
     bad.ui.Form.superClass_.enterDocument.call(this);
 };
 
