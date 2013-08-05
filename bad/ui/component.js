@@ -6,6 +6,7 @@ goog.provide('bad.ComponentEvent');
 goog.provide('bad.ui.Component');
 
 goog.require('bad.ui.EventType');
+goog.require('bad.utils');
 goog.require('goog.events.Event');
 goog.require('goog.ui.Component');
 
