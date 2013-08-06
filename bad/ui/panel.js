@@ -37,6 +37,10 @@ bad.ui.Panel.prototype.renderWithTemplate = function() {
         goog.bind(this.onRenderWithTemplateReply_, this));
 };
 
+/**
+ * @param {goog.events.EventLike} e Event object.
+ * @private
+ */
 bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(e) {
     var xhr = e.target;
     this.responseObject = this.splitScripts(xhr.getResponseText());

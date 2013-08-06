@@ -36,5 +36,6 @@ bad.ui.EventType = {
     PANEL_SIZE_CHANGE: bad.ui.Resizable.EventType.END_RESIZE,
     PANEL_POSITION_CHANGE: goog.fx.Dragger.EventType.END,
     PANEL_MINIMIZE: 'panel_minimize',
-    PANEL_SCHEDULE_ACCESS: 'panel_schedule_access'
+    PANEL_SCHEDULE_ACCESS: 'panel_schedule_access',
+    AP_DO: 'badapdo'
 };

@@ -66,6 +66,11 @@ bad.ui.View.prototype.dispose = function() {
     }, this);
 };
 
+/**
+ * Add a panel as a child of the view.
+ * @param {string} name The name of the panel - used as a key in the panel map.
+ * @param {bad.ui.Panel} panel The panel itself.
+ */
 bad.ui.View.prototype.addPanelToView = function(name, panel) {
     if (this.panelMap[name]) {
         this.panelMap[name].dispose();
@@ -75,11 +80,35 @@ bad.ui.View.prototype.addPanelToView = function(name, panel) {
     this.initListenersForPanel_(panel);
 };
 
+/**
+ * Initiates a listener for panel action events on the panel.
+ * @param {bad.ui.Panel} panel The panel to listen to.
+ * @private
+ */
 bad.ui.View.prototype.initListenersForPanel_ = function(panel) {
     this.getHandler().listen(
         panel,
         bad.ui.EventType.PANEL_ACTION,
         goog.bind(this.onPanelAction, this)
+    );
+};
+
+/**
+ * This dispatches a special event that the controlling app listens for.
+ * The data of the event is an object with two k:v pairs, being a method, and
+ * optionally a single parameter object. This allows the view to ask the
+ * app to do something without having direct access to the app object.
+ *
+ * @param {string} view The target view that the site should change to.
+ * @param {?(Object|string)=} opt_data An optional payload to include in the
+ *      event.
+ */
+bad.ui.View.prototype.appDo = function(view, opt_data) {
+    var data = {method: view, param: opt_data || null};
+    this.dispatchEvent({
+            type: bad.ui.EventType.AP_DO,
+            data: data
+        }
     );
 };
 
@@ -124,6 +153,12 @@ bad.ui.View.prototype.getXMan = function() {
  */
 bad.ui.View.prototype.setUser = function(user) {
     this.user_ = user;
+
+    // Steps through each of the panels and makes sure their user is set
+    // to the same.
+    goog.object.forEach(this.panelMap, function(panel) {
+        panel.setUser(user);
+    }, this);
 };
 
 /**

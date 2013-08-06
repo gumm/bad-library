@@ -357,8 +357,6 @@ bad.ui.Layout.prototype.enterDocument = function() {
                 this.updateChildSizes_
         );
 
-
-
     this.createRects_();
     this.updateVariableSizes_();
     this.addInteraction_();
@@ -406,7 +404,7 @@ bad.ui.Layout.prototype.enterDocument = function() {
  */
 bad.ui.Layout.prototype.updateChildSizes_ = function(e) {
     e.stopPropagation();
-    this.forEachChild(function(child, index) {
+    this.forEachChild(function(child) {
         var parentCell = this.getCellByName(child.getTargetCellName());
         child.onTargetSizeChange(parentCell);
     }, this);

@@ -30,6 +30,10 @@ bad.ui.Component = function(opt_domHelper) {
 };
 goog.inherits(bad.ui.Component, goog.ui.Component);
 
+
+bad.ui.Component.prototype.onBeforeCompReadyCallback_ = goog.nullFunction;
+
+
 /**
  * Arguments passed into this call directly override the target set
  * with setTarget().
@@ -53,8 +57,18 @@ bad.ui.Component.prototype.render = function(opt_target) {
 bad.ui.Component.prototype.enterDocument = function() {
     bad.ui.Component.superClass_.enterDocument.call(this);
 
+    this.onBeforeComponentReady();
     this.dispatchComponentEvent(bad.ui.EventType.PANEL_READY);
 };
+
+bad.ui.Component.prototype.onBeforeComponentReady = function() {
+    this.onBeforeCompReadyCallback_();
+};
+
+bad.ui.Component.prototype.setBeforeReadyCallback = function(func) {
+    this.onBeforeCompReadyCallback_ = func;
+};
+
 
 /**
  * Set the target element where the component will render to.
