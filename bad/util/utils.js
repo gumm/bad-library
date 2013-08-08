@@ -37,6 +37,41 @@ bad.utils.makeButton = function(elId, opt_callback, opt_domHelper) {
     return button;
 };
 
+bad.utils.makeMenu =
+    function(menuItems, domHelper, handler, scope, opt_rend, opt_itemRend, opt_sticky) {
+
+    // Menu
+    var menu = new goog.ui.Menu(domHelper, opt_rend);
+    goog.array.forEach(menuItems, function(arr) {
+        var item;
+        if (arr[0]) {
+            var name =  bad.utils.getIconString(arr[0], arr[1]);
+            item = new goog.ui.MenuItem(name, arr[2], domHelper, opt_itemRend);
+        } else {
+            item = new goog.ui.MenuSeparator(domHelper);
+        }
+        menu.addChild(item, true);
+    }, scope);
+
+    handler.listen(
+        menu,
+        goog.ui.Component.EventType.ACTION,
+        function(e) {
+            var activeMenuItem = e.target;
+            e.stopPropagation();
+            activeMenuItem.getModel()();
+            if(opt_sticky) {
+                activeMenuItem.getParent().forEachChild(function(child) {
+                        child.removeClassName('flat-menuitem-stickey-select');
+                    }
+                );
+                activeMenuItem.addClassName('flat-menuitem-stickey-select');
+            }
+        }
+    );
+    return menu;
+};
+
 /**
  *
  * @param {number=} opt_start

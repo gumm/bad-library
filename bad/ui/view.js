@@ -88,7 +88,7 @@ bad.ui.View.prototype.addPanelToView = function(name, panel) {
 bad.ui.View.prototype.initListenersForPanel_ = function(panel) {
     this.getHandler().listen(
         panel,
-        bad.ui.EventType.PANEL_ACTION,
+        bad.ui.EventType.ACTION,
         goog.bind(this.onPanelAction, this)
     );
 };
@@ -106,7 +106,7 @@ bad.ui.View.prototype.initListenersForPanel_ = function(panel) {
 bad.ui.View.prototype.appDo = function(view, opt_data) {
     var data = {method: view, param: opt_data || null};
     this.dispatchEvent({
-            type: bad.ui.EventType.AP_DO,
+            type: bad.ui.EventType.APP_DO,
             data: data
         }
     );

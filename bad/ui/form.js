@@ -39,6 +39,9 @@ bad.ui.Form.prototype.enterDocument = function() {
     bad.ui.Form.superClass_.enterDocument.call(this);
 };
 
+/**
+ * @returns {?HTMLFormElement}
+ */
 bad.ui.Form.prototype.getForm = function() {
     return this.form_;
 };
@@ -100,32 +103,76 @@ bad.ui.Form.prototype.clearAlerts = function() {
     }
 };
 
+/**
+ * The standard reply object has an error field. For forms, this field is
+ * filled with an object with k:v pairs that correspond to the form field
+ * names, and the associated error message.
+ * @param {Object|undefined} data A JavaScript object ass passed in by xhrio.
+ */
 bad.ui.Form.prototype.displayErrors = function(data) {
+
+    /**
+     * @type {HTMLCollection}
+     */
     var fields = this.form_.elements;
-    goog.object.forEach(data.error, function(message, name) {
-        var field = fields[name];
-        if (message) {
-            this.displayError(field, message);
-        }
-    }, this);
+    goog.object.forEach(data['error'],
+        /**
+         * The error message and the name of the field it belongs to.
+         * @param {string} message
+         * @param {string} name
+         */
+        function(message, name) {
+            /**
+             * @type {HTMLElement}
+             */
+            var field = fields[name];
+            if (message) {
+                this.displayError(field, message);
+            }
+        },
+    this);
 };
 
+/**
+ * Display the given error message on the given form field.
+ * @param {HTMLElement} field
+ * @param {string} message
+ */
 bad.ui.Form.prototype.displayError = function(field, message) {
     goog.dom.classes.add(field, 'error');
     this.displayAlert(field, message,
         'alert-error', null, 'icon-remove-sign');
 };
 
+/**
+ * Display the given success message on the given form field.
+ * @param {HTMLElement} field
+ * @param {string} message
+ */
 bad.ui.Form.prototype.displaySuccess = function(field, message) {
     this.displayAlert(field, message,
         'alert-success', null, 'icon-ok-sign');
 };
 
+/**
+ * Display the given information message on the given form field.
+ * @param {HTMLElement} field
+ * @param {string} message
+ */
 bad.ui.Form.prototype.displayInfo = function(field, message) {
     this.displayAlert(field, message,
         'alert-info', null, 'icon-info-sign');
 };
 
+/**
+ * Format the message dom object and insert it into the DOM
+ * @param {HTMLElement} field The field after which the alert will be inserted.
+ * @param {string} message The message in the alert.
+ * @param {string} css A CSS class name to add to the alert div.
+ * @param {?string=} opt_itr An optional intro string to add before the message.
+ *      This will be formatted bold.
+ * @param {?string=} opt_icon An optional icon to add to the alert.
+ */
 bad.ui.Form.prototype.displayAlert = function(
         field, message, css, opt_itr, opt_icon) {
 

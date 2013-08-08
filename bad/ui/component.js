@@ -2,7 +2,7 @@
  * @fileoverview  An extension of goog.ui.Component to extend the workflow.
  */
 
-goog.provide('bad.ComponentEvent');
+goog.provide('bad.ActionEvent');
 goog.provide('bad.ui.Component');
 
 goog.require('bad.ui.EventType');
@@ -58,17 +58,21 @@ bad.ui.Component.prototype.enterDocument = function() {
     bad.ui.Component.superClass_.enterDocument.call(this);
 
     this.onBeforeComponentReady();
-    this.dispatchComponentEvent(bad.ui.EventType.PANEL_READY);
+    this.dispatchActionEvent(bad.ui.EventType.READY);
 };
 
 bad.ui.Component.prototype.onBeforeComponentReady = function() {
     this.onBeforeCompReadyCallback_();
 };
 
+/**
+ * @param {Function} func A callback guaranteed to fire after the panels is
+ * ready, and in the document, but before the
+ * {@code bad.ui.EventType.READY} event is fired.
+ */
 bad.ui.Component.prototype.setBeforeReadyCallback = function(func) {
     this.onBeforeCompReadyCallback_ = func;
 };
-
 
 /**
  * Set the target element where the component will render to.
@@ -97,7 +101,7 @@ bad.ui.Component.prototype.show = function() {
 //---------------------------------------------------------[ Component Event ]--
 
 /**
- * Dispatches a trin.ui.EventType.PANEL_ACTION event.
+ * Dispatches a {@code bad.ui.EventType.ACTION} event.
  * A shorthand method to get panels to dispatch uniform events.
  * Views may listen just to this event, and act on the supplied value or
  * data payload.
@@ -106,8 +110,8 @@ bad.ui.Component.prototype.show = function() {
  * @return {boolean} If anyone called preventDefault on the event object (or
  *     if any of the handlers returns false this will also return false.
  */
-bad.ui.Component.prototype.dispatchComponentEvent = function(value, opt_data) {
-    var event = new bad.ComponentEvent(this, value, opt_data);
+bad.ui.Component.prototype.dispatchActionEvent = function(value, opt_data) {
+    var event = new bad.ActionEvent(this, value, opt_data);
     return this.dispatchEvent(event);
 };
 
@@ -120,8 +124,8 @@ bad.ui.Component.prototype.dispatchComponentEvent = function(value, opt_data) {
  * @constructor
  * @extends {goog.events.Event}
  */
-bad.ComponentEvent = function(target, value, opt_data) {
-    goog.events.Event.call(this, bad.ui.EventType.PANEL_ACTION, target);
+bad.ActionEvent = function(target, value, opt_data) {
+    goog.events.Event.call(this, bad.ui.EventType.ACTION, target);
 
     /**
      * @type {!string}
@@ -135,18 +139,18 @@ bad.ComponentEvent = function(target, value, opt_data) {
      */
     this.data_ = opt_data || {};
 };
-goog.inherits(bad.ComponentEvent, goog.events.Event);
+goog.inherits(bad.ActionEvent, goog.events.Event);
 
 /**
  * @return {!string}
  */
-bad.ComponentEvent.prototype.getValue = function() {
+bad.ActionEvent.prototype.getValue = function() {
     return this.value_;
 };
 
 /**
  * @return {(string|number|Object)}
  */
-bad.ComponentEvent.prototype.getData = function() {
+bad.ActionEvent.prototype.getData = function() {
     return this.data_;
 };
