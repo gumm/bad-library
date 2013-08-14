@@ -6,7 +6,7 @@ goog.require('goog.ui.MenuRenderer');
  * @constructor
  * @extends {goog.ui.MenuRenderer}
  */
-bad.ui.MenuFloatRenderer = function () {
+bad.ui.MenuFloatRenderer = function() {
   goog.ui.MenuRenderer.call(this);
 };
 goog.inherits(bad.ui.MenuFloatRenderer, goog.ui.MenuRenderer);

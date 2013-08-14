@@ -1,6 +1,7 @@
 goog.provide('bad.utils');
 goog.require('goog.ui.Css3ButtonRenderer');
 goog.require('goog.ui.CustomButton');
+goog.require('goog.ui.ToggleButton');
 
 /**
  * @param {string} string
@@ -37,15 +38,35 @@ bad.utils.makeButton = function(elId, opt_callback, opt_domHelper) {
     return button;
 };
 
+bad.utils.makeToggleButton = function(elId, opt_callback, opt_domHelper) {
+    var button = new goog.ui.ToggleButton('',
+        goog.ui.Css3ButtonRenderer.getInstance(), opt_domHelper);
+    button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
+    button.decorate(goog.dom.getElement(elId));
+    if (opt_callback) {
+        button.getHandler().listen(
+            button,
+            goog.ui.Component.EventType.ACTION,
+            function() {
+                opt_callback();
+            }, undefined, button
+        );
+    }
+    return button;
+};
+
+
+
 bad.utils.makeMenu =
-    function(menuItems, domHelper, handler, scope, opt_rend, opt_itemRend, opt_sticky) {
+    function(menuItems, domHelper, handler, scope, opt_rend, opt_itemRend,
+             opt_sticky) {
 
     // Menu
     var menu = new goog.ui.Menu(domHelper, opt_rend);
     goog.array.forEach(menuItems, function(arr) {
         var item;
         if (arr[0]) {
-            var name =  bad.utils.getIconString(arr[0], arr[1]);
+            var name = bad.utils.getIconString(arr[0], arr[1]);
             item = new goog.ui.MenuItem(name, arr[2], domHelper, opt_itemRend);
         } else {
             item = new goog.ui.MenuSeparator(domHelper);
@@ -60,7 +81,7 @@ bad.utils.makeMenu =
             var activeMenuItem = e.target;
             e.stopPropagation();
             activeMenuItem.getModel()();
-            if(opt_sticky) {
+            if (opt_sticky) {
                 activeMenuItem.getParent().forEachChild(function(child) {
                         child.removeClassName('flat-menuitem-stickey-select');
                     }
@@ -112,3 +133,89 @@ bad.utils.privateRandom = function() {
         return c;
     })();
 };
+
+bad.utils.creditCardValidator = function(number, type) {
+    var isValid = false;
+
+    var cards = {
+        'mc': '5[1-5][0-9]{14}',
+        'ec': '5[1-5][0-9]{14}',
+        'vi': '4(?:[0-9]{12}|[0-9]{15})',
+        'ax': '3[47][0-9]{13}',
+        'dc': '3(?:0[0-5][0-9]{11}|[68][0-9]{12})',
+        'bl': '3(?:0[0-5][0-9]{11}|[68][0-9]{12})',
+        'di': '6011[0-9]{12}',
+        'jcb': '(?:3[0-9]{15}|(2131|1800)[0-9]{11})',
+        'er': '2(?:014|149)[0-9]{11}'
+    };
+
+    var validateStructure = function(value, ccType) {
+        // ignore dashes and whitespaces
+        // We could even ignore all non-numeric chars (/[^0-9]/g)
+        value = String(value).replace(/[^0-9]/g, '');
+
+        var results = [];
+        if (ccType) {
+            var expr = '^' + cards[ccType.toLowerCase()] + '$';
+            return expr ? !!value.match(expr) : false; // boolean
+        }
+
+        goog.object.forEach(cards, function(pattern, name) {
+            var matchpat = '^' + pattern + '$';
+            if (value.match(matchpat)) {
+                results.push(name);
+            }
+        });
+
+
+        // String | boolean
+        return results.length ? results.join('|') : false;
+    };
+
+    // Add the Luhn validator
+    // http://en.wikipedia.org/wiki/Luhn_algorithm
+    var validateChecksum = function(value) {
+        // ignore dashes and whitespaces - We could even ignore
+        // all non-numeric chars (/[^0-9]/g)
+        value = String(value).replace(/[^0-9]/g, '');
+
+        var sum = 0;
+        var parity = value.length % 2;
+
+        for (var i = 0; i <= (value.length - 1); i++) {
+            var digit = parseInt(value[i], 10);
+
+            if (i % 2 === parity) {
+                digit = digit * 2;
+            }
+            if (digit > 9) {
+                // get the cossfoot
+                // Exp: 10 - 9 = 1 + 0 | 12 - 9 = 1 + 2 | ... | 18 - 9 = 1 + 8
+                digit = digit - 9;
+            }
+            sum += digit;
+        }
+
+        // divide by 10 and check if it ends in 0 - return true | false
+        return ((sum % 10) === 0);
+    };
+
+    // Apply both validations
+    var validate = function(value, ccType) {
+        if (validateChecksum(value)) {
+            isValid = validateStructure(value, ccType);
+        }
+    };
+
+    validate(number, type);
+
+    return isValid;
+
+    //// Example
+//(default matches mc)", "5100000000000040");
+//alert(creditCardValidator.validate(number, card));
+};
+
+
+
+

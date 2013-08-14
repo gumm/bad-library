@@ -40,7 +40,7 @@ bad.ui.Form.prototype.enterDocument = function() {
 };
 
 /**
- * @returns {?HTMLFormElement}
+ * @return {?HTMLFormElement}
  */
 bad.ui.Form.prototype.getForm = function() {
     return this.form_;
