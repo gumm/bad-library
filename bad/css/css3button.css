@@ -191,6 +191,7 @@ color: rgb(255, 255, 255);
 
 /*----------------------------------------------------------------------------*/
 .g-button-submit {
+margin-left: 10px;
 border: 1px solid rgb(48, 121, 237);
 color: rgb(255, 255, 255);
 text-shadow: 0 1px rgba(0, 0, 0, 0.1);
