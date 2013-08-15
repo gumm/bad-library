@@ -38,6 +38,14 @@ bad.utils.makeButton = function(elId, opt_callback, opt_domHelper) {
     return button;
 };
 
+/**
+ * Make a toggle button.
+ * @param {!string} elId The element id that will be decorated.
+ * @param {Function=} opt_callback The callback function to execute on
+ *      button action.
+ * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
+ * @returns {goog.ui.ToggleButton}
+ */
 bad.utils.makeToggleButton = function(elId, opt_callback, opt_domHelper) {
     var button = new goog.ui.ToggleButton('',
         goog.ui.Css3ButtonRenderer.getInstance(), opt_domHelper);
@@ -56,16 +64,31 @@ bad.utils.makeToggleButton = function(elId, opt_callback, opt_domHelper) {
 };
 
 
-
+/**
+ * Given an array of items, return a menu
+ * @param {Array} menuItems An array of arrays.
+ * @param {goog.dom.DomHelper} domHelper DOM helper.domHelper
+ * @param {!goog.events.EventHandler} handler The event handler for the panel.
+ * @param {bad.ui.Panel} scope The panel scope that the events will fire in.
+ * @param {(bad.ui.MenuFlatRenderer|bad.ui.MenuFloatRenderer) =} opt_rend
+ * @param {bad.ui.MenuItemRenderer=} opt_itemRend
+ * @param {boolean=} opt_sticky
+ * @returns {goog.ui.Menu}
+ */
 bad.utils.makeMenu =
     function(menuItems, domHelper, handler, scope, opt_rend, opt_itemRend,
              opt_sticky) {
 
-    // Menu
+    /**
+     * @type {goog.ui.Menu}
+     */
     var menu = new goog.ui.Menu(domHelper, opt_rend);
     goog.array.forEach(menuItems, function(arr) {
         var item;
         if (arr[0]) {
+            /**
+             * @type {!Element}
+             */
             var name = bad.utils.getIconString(arr[0], arr[1]);
             item = new goog.ui.MenuItem(name, arr[2], domHelper, opt_itemRend);
         } else {
@@ -134,6 +157,11 @@ bad.utils.privateRandom = function() {
     })();
 };
 
+/**
+ * @param {number} number
+ * @param {string} type
+ * @returns {boolean}
+ */
 bad.utils.creditCardValidator = function(number, type) {
     var isValid = false;
 

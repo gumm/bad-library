@@ -31,6 +31,8 @@ bad.ui.Panel = function(opt_domHelper) {
 };
 goog.inherits(bad.ui.Panel, bad.ui.Component);
 
+bad.ui.Panel.prototype.initDom = goog.nullFunction;
+
 bad.ui.Panel.prototype.renderWithTemplate = function() {
     this.xMan.get(
         this.uri_,
@@ -55,6 +57,15 @@ bad.ui.Panel.prototype.createDom = function() {
         this.responseObject.html
     ));
     this.evalScripts_();
+};
+
+bad.ui.Panel.prototype.enterDocument = function() {
+    this.dom_ = goog.dom.getDomHelper(this.getElement());
+    this.initDom();
+
+    // Calling this last makes sure that the final PANEL-READY event really is
+    // dispatched right at the end of all of the enterDocument calls.
+    bad.ui.Panel.superClass_.enterDocument.call(this);
 };
 
 /**
