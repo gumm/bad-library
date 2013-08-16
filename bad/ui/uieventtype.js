@@ -28,7 +28,7 @@ bad.ui.EventType = {
      * and the in-line scripts from the AJAX call has been eval'd.
      */
     ACTION: bad.utils.privateRandom(),
-    READY: bad.utils.privateRandom(),
+    READY: 'panel_ready', //bad.utils.privateRandom(),
     APP_DO: bad.utils.privateRandom(),
     PANEL_MINIMIZE: bad.utils.privateRandom()
 };

@@ -16,16 +16,18 @@ bad.utils.getIconString = function(string, icon) {
 /**
  * Make a default button.
  * @param {!string} elId The element id that will be decorated.
+ * @param {goog.ui.Component} parent The buttons parent.
  * @param {Function=} opt_callback The callback function to execute on
  *      button action.
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  * @return {goog.ui.CustomButton}
  */
-bad.utils.makeButton = function(elId, opt_callback, opt_domHelper) {
+bad.utils.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
     var button = new goog.ui.CustomButton('',
         goog.ui.Css3ButtonRenderer.getInstance(), opt_domHelper);
     button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
-    button.decorate(goog.dom.getElement(elId));
+    button.decorateInternal(goog.dom.getElement(elId));
+    parent.addChild(button);
     if (opt_callback) {
         button.getHandler().listen(
             button,
@@ -41,27 +43,30 @@ bad.utils.makeButton = function(elId, opt_callback, opt_domHelper) {
 /**
  * Make a toggle button.
  * @param {!string} elId The element id that will be decorated.
+ * @param {goog.ui.Component} parent The buttons parent.
  * @param {Function=} opt_callback The callback function to execute on
  *      button action.
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  * @returns {goog.ui.ToggleButton}
  */
-bad.utils.makeToggleButton = function(elId, opt_callback, opt_domHelper) {
-    var button = new goog.ui.ToggleButton('',
-        goog.ui.Css3ButtonRenderer.getInstance(), opt_domHelper);
-    button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
-    button.decorate(goog.dom.getElement(elId));
-    if (opt_callback) {
-        button.getHandler().listen(
-            button,
-            goog.ui.Component.EventType.ACTION,
-            function() {
-                opt_callback();
-            }, undefined, button
-        );
-    }
-    return button;
-};
+bad.utils.makeToggleButton =
+    function(elId, parent, opt_callback, opt_domHelper) {
+        var button = new goog.ui.ToggleButton('',
+            goog.ui.Css3ButtonRenderer.getInstance(), opt_domHelper);
+        button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
+        button.decorateInternal(goog.dom.getElement(elId));
+        parent.addChild(button);
+        if (opt_callback) {
+            button.getHandler().listen(
+                button,
+                goog.ui.Component.EventType.ACTION,
+                function() {
+                    opt_callback();
+                }, undefined, button
+            );
+        }
+        return button;
+    };
 
 
 /**
@@ -97,6 +102,12 @@ bad.utils.makeMenu =
         menu.addChild(item, true);
     }, scope);
 
+    menu.unStickAll = function() {
+        this.forEachChild(function(child) {
+            child.removeClassName('flat-menuitem-stickey-select');
+        });
+    };
+
     handler.listen(
         menu,
         goog.ui.Component.EventType.ACTION,
@@ -105,10 +116,7 @@ bad.utils.makeMenu =
             e.stopPropagation();
             activeMenuItem.getModel()();
             if (opt_sticky) {
-                activeMenuItem.getParent().forEachChild(function(child) {
-                        child.removeClassName('flat-menuitem-stickey-select');
-                    }
-                );
+                menu.unStickAll();
                 activeMenuItem.addClassName('flat-menuitem-stickey-select');
             }
         }

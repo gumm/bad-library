@@ -61,8 +61,9 @@ bad.ui.View.prototype.dispose = function() {
         delete this.googUiComponentHandler_;
     }
 
-    goog.object.forEach(this.panelMap, function(panel) {
-        panel.disposeInternal();
+    goog.object.forEach(this.panelMap, function(panel, uid) {
+        console.debug('Dispose panel: ', uid, '-->', panel);
+        panel.dispose();
     }, this);
 };
 

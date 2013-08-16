@@ -49,6 +49,29 @@ bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(e) {
     this.render();
 };
 
+/**
+ * Equivalent to the @code{renderWithTemplate} method in that it is guaranteed
+ * that a reply from the callback is received before @code{render} is called.
+ * @param {function(goog.events.EventLike)} callback The callback function
+ *      that will receive the reply event.
+ */
+bad.ui.Panel.prototype.renderWithJSON = function(callback) {
+    this.xMan.get(
+        this.uri_,
+        goog.bind(this.onRenderWithJSON, this, callback));
+};
+
+/**
+ * On reply from a GET call to the panel URI
+ * @param {function(goog.events.EventLike)} callback The callback function
+ *      that will receive the reply event.
+ * @param {goog.events.EventLike} e Event object.
+ */
+bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
+    callback(e);
+    this.render();
+};
+
 bad.ui.Panel.prototype.createDom = function() {
     bad.ui.Panel.superClass_.createDom.call(this);
     this.setElementInternal(goog.dom.createDom(
