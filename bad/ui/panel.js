@@ -79,7 +79,6 @@ bad.ui.Panel.prototype.createDom = function() {
         bad.CssClassMap.PANEL_WRAPPER,
         this.responseObject.html
     ));
-    this.evalScripts_();
 };
 
 bad.ui.Panel.prototype.enterDocument = function() {
@@ -89,6 +88,7 @@ bad.ui.Panel.prototype.enterDocument = function() {
     // Calling this last makes sure that the final PANEL-READY event really is
     // dispatched right at the end of all of the enterDocument calls.
     bad.ui.Panel.superClass_.enterDocument.call(this);
+    this.evalScripts_();
 };
 
 /**

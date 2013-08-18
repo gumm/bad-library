@@ -103,7 +103,7 @@ bad.utils.makeMenu =
     }, scope);
 
     menu.unStickAll = function() {
-        this.forEachChild(function(child) {
+        menu.forEachChild(function(child) {
             child.removeClassName('flat-menuitem-stickey-select');
         });
     };
