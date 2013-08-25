@@ -115,22 +115,29 @@ bad.ui.Form.prototype.displayErrors = function(data) {
      * @type {HTMLCollection}
      */
     var fields = this.form_.elements;
-    goog.object.forEach(data['error'],
-        /**
-         * The error message and the name of the field it belongs to.
-         * @param {string} message
-         * @param {string} name
-         */
-        function(message, name) {
+    console.debug('THIS IS THE TYPE OF ERROR:--->', goog.typeOf(data['error']));
+
+
+    if (goog.typeOf(data['error']) === 'object') {
+        goog.object.forEach(data['error'],
             /**
-             * @type {HTMLElement}
+             * The error message and the name of the field it belongs to.
+             * @param {string} message
+             * @param {string} name
              */
-            var field = fields[name];
-            if (message) {
-                this.displayError(field, message);
-            }
-        },
-    this);
+            function(message, name) {
+                /**
+                 * @type {HTMLElement}
+                 */
+                var field = fields[name];
+                if (message && field) {
+                    this.displayError(field, message);
+                }
+            },
+        this);
+    } else {
+        console.error(data['error']);
+    }
 };
 
 /**

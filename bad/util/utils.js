@@ -20,22 +20,26 @@ bad.utils.getIconString = function(string, icon) {
  * @param {Function=} opt_callback The callback function to execute on
  *      button action.
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
- * @return {goog.ui.CustomButton}
+ * @return {?goog.ui.CustomButton}
  */
 bad.utils.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
-    var button = new goog.ui.CustomButton('',
+    var el = goog.dom.getElement(elId);
+    var button = null;
+    if (el) {
+        button = new goog.ui.CustomButton('',
         goog.ui.Css3ButtonRenderer.getInstance(), opt_domHelper);
-    button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
-    button.decorateInternal(goog.dom.getElement(elId));
-    parent.addChild(button);
-    if (opt_callback) {
-        button.getHandler().listen(
-            button,
-            goog.ui.Component.EventType.ACTION,
-            function() {
-                opt_callback();
-            }, undefined, button
-        );
+        button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
+        button.decorateInternal(goog.dom.getElement(elId));
+        parent.addChild(button);
+        if (opt_callback) {
+            button.getHandler().listen(
+                button,
+                goog.ui.Component.EventType.ACTION,
+                function() {
+                    opt_callback();
+                }, undefined, button
+            );
+        }
     }
     return button;
 };
