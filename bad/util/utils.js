@@ -51,7 +51,7 @@ bad.utils.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
  * @param {Function=} opt_callback The callback function to execute on
  *      button action.
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
- * @returns {goog.ui.ToggleButton}
+ * @return {goog.ui.ToggleButton}
  */
 bad.utils.makeToggleButton =
     function(elId, parent, opt_callback, opt_domHelper) {
@@ -76,13 +76,13 @@ bad.utils.makeToggleButton =
 /**
  * Given an array of items, return a menu
  * @param {Array} menuItems An array of arrays.
- * @param {goog.dom.DomHelper} domHelper DOM helper.domHelper
+ * @param {goog.dom.DomHelper} domHelper DOM helper.domHelper.
  * @param {!goog.events.EventHandler} handler The event handler for the panel.
  * @param {bad.ui.Panel} scope The panel scope that the events will fire in.
  * @param {(bad.ui.MenuFlatRenderer|bad.ui.MenuFloatRenderer) =} opt_rend
  * @param {bad.ui.MenuItemRenderer=} opt_itemRend
  * @param {boolean=} opt_sticky
- * @returns {goog.ui.Menu}
+ * @return {goog.ui.Menu}
  */
 bad.utils.makeMenu =
     function(menuItems, domHelper, handler, scope, opt_rend, opt_itemRend,
@@ -172,7 +172,7 @@ bad.utils.privateRandom = function() {
 /**
  * @param {number} number
  * @param {string} type
- * @returns {boolean}
+ * @return {boolean}
  */
 bad.utils.creditCardValidator = function(number, type) {
     var isValid = false;
