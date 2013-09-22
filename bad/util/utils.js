@@ -9,8 +9,8 @@ goog.require('goog.ui.ToggleButton');
  * @return {!Element}
  */
 bad.utils.getIconString = function(string, icon) {
-    return goog.dom.createDom('span', {},
-        goog.dom.createDom('i', icon), string);
+  return goog.dom.createDom('span', {},
+    goog.dom.createDom('i', icon), string);
 };
 
 /**
@@ -23,25 +23,25 @@ bad.utils.getIconString = function(string, icon) {
  * @return {?goog.ui.CustomButton}
  */
 bad.utils.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
-    var el = goog.dom.getElement(elId);
-    var button = null;
-    if (el) {
-        button = new goog.ui.CustomButton('',
-        goog.ui.Css3ButtonRenderer.getInstance(), opt_domHelper);
-        button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
-        button.decorateInternal(goog.dom.getElement(elId));
-        parent.addChild(button);
-        if (opt_callback) {
-            button.getHandler().listen(
-                button,
-                goog.ui.Component.EventType.ACTION,
-                function() {
-                    opt_callback();
-                }, undefined, button
-            );
-        }
+  var el = goog.dom.getElement(elId);
+  var button = null;
+  if (el) {
+    button = new goog.ui.CustomButton('',
+      goog.ui.Css3ButtonRenderer.getInstance(), opt_domHelper);
+    button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
+    button.decorateInternal(goog.dom.getElement(elId));
+    parent.addChild(button);
+    if (opt_callback) {
+      button.getHandler().listen(
+        button,
+        goog.ui.Component.EventType.ACTION,
+        function() {
+          opt_callback();
+        }, undefined, button
+      );
     }
-    return button;
+  }
+  return button;
 };
 
 /**
@@ -54,24 +54,23 @@ bad.utils.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
  * @return {goog.ui.ToggleButton}
  */
 bad.utils.makeToggleButton =
-    function(elId, parent, opt_callback, opt_domHelper) {
-        var button = new goog.ui.ToggleButton('',
-            goog.ui.Css3ButtonRenderer.getInstance(), opt_domHelper);
-        button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
-        button.decorateInternal(goog.dom.getElement(elId));
-        parent.addChild(button);
-        if (opt_callback) {
-            button.getHandler().listen(
-                button,
-                goog.ui.Component.EventType.ACTION,
-                function() {
-                    opt_callback();
-                }, undefined, button
-            );
-        }
-        return button;
-    };
-
+  function(elId, parent, opt_callback, opt_domHelper) {
+    var button = new goog.ui.ToggleButton('',
+      goog.ui.Css3ButtonRenderer.getInstance(), opt_domHelper);
+    button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
+    button.decorateInternal(goog.dom.getElement(elId));
+    parent.addChild(button);
+    if (opt_callback) {
+      button.getHandler().listen(
+        button,
+        goog.ui.Component.EventType.ACTION,
+        function() {
+          opt_callback();
+        }, undefined, button
+      );
+    }
+    return button;
+  };
 
 /**
  * Given an array of items, return a menu
@@ -84,48 +83,46 @@ bad.utils.makeToggleButton =
  * @param {boolean=} opt_sticky
  * @return {goog.ui.Menu}
  */
-bad.utils.makeMenu =
-    function(menuItems, domHelper, handler, scope, opt_rend, opt_itemRend,
-             opt_sticky) {
+bad.utils.makeMenu = function(menuItems, domHelper, handler, scope, opt_rend, opt_itemRend, opt_sticky) {
 
-    /**
-     * @type {goog.ui.Menu}
-     */
-    var menu = new goog.ui.Menu(domHelper, opt_rend);
-    goog.array.forEach(menuItems, function(arr) {
-        var item;
-        if (arr[0]) {
-            /**
-             * @type {!Element}
-             */
-            var name = bad.utils.getIconString(arr[0], arr[1]);
-            item = new goog.ui.MenuItem(name, arr[2], domHelper, opt_itemRend);
-        } else {
-            item = new goog.ui.MenuSeparator(domHelper);
-        }
-        menu.addChild(item, true);
-    }, scope);
+  /**
+   * @type {goog.ui.Menu}
+   */
+  var menu = new goog.ui.Menu(domHelper, opt_rend);
+  goog.array.forEach(menuItems, function(arr) {
+    var item;
+    if (arr[0]) {
+      /**
+       * @type {!Element}
+       */
+      var name = bad.utils.getIconString(arr[0], arr[1]);
+      item = new goog.ui.MenuItem(name, arr[2], domHelper, opt_itemRend);
+    } else {
+      item = new goog.ui.MenuSeparator(domHelper);
+    }
+    menu.addChild(item, true);
+  }, scope);
 
-    menu.unStickAll = function() {
-        menu.forEachChild(function(child) {
-            child.removeClassName('flat-menuitem-stickey-select');
-        });
-    };
+  menu.unStickAll = function() {
+    menu.forEachChild(function(child) {
+      child.removeClassName('flat-menuitem-stickey-select');
+    });
+  };
 
-    handler.listen(
-        menu,
-        goog.ui.Component.EventType.ACTION,
-        function(e) {
-            var activeMenuItem = e.target;
-            e.stopPropagation();
-            activeMenuItem.getModel()();
-            if (opt_sticky) {
-                menu.unStickAll();
-                activeMenuItem.addClassName('flat-menuitem-stickey-select');
-            }
-        }
-    );
-    return menu;
+  handler.listen(
+    menu,
+    goog.ui.Component.EventType.ACTION,
+    function(e) {
+      var activeMenuItem = e.target;
+      e.stopPropagation();
+      activeMenuItem.getModel()();
+      if (opt_sticky) {
+        menu.unStickAll();
+        activeMenuItem.addClassName('flat-menuitem-stickey-select');
+      }
+    }
+  );
+  return menu;
 };
 
 /**
@@ -134,15 +131,15 @@ bad.utils.makeMenu =
  * @return {function(): number}
  */
 bad.utils.privateCounter = function(opt_start) {
-    var c = opt_start ? opt_start : 0;
+  var c = opt_start ? opt_start : 0;
 
-    /**
-     * @return {number}
-     */
-    return function() {
-        c = c + 1;
-        return c;
-    };
+  /**
+   * @return {number}
+   */
+  return function() {
+    c = c + 1;
+    return c;
+  };
 };
 
 /**
@@ -150,7 +147,7 @@ bad.utils.privateCounter = function(opt_start) {
  * @return {string}
  */
 bad.utils.makeId = function() {
-    return Math.floor(Math.random() * 2147483648).toString(36);
+  return Math.floor(Math.random() * 2147483648).toString(36);
 };
 
 /**
@@ -159,14 +156,14 @@ bad.utils.makeId = function() {
  * @return {string}
  */
 bad.utils.privateRandom = function() {
-    var c = bad.utils.makeId();
+  var c = bad.utils.makeId();
 
-    /**
-     * @return {string}
-     */
-    return (function() {
-        return c;
-    })();
+  /**
+   * @return {string}
+   */
+  return (function() {
+    return c;
+  })();
 };
 
 /**
@@ -175,85 +172,109 @@ bad.utils.privateRandom = function() {
  * @return {boolean}
  */
 bad.utils.creditCardValidator = function(number, type) {
-    var isValid = false;
+  var isValid = false;
 
-    var cards = {
-        'mc': '5[1-5][0-9]{14}',
-        'ec': '5[1-5][0-9]{14}',
-        'vi': '4(?:[0-9]{12}|[0-9]{15})',
-        'ax': '3[47][0-9]{13}',
-        'dc': '3(?:0[0-5][0-9]{11}|[68][0-9]{12})',
-        'bl': '3(?:0[0-5][0-9]{11}|[68][0-9]{12})',
-        'di': '6011[0-9]{12}',
-        'jcb': '(?:3[0-9]{15}|(2131|1800)[0-9]{11})',
-        'er': '2(?:014|149)[0-9]{11}'
-    };
+  var cards = {
+    'mc': '5[1-5][0-9]{14}',
+    'ec': '5[1-5][0-9]{14}',
+    'vi': '4(?:[0-9]{12}|[0-9]{15})',
+    'ax': '3[47][0-9]{13}',
+    'dc': '3(?:0[0-5][0-9]{11}|[68][0-9]{12})',
+    'bl': '3(?:0[0-5][0-9]{11}|[68][0-9]{12})',
+    'di': '6011[0-9]{12}',
+    'jcb': '(?:3[0-9]{15}|(2131|1800)[0-9]{11})',
+    'er': '2(?:014|149)[0-9]{11}'
+  };
 
-    var validateStructure = function(value, ccType) {
-        // ignore dashes and whitespaces
-        // We could even ignore all non-numeric chars (/[^0-9]/g)
-        value = String(value).replace(/[^0-9]/g, '');
+  var validateStructure = function(value, ccType) {
+    // ignore dashes and whitespaces
+    // We could even ignore all non-numeric chars (/[^0-9]/g)
+    value = String(value).replace(/[^0-9]/g, '');
 
-        var results = [];
-        if (ccType) {
-            var expr = '^' + cards[ccType.toLowerCase()] + '$';
-            return expr ? !!value.match(expr) : false; // boolean
-        }
+    var results = [];
+    if (ccType) {
+      var expr = '^' + cards[ccType.toLowerCase()] + '$';
+      return expr ? !!value.match(expr) : false; // boolean
+    }
 
-        goog.object.forEach(cards, function(pattern, name) {
-            var matchpat = '^' + pattern + '$';
-            if (value.match(matchpat)) {
-                results.push(name);
-            }
-        });
+    goog.object.forEach(cards, function(pattern, name) {
+      var matchpat = '^' + pattern + '$';
+      if (value.match(matchpat)) {
+        results.push(name);
+      }
+    });
 
+    // String | boolean
+    return results.length ? results.join('|') : false;
+  };
 
-        // String | boolean
-        return results.length ? results.join('|') : false;
-    };
+  // Add the Luhn validator
+  // http://en.wikipedia.org/wiki/Luhn_algorithm
+  var validateChecksum = function(value) {
+    // ignore dashes and whitespaces - We could even ignore
+    // all non-numeric chars (/[^0-9]/g)
+    value = String(value).replace(/[^0-9]/g, '');
 
-    // Add the Luhn validator
-    // http://en.wikipedia.org/wiki/Luhn_algorithm
-    var validateChecksum = function(value) {
-        // ignore dashes and whitespaces - We could even ignore
-        // all non-numeric chars (/[^0-9]/g)
-        value = String(value).replace(/[^0-9]/g, '');
+    var sum = 0;
+    var parity = value.length % 2;
 
-        var sum = 0;
-        var parity = value.length % 2;
+    for (var i = 0; i <= (value.length - 1); i++) {
+      var digit = parseInt(value[i], 10);
 
-        for (var i = 0; i <= (value.length - 1); i++) {
-            var digit = parseInt(value[i], 10);
+      if (i % 2 === parity) {
+        digit = digit * 2;
+      }
+      if (digit > 9) {
+        // get the cossfoot
+        // Exp: 10 - 9 = 1 + 0 | 12 - 9 = 1 + 2 | ... | 18 - 9 = 1 + 8
+        digit = digit - 9;
+      }
+      sum += digit;
+    }
 
-            if (i % 2 === parity) {
-                digit = digit * 2;
-            }
-            if (digit > 9) {
-                // get the cossfoot
-                // Exp: 10 - 9 = 1 + 0 | 12 - 9 = 1 + 2 | ... | 18 - 9 = 1 + 8
-                digit = digit - 9;
-            }
-            sum += digit;
-        }
+    // divide by 10 and check if it ends in 0 - return true | false
+    return ((sum % 10) === 0);
+  };
 
-        // divide by 10 and check if it ends in 0 - return true | false
-        return ((sum % 10) === 0);
-    };
+  // Apply both validations
+  var validate = function(value, ccType) {
+    if (validateChecksum(value)) {
+      isValid = validateStructure(value, ccType);
+    }
+  };
 
-    // Apply both validations
-    var validate = function(value, ccType) {
-        if (validateChecksum(value)) {
-            isValid = validateStructure(value, ccType);
-        }
-    };
+  validate(number, type);
 
-    validate(number, type);
+  return isValid;
 
-    return isValid;
+  //---------------------------------------------------------------[ Example ]--
+  //mc: 5100000000000040
+};
 
-    //// Example
-//(default matches mc)", "5100000000000040");
-//alert(creditCardValidator.validate(number, card));
+bad.utils.loadGoogleMaps = function(callback) {
+
+  // the 'google.maps' namespace may already be in the document.
+  // If it is, there is no need to get the namespace again.
+  try {
+    goog.isDefAndNotNull(google.maps);
+    callback();
+  } catch (e) {
+
+    // Makes a random name for the callback in the global scope
+    var randName = bad.utils.makeId();
+
+    // The callback below is placed in the global scope so the call to google
+    // maps can access it on callback. It is destroyed
+    // immediately inside the callback;
+    goog.global[randName] = goog.bind(callback, this, randName);
+
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp' +
+      '&sensor=false' +
+      '&callback=' + randName;
+    document.body.appendChild(script);
+  }
 };
 
 

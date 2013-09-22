@@ -11,11 +11,10 @@ goog.require('bad.utils');
  * @enum {string}
  */
 bad.ui.Resizable.EventType = {
-    RESIZE: 'resize',
-    START_RESIZE: 'start_resize',
-    END_RESIZE: 'end_resize'
+  RESIZE: 'resize',
+  START_RESIZE: 'start_resize',
+  END_RESIZE: 'end_resize'
 };
-
 
 /**
  * Constants for panel event.
@@ -23,12 +22,12 @@ bad.ui.Resizable.EventType = {
  */
 //noinspection JSUnusedGlobalSymbols
 bad.ui.EventType = {
-    /**
-     * Dispatched after the content from the template is in the DOM
-     * and the in-line scripts from the AJAX call has been eval'd.
-     */
-    ACTION: bad.utils.privateRandom(),
-    READY: 'panel_ready', //bad.utils.privateRandom(),
-    APP_DO: bad.utils.privateRandom(),
-    PANEL_MINIMIZE: bad.utils.privateRandom()
+  /**
+   * Dispatched after the content from the template is in the DOM
+   * and the in-line scripts from the AJAX call has been eval'd.
+   */
+  ACTION: bad.utils.privateRandom(),
+  READY: 'panel_ready', //bad.utils.privateRandom(),
+  APP_DO: bad.utils.privateRandom(),
+  PANEL_MINIMIZE: bad.utils.privateRandom()
 };

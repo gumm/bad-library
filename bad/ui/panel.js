@@ -10,33 +10,33 @@ goog.require('goog.uri.utils');
  * @constructor
  */
 bad.ui.Panel = function(opt_domHelper) {
-    bad.ui.Component.call(this, opt_domHelper);
+  bad.ui.Component.call(this, opt_domHelper);
 
-    /**
-     * @type {goog.Uri}
-     * @private
-     */
-    this.uri_ = null;
+  /**
+   * @type {goog.Uri}
+   * @private
+   */
+  this.uri_ = null;
 
-    /**
-     * @type {Object}
-     * @private
-     */
-    this.nest_ = null;
+  /**
+   * @type {Object}
+   * @private
+   */
+  this.nest_ = null;
 
-    this.responseObject = {
-        html: '',
-        scripts: ''
-    };
+  this.responseObject = {
+    html: '',
+    scripts: ''
+  };
 };
 goog.inherits(bad.ui.Panel, bad.ui.Component);
 
 bad.ui.Panel.prototype.initDom = goog.nullFunction;
 
 bad.ui.Panel.prototype.renderWithTemplate = function() {
-    this.xMan.get(
-        this.uri_,
-        goog.bind(this.onRenderWithTemplateReply_, this));
+  this.xMan.get(
+    this.uri_,
+    goog.bind(this.onRenderWithTemplateReply_, this));
 };
 
 /**
@@ -44,9 +44,9 @@ bad.ui.Panel.prototype.renderWithTemplate = function() {
  * @private
  */
 bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(e) {
-    var xhr = e.target;
-    this.responseObject = this.splitScripts(xhr.getResponseText());
-    this.render();
+  var xhr = e.target;
+  this.responseObject = this.splitScripts(xhr.getResponseText());
+  this.render();
 };
 
 /**
@@ -56,9 +56,9 @@ bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(e) {
  *      that will receive the reply event.
  */
 bad.ui.Panel.prototype.renderWithJSON = function(callback) {
-    this.xMan.get(
-        this.uri_,
-        goog.bind(this.onRenderWithJSON, this, callback));
+  this.xMan.get(
+    this.uri_,
+    goog.bind(this.onRenderWithJSON, this, callback));
 };
 
 /**
@@ -68,77 +68,77 @@ bad.ui.Panel.prototype.renderWithJSON = function(callback) {
  * @param {goog.events.EventLike} e Event object.
  */
 bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
-    callback(e);
-    this.render();
+  callback(e);
+  this.render();
 };
 
 bad.ui.Panel.prototype.createDom = function() {
-    bad.ui.Panel.superClass_.createDom.call(this);
-    this.setElementInternal(goog.dom.createDom(
-        goog.dom.TagName.DIV,
-        bad.CssClassMap.PANEL_WRAPPER,
-        this.responseObject.html
-    ));
+  bad.ui.Panel.superClass_.createDom.call(this);
+  this.setElementInternal(goog.dom.createDom(
+    goog.dom.TagName.DIV,
+    bad.CssClassMap.PANEL_WRAPPER,
+    this.responseObject.html
+  ));
 };
 
 bad.ui.Panel.prototype.enterDocument = function() {
-    this.dom_ = goog.dom.getDomHelper(this.getElement());
-    this.initDom();
+  this.dom_ = goog.dom.getDomHelper(this.getElement());
+  this.initDom();
 
-    // Calling this last makes sure that the final PANEL-READY event really is
-    // dispatched right at the end of all of the enterDocument calls.
-    bad.ui.Panel.superClass_.enterDocument.call(this);
-    this.evalScripts_();
+  // Calling this last makes sure that the final PANEL-READY event really is
+  // dispatched right at the end of all of the enterDocument calls.
+  bad.ui.Panel.superClass_.enterDocument.call(this);
+  this.evalScripts_();
 };
 
 /**
  * @param {Object} nest
  */
 bad.ui.Panel.prototype.setNestAsTarget = function(nest) {
-    this.nest_ = nest;
-    this.setTarget(this.nest_.element);
+  this.nest_ = nest;
+  this.setTarget(this.nest_.element);
 };
 
 /**
  * @param {bad.Net} xMan
  */
 bad.ui.Panel.prototype.setXMan = function(xMan) {
-    this.xMan = xMan;
+  this.xMan = xMan;
 };
 
 /**
  * @return {bad.Net} xMan.
  */
 bad.ui.Panel.prototype.getXMan = function() {
-    return this.xMan;
+  return this.xMan;
 };
 
 /**
  * @param {goog.Uri} uri
  */
 bad.ui.Panel.prototype.setUri = function(uri) {
-    this.uri_ = uri;
+  this.uri_ = uri;
 };
 
 /**
  * @return {goog.Uri}
  */
 bad.ui.Panel.prototype.getUri = function() {
-    return this.uri_;
+  return this.uri_;
 };
 
 /**
  * @param {Object} user
  */
 bad.ui.Panel.prototype.setUser = function(user) {
-    this.user_ = user;
+  this.user_ = user;
 };
 
 /**
  * @return {Object}
  */
 bad.ui.Panel.prototype.getUser = function() {
-    return this.user_;
+  return this.user_;
 };
 
 //------------------------------------------------------------[ Ajax Control ]--
@@ -152,20 +152,20 @@ bad.ui.Panel.prototype.getUser = function() {
  *  in order that they were found.
  */
 bad.ui.Panel.prototype.splitScripts = function(data) {
-    var response = {};
-    var sourceHtml = goog.dom.htmlToDocumentFragment(data);
-    response.scripts = [];
+  var response = {};
+  var sourceHtml = goog.dom.htmlToDocumentFragment(data);
+  response.scripts = [];
 
-    var scriptNodes = goog.dom.findNodes(sourceHtml, function(node) {
-        return (node.tagName === 'SCRIPT');
-    });
+  var scriptNodes = goog.dom.findNodes(sourceHtml, function(node) {
+    return (node.tagName === 'SCRIPT');
+  });
 
-    goog.array.forEach(scriptNodes, function(script) {
-        response.scripts.push(script);
-    }, this);
+  goog.array.forEach(scriptNodes, function(script) {
+    response.scripts.push(script);
+  }, this);
 
-    response.html = this.splitScripts_(sourceHtml);
-    return response;
+  response.html = this.splitScripts_(sourceHtml);
+  return response;
 };
 
 /**
@@ -174,22 +174,22 @@ bad.ui.Panel.prototype.splitScripts = function(data) {
  * @return {Object} The same document fragment but with scripts removed.
  */
 bad.ui.Panel.prototype.splitScripts_ = function(documentFragment) {
-    var temp = goog.dom.getDocument().createElement(goog.dom.TagName.DIV);
+  var temp = goog.dom.getDocument().createElement(goog.dom.TagName.DIV);
 
-    while (documentFragment.firstChild) {
-        temp.appendChild(documentFragment.firstChild);
-    }
-    var scripts = temp.getElementsByTagName(goog.dom.TagName.SCRIPT);
+  while (documentFragment.firstChild) {
+    temp.appendChild(documentFragment.firstChild);
+  }
+  var scripts = temp.getElementsByTagName(goog.dom.TagName.SCRIPT);
 
-    var length = scripts.length;
-    while (length--) {
-        scripts[length].parentNode.removeChild(scripts[length]);
-    }
-    // Add elements back to fragment:
-    while (temp.firstChild) {
-        documentFragment.appendChild(temp.firstChild);
-    }
-    return documentFragment;
+  var length = scripts.length;
+  while (length--) {
+    scripts[length].parentNode.removeChild(scripts[length]);
+  }
+  // Add elements back to fragment:
+  while (temp.firstChild) {
+    documentFragment.appendChild(temp.firstChild);
+  }
+  return documentFragment;
 };
 
 /**
@@ -197,9 +197,9 @@ bad.ui.Panel.prototype.splitScripts_ = function(documentFragment) {
  * The scripts are evaluated in the scope of this panel.
  */
 bad.ui.Panel.prototype.evalScripts_ = function() {
-    goog.array.forEach(this.responseObject.scripts, function(script) {
-        goog.bind(function() {
-            eval(script.text);
-        }, this)();
-    }, this);
+  goog.array.forEach(this.responseObject.scripts, function(script) {
+    goog.bind(function() {
+      eval(script.text);
+    }, this)();
+  }, this);
 };

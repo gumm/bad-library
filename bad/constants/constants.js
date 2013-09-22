@@ -2,8 +2,8 @@ goog.provide('bad.CssClassMap');
 goog.provide('bad.CssPrefix');
 
 bad.CssPrefix = {
-    PANEL: 'pan',
-    LAYOUT: 'layout'
+  PANEL: 'pan',
+  LAYOUT: 'layout'
 };
 
 /**
@@ -12,6 +12,6 @@ bad.CssPrefix = {
  */
 //noinspection JSUnusedGlobalSymbols
 bad.CssClassMap = {
-    PANEL_WRAPPER: goog.getCssName(bad.CssPrefix.PANEL,
-        'wrapper')
+  PANEL_WRAPPER: goog.getCssName(bad.CssPrefix.PANEL,
+    'wrapper')
 };

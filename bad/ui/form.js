@@ -10,40 +10,39 @@ goog.require('goog.dom.forms');
  * @constructor
  */
 bad.ui.Form = function(id, opt_domHelper) {
-    bad.ui.Panel.call(this, opt_domHelper);
+  bad.ui.Panel.call(this, opt_domHelper);
 
-    /**
-     * @type {!string}
-     * @private
-     */
-    this.formElId_ = id;
+  /**
+   * @type {!string}
+   * @private
+   */
+  this.formElId_ = id;
 
-    /**
-     * @type {?HTMLFormElement}
-     * @private
-     */
-    this.form_ = null;
+  /**
+   * @type {?HTMLFormElement}
+   * @private
+   */
+  this.form_ = null;
 
-    /**
-     * An array of alert messages displayed on the form
-     * @type {Array}
-     * @private
-     */
-    this.fieldAlerts_ = [];
+  /**
+   * An array of alert messages displayed on the form
+   * @type {Array}
+   * @private
+   */
+  this.fieldAlerts_ = [];
 };
 goog.inherits(bad.ui.Form, bad.ui.Panel);
 
-
 bad.ui.Form.prototype.enterDocument = function() {
-    this.form_ = this.getSterileFormFromId(this.formElId_);
-    bad.ui.Form.superClass_.enterDocument.call(this);
+  this.form_ = this.getSterileFormFromId(this.formElId_);
+  bad.ui.Form.superClass_.enterDocument.call(this);
 };
 
 /**
  * @return {?HTMLFormElement}
  */
 bad.ui.Form.prototype.getForm = function() {
-    return this.form_;
+  return this.form_;
 };
 
 /**
@@ -58,17 +57,17 @@ bad.ui.Form.prototype.getForm = function() {
  * @return {HTMLFormElement}
  */
 bad.ui.Form.prototype.getSterileFormFromId = function(string) {
-    var form = /** @type {HTMLFormElement} */ (goog.dom.getElement(string));
-    if (form) {
-        this.getHandler().listen(
-            form,
-            goog.events.EventType.SUBMIT,
-            function(e) {
-                e.preventDefault();
-            }
-        );
-    }
-    return form;
+  var form = /** @type {HTMLFormElement} */ (goog.dom.getElement(string));
+  if (form) {
+    this.getHandler().listen(
+      form,
+      goog.events.EventType.SUBMIT,
+      function(e) {
+        e.preventDefault();
+      }
+    );
+  }
+  return form;
 };
 
 /**
@@ -77,30 +76,30 @@ bad.ui.Form.prototype.getSterileFormFromId = function(string) {
  * @return {string}
  */
 bad.ui.Form.prototype.getPostContentFromForm = function(form) {
-    return goog.uri.utils.buildQueryDataFromMap(
-        goog.dom.forms.getFormDataMap(form).toObject()
-    );
+  return goog.uri.utils.buildQueryDataFromMap(
+    goog.dom.forms.getFormDataMap(form).toObject()
+  );
 };
 
 //----------------------------------------------------------[ Alert Messages ]--
 
 bad.ui.Form.prototype.checkValidation = function() {
-    this.clearAlerts();
-    var fields = this.form_.elements;
-    goog.object.forEach(fields, function(field) {
-        if (field.willValidate && !field.checkValidity()) {
-            this.displayError(field, field.validationMessage);
-        }
-    }, this);
+  this.clearAlerts();
+  var fields = this.form_.elements;
+  goog.object.forEach(fields, function(field) {
+    if (field.willValidate && !field.checkValidity()) {
+      this.displayError(field, field.validationMessage);
+    }
+  }, this);
 };
 
 bad.ui.Form.prototype.clearAlerts = function() {
-    goog.object.forEach(this.form_.elements, function(field) {
-        goog.dom.classes.remove(field, 'error');
-    }, this);
-    while (this.fieldAlerts_.length > 0) {
-        goog.dom.removeNode(this.fieldAlerts_.pop());
-    }
+  goog.object.forEach(this.form_.elements, function(field) {
+    goog.dom.classes.remove(field, 'error');
+  }, this);
+  while (this.fieldAlerts_.length > 0) {
+    goog.dom.removeNode(this.fieldAlerts_.pop());
+  }
 };
 
 /**
@@ -111,33 +110,32 @@ bad.ui.Form.prototype.clearAlerts = function() {
  */
 bad.ui.Form.prototype.displayErrors = function(data) {
 
-    /**
-     * @type {HTMLCollection}
-     */
-    var fields = this.form_.elements;
-    console.debug('THIS IS THE TYPE OF ERROR:--->', goog.typeOf(data['error']));
+  /**
+   * @type {HTMLCollection}
+   */
+  var fields = this.form_.elements;
+  console.debug('THIS IS THE TYPE OF ERROR:--->', goog.typeOf(data['error']));
 
-
-    if (goog.typeOf(data['error']) === 'object') {
-        goog.object.forEach(data['error'],
-            /**
-             * The error message and the name of the field it belongs to.
-             * @param {string} message
-             * @param {string} name
-             */
-            function(message, name) {
-                /**
-                 * @type {HTMLElement}
-                 */
-                var field = fields[name];
-                if (message && field) {
-                    this.displayError(field, message);
-                }
-            },
-        this);
-    } else {
-        console.error(data['error']);
-    }
+  if (goog.typeOf(data['error']) === 'object') {
+    goog.object.forEach(data['error'],
+      /**
+       * The error message and the name of the field it belongs to.
+       * @param {string} message
+       * @param {string} name
+       */
+        function(message, name) {
+        /**
+         * @type {HTMLElement}
+         */
+        var field = fields[name];
+        if (message && field) {
+          this.displayError(field, message);
+        }
+      },
+      this);
+  } else {
+    console.error(data['error']);
+  }
 };
 
 /**
@@ -146,9 +144,9 @@ bad.ui.Form.prototype.displayErrors = function(data) {
  * @param {string} message
  */
 bad.ui.Form.prototype.displayError = function(field, message) {
-    goog.dom.classes.add(field, 'error');
-    this.displayAlert(field, message,
-        'alert-error', null, 'icon-remove-sign');
+  goog.dom.classes.add(field, 'error');
+  this.displayAlert(field, message,
+    'alert-error', null, 'icon-remove-sign');
 };
 
 /**
@@ -157,8 +155,8 @@ bad.ui.Form.prototype.displayError = function(field, message) {
  * @param {string} message
  */
 bad.ui.Form.prototype.displaySuccess = function(field, message) {
-    this.displayAlert(field, message,
-        'alert-success', null, 'icon-ok-sign');
+  this.displayAlert(field, message,
+    'alert-success', null, 'icon-ok-sign');
 };
 
 /**
@@ -167,8 +165,8 @@ bad.ui.Form.prototype.displaySuccess = function(field, message) {
  * @param {string} message
  */
 bad.ui.Form.prototype.displayInfo = function(field, message) {
-    this.displayAlert(field, message,
-        'alert-info', null, 'icon-info-sign');
+  this.displayAlert(field, message,
+    'alert-info', null, 'icon-info-sign');
 };
 
 /**
@@ -180,13 +178,12 @@ bad.ui.Form.prototype.displayInfo = function(field, message) {
  *      This will be formatted bold.
  * @param {?string=} opt_icon An optional icon to add to the alert.
  */
-bad.ui.Form.prototype.displayAlert = function(
-        field, message, css, opt_itr, opt_icon) {
-
+bad.ui.Form.prototype.displayAlert =
+  function(field, message, css, opt_itr, opt_icon) {
     var icon = opt_icon ? goog.dom.createDom('i', opt_icon, ' ') : '';
     var intro = opt_itr ? goog.dom.createDom('strong', {}, opt_itr + ' ') : '';
     var alertDom = goog.dom.createDom('div', 'alert ' + css,
-        icon, intro, message);
+      icon, intro, message);
     goog.dom.insertSiblingAfter(alertDom, field);
     this.fieldAlerts_.push(alertDom);
-};
+  };

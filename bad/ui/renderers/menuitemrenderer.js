@@ -12,7 +12,6 @@ bad.ui.MenuItemRenderer = function() {
 goog.inherits(bad.ui.MenuItemRenderer, goog.ui.MenuItemRenderer);
 goog.addSingletonGetter(bad.ui.MenuItemRenderer);
 
-
 /**
  * CSS class name the renderer applies to menu item elements.
  * @type {string}

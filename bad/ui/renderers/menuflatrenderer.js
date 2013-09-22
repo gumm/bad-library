@@ -12,7 +12,6 @@ bad.ui.MenuFlatRenderer = function() {
 goog.inherits(bad.ui.MenuFlatRenderer, goog.ui.MenuRenderer);
 goog.addSingletonGetter(bad.ui.MenuFlatRenderer);
 
-
 /**
  * Default CSS class to be applied to the root element of toolbars rendered
  * by this renderer.

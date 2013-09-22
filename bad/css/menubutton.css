@@ -11,7 +11,6 @@
  * @author attila@google.com (Attila Bodis)
  */
 
-
 /* State: resting. */
 .goog-menu-button {
   /* Client apps may override the URL at which they serve the image. */
@@ -34,11 +33,13 @@
   border-color: #aaa;
   vertical-align: top;
 }
+
 .goog-menu-button-outer-box {
   margin: 0;
   border-width: 1px 0;
   padding: 0;
 }
+
 .goog-menu-button-inner-box {
   margin: 0 -1px;
   border-width: 0 1px;
@@ -53,11 +54,15 @@
 
 /* Pre-IE7 BiDi fixes. */
 * html .goog-menu-button-rtl .goog-menu-button-outer-box {
-  /* @noflip */ left: -1px;
-  /* @noflip */ right: auto;
+  /* @noflip */
+  left: -1px;
+  /* @noflip */
+  right: auto;
 }
+
 * html .goog-menu-button-rtl .goog-menu-button-inner-box {
-  /* @noflip */ right: auto;
+  /* @noflip */
+  right: auto;
 }
 
 /* IE7-only hack; ignored by all other browsers. */
@@ -65,10 +70,13 @@
   /* IE7 needs to have the box shifted to make the borders line up. */
   left: -1px;
 }
+
 /* IE7 BiDi fix. */
 *:first-child+html .goog-menu-button-rtl .goog-menu-button-inner-box {
-  /* @noflip */ left: 1px;
-  /* @noflip */ right: auto;
+  /* @noflip */
+  left: 1px;
+  /* @noflip */
+  right: auto;
 }
 
 /* Safari-only hacks. */
@@ -78,6 +86,7 @@
   /* Required to make pseudo-rounded corners work on Safari. */
   line-height: 0;
 }
+
 ::root .goog-menu-button-caption,
 ::root .goog-menu-button-dropdown {
   /* Required to make pseudo-rounded corners work on Safari. */
@@ -91,6 +100,7 @@
   -moz-opacity: 0.3;
   filter: alpha(opacity=30);
 }
+
 .goog-menu-button-disabled .goog-menu-button-outer-box,
 .goog-menu-button-disabled .goog-menu-button-inner-box,
 .goog-menu-button-disabled .goog-menu-button-caption,
@@ -159,7 +169,7 @@
   margin-left: 0;
 }
 
-.goog-menu-button-collapse-left .goog-menu-button-inner-box  {
+.goog-menu-button-collapse-left .goog-menu-button-inner-box {
   border-left: 1px solid #fff;
 }
 

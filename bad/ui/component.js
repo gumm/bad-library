@@ -10,7 +10,6 @@ goog.require('bad.utils');
 goog.require('goog.events.Event');
 goog.require('goog.ui.Component');
 
-
 /**
  * Create a bad.ui.Component. This is an extension of the basic
  * goog.ui.Component, and provides more control over the component targeting
@@ -21,18 +20,16 @@ goog.require('goog.ui.Component');
  * @extends {goog.ui.Component}
  */
 bad.ui.Component = function(opt_domHelper) {
-    goog.ui.Component.call(this, opt_domHelper);
+  goog.ui.Component.call(this, opt_domHelper);
 
-    /**
-     * @type {Element}
-     */
-    this.target_ = null;
+  /**
+   * @type {Element}
+   */
+  this.target_ = null;
 };
 goog.inherits(bad.ui.Component, goog.ui.Component);
 
-
 bad.ui.Component.prototype.onBeforeCompReadyCallback_ = goog.nullFunction;
-
 
 /**
  * Arguments passed into this call directly override the target set
@@ -43,26 +40,26 @@ bad.ui.Component.prototype.onBeforeCompReadyCallback_ = goog.nullFunction;
  *      where the panel will be rendered.
  */
 bad.ui.Component.prototype.render = function(opt_target) {
-    if (opt_target) {
-        this.setTarget(opt_target);
-    }
+  if (opt_target) {
+    this.setTarget(opt_target);
+  }
 
-    if (this.target_) {
-        bad.ui.Component.superClass_.render.call(this, this.target_);
-    } else {
-        bad.ui.Component.superClass_.render.call(this);
-    }
+  if (this.target_) {
+    bad.ui.Component.superClass_.render.call(this, this.target_);
+  } else {
+    bad.ui.Component.superClass_.render.call(this);
+  }
 };
 
 bad.ui.Component.prototype.enterDocument = function() {
-    bad.ui.Component.superClass_.enterDocument.call(this);
+  bad.ui.Component.superClass_.enterDocument.call(this);
 
-    this.onBeforeComponentReady();
-    this.dispatchActionEvent(bad.ui.EventType.READY);
+  this.onBeforeComponentReady();
+  this.dispatchActionEvent(bad.ui.EventType.READY);
 };
 
 bad.ui.Component.prototype.onBeforeComponentReady = function() {
-    this.onBeforeCompReadyCallback_();
+  this.onBeforeCompReadyCallback_();
 };
 
 /**
@@ -71,7 +68,7 @@ bad.ui.Component.prototype.onBeforeComponentReady = function() {
  * {@code bad.ui.EventType.READY} event is fired.
  */
 bad.ui.Component.prototype.setBeforeReadyCallback = function(func) {
-    this.onBeforeCompReadyCallback_ = func;
+  this.onBeforeCompReadyCallback_ = func;
 };
 
 /**
@@ -79,7 +76,7 @@ bad.ui.Component.prototype.setBeforeReadyCallback = function(func) {
  * @param {Element} element A valid dom element.
  */
 bad.ui.Component.prototype.setTarget = function(element) {
-    this.target_ = element;
+  this.target_ = element;
 };
 
 /**
@@ -87,15 +84,15 @@ bad.ui.Component.prototype.setTarget = function(element) {
  * @return {Element} A valid dom element.
  */
 bad.ui.Component.prototype.getTarget = function() {
-    return this.target_;
+  return this.target_;
 };
 
 bad.ui.Component.prototype.hide = function() {
-    goog.style.setElementShown(this.getElement(), false);
+  goog.style.setElementShown(this.getElement(), false);
 };
 
 bad.ui.Component.prototype.show = function() {
-    goog.style.setElementShown(this.getElement(), true);
+  goog.style.setElementShown(this.getElement(), true);
 };
 
 //---------------------------------------------------------[ Component Event ]--
@@ -111,8 +108,8 @@ bad.ui.Component.prototype.show = function() {
  *     if any of the handlers returns false this will also return false.
  */
 bad.ui.Component.prototype.dispatchActionEvent = function(value, opt_data) {
-    var event = new bad.ActionEvent(this, value, opt_data);
-    return this.dispatchEvent(event);
+  var event = new bad.ActionEvent(this, value, opt_data);
+  return this.dispatchEvent(event);
 };
 
 //-------------------------------------------------------------[ Panel Event ]--
@@ -125,19 +122,19 @@ bad.ui.Component.prototype.dispatchActionEvent = function(value, opt_data) {
  * @extends {goog.events.Event}
  */
 bad.ActionEvent = function(target, value, opt_data) {
-    goog.events.Event.call(this, bad.ui.EventType.ACTION, target);
+  goog.events.Event.call(this, bad.ui.EventType.ACTION, target);
 
-    /**
-     * @type {!string}
-     * @private
-     */
-    this.value_ = value;
+  /**
+   * @type {!string}
+   * @private
+   */
+  this.value_ = value;
 
-    /**
-     * @type {(string|number|Object)}
-     * @private
-     */
-    this.data_ = opt_data || {};
+  /**
+   * @type {(string|number|Object)}
+   * @private
+   */
+  this.data_ = opt_data || {};
 };
 goog.inherits(bad.ActionEvent, goog.events.Event);
 
@@ -145,12 +142,12 @@ goog.inherits(bad.ActionEvent, goog.events.Event);
  * @return {!string}
  */
 bad.ActionEvent.prototype.getValue = function() {
-    return this.value_;
+  return this.value_;
 };
 
 /**
  * @return {(string|number|Object)}
  */
 bad.ActionEvent.prototype.getData = function() {
-    return this.data_;
+  return this.data_;
 };

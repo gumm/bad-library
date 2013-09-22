@@ -11,7 +11,6 @@
  * @author tvykruta@google.com (Tomas Vykruta)
  */
 
-
 .goog-menubar {
   cursor: default;
   outline: none;
@@ -26,7 +25,8 @@
   outline: none;
   border: none;
   background: #fff;
-  /* @alternate */ border: 1px solid #fff;
+  /* @alternate */
+  border: 1px solid #fff;
 }
 
 .goog-menubar .goog-menu-button-dropdown {
