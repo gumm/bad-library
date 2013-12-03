@@ -1,6 +1,13 @@
 goog.provide('bad.utils');
+goog.require('goog.array');
+goog.require('goog.dom');
+goog.require('goog.object');
+goog.require('goog.ui.Component');
 goog.require('goog.ui.Css3ButtonRenderer');
 goog.require('goog.ui.CustomButton');
+goog.require('goog.ui.Menu');
+goog.require('goog.ui.MenuItem');
+goog.require('goog.ui.MenuSeparator');
 goog.require('goog.ui.ToggleButton');
 
 /**
@@ -32,7 +39,7 @@ bad.utils.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
     button.decorateInternal(goog.dom.getElement(elId));
     parent.addChild(button);
     if (opt_callback) {
-      button.getHandler().listen(
+      button.getHandler().listenWithScope(
         button,
         goog.ui.Component.EventType.ACTION,
         function() {
@@ -61,7 +68,7 @@ bad.utils.makeToggleButton =
     button.decorateInternal(goog.dom.getElement(elId));
     parent.addChild(button);
     if (opt_callback) {
-      button.getHandler().listen(
+      button.getHandler().listenWithScope(
         button,
         goog.ui.Component.EventType.ACTION,
         function() {
@@ -78,52 +85,53 @@ bad.utils.makeToggleButton =
  * @param {goog.dom.DomHelper} domHelper DOM helper.domHelper.
  * @param {!goog.events.EventHandler} handler The event handler for the panel.
  * @param {bad.ui.Panel} scope The panel scope that the events will fire in.
- * @param {(bad.ui.MenuFlatRenderer|bad.ui.MenuFloatRenderer) =} opt_rend
- * @param {bad.ui.MenuItemRenderer=} opt_itemRend
+ * @param {goog.ui.MenuRenderer=} opt_rend
+ * @param {goog.ui.MenuItemRenderer=} opt_itemRend
  * @param {boolean=} opt_sticky
  * @return {goog.ui.Menu}
  */
-bad.utils.makeMenu = function(menuItems, domHelper, handler, scope, opt_rend, opt_itemRend, opt_sticky) {
+bad.utils.makeMenu = function(menuItems, domHelper, handler, scope, opt_rend,
+    opt_itemRend, opt_sticky) {
 
-  /**
-   * @type {goog.ui.Menu}
-   */
-  var menu = new goog.ui.Menu(domHelper, opt_rend);
-  goog.array.forEach(menuItems, function(arr) {
-    var item;
-    if (arr[0]) {
       /**
-       * @type {!Element}
+       * @type {goog.ui.Menu}
        */
-      var name = bad.utils.getIconString(arr[0], arr[1]);
-      item = new goog.ui.MenuItem(name, arr[2], domHelper, opt_itemRend);
-    } else {
-      item = new goog.ui.MenuSeparator(domHelper);
-    }
-    menu.addChild(item, true);
-  }, scope);
+      var menu = new goog.ui.Menu(domHelper, opt_rend);
+      goog.array.forEach(menuItems, function(arr) {
+        var item;
+        if (arr[0]) {
+          /**
+           * @type {!Element}
+           */
+          var name = bad.utils.getIconString(arr[0], arr[1]);
+          item = new goog.ui.MenuItem(name, arr[2], domHelper, opt_itemRend);
+        } else {
+          item = new goog.ui.MenuSeparator(domHelper);
+        }
+        menu.addChild(item, true);
+      }, scope);
 
-  menu.unStickAll = function() {
-    menu.forEachChild(function(child) {
-      child.removeClassName('flat-menuitem-stickey-select');
-    });
-  };
+      menu.unStickAll = function() {
+        menu.forEachChild(function(child) {
+          child.removeClassName('flat-menuitem-stickey-select');
+        });
+      };
 
-  handler.listen(
-    menu,
-    goog.ui.Component.EventType.ACTION,
-    function(e) {
-      var activeMenuItem = e.target;
-      e.stopPropagation();
-      activeMenuItem.getModel()();
-      if (opt_sticky) {
-        menu.unStickAll();
-        activeMenuItem.addClassName('flat-menuitem-stickey-select');
-      }
-    }
-  );
-  return menu;
-};
+      handler.listen(
+        menu,
+        goog.ui.Component.EventType.ACTION,
+        function(e) {
+          var activeMenuItem = e.target;
+          e.stopPropagation();
+          activeMenuItem.getModel()();
+          if (opt_sticky) {
+            menu.unStickAll();
+            activeMenuItem.addClassName('flat-menuitem-stickey-select');
+          }
+        }
+      );
+      return menu;
+    };
 
 /**
  *
@@ -266,7 +274,7 @@ bad.utils.loadGoogleMaps = function(callback) {
     // The callback below is placed in the global scope so the call to google
     // maps can access it on callback. It is destroyed
     // immediately inside the callback;
-    goog.global[randName] = goog.bind(callback, this, randName);
+    goog.global[randName] = goog.partial(callback, randName);
 
     var script = document.createElement('script');
     script.type = 'text/javascript';

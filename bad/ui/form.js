@@ -1,7 +1,12 @@
 goog.provide('bad.ui.Form');
 
 goog.require('bad.ui.Panel');
+goog.require('goog.dom');
+goog.require('goog.dom.classes');
 goog.require('goog.dom.forms');
+goog.require('goog.events.EventType');
+goog.require('goog.object');
+goog.require('goog.uri.utils');
 
 /**
  * @param {!string} id The form element id.

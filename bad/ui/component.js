@@ -6,8 +6,8 @@ goog.provide('bad.ActionEvent');
 goog.provide('bad.ui.Component');
 
 goog.require('bad.ui.EventType');
-goog.require('bad.utils');
 goog.require('goog.events.Event');
+goog.require('goog.style');
 goog.require('goog.ui.Component');
 
 /**

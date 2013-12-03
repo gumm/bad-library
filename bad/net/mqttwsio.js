@@ -6,13 +6,13 @@ goog.provide('bad.MqttEventType');
 goog.provide('bad.MqttWsIo');
 
 goog.require('bad.utils');
+goog.require('goog.dom');
+goog.require('goog.events.Event');
 goog.require('goog.events.EventHandler');
 goog.require('goog.events.EventTarget');
 goog.require('goog.json');
 goog.require('goog.net.WebSocket');
-goog.require('goog.net.WebSocket.EventType');
-goog.require('goog.ui.Css3ButtonRenderer');
-goog.require('goog.ui.CustomButton');
+goog.require('goog.object');
 
 /**
  * Constructor of the main site object.
@@ -20,7 +20,7 @@ goog.require('goog.ui.CustomButton');
  * @constructor
  */
 bad.MqttWsIo = function(wsServer, wsPort) {
-  goog.events.EventTarget.call(this, this);
+  goog.events.EventTarget.call(this);
 
   this.wsServer = wsServer;
   this.wsPort = wsPort;

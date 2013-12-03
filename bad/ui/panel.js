@@ -1,8 +1,10 @@
 goog.provide('bad.ui.Panel');
 
+goog.require('bad.CssClassMap');
 goog.require('bad.ui.Component');
-goog.require('goog.Uri');
-goog.require('goog.uri.utils');
+goog.require('goog.array');
+goog.require('goog.dom');
+goog.require('goog.dom.TagName');
 
 /**
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.

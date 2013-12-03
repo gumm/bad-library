@@ -6,12 +6,24 @@ goog.provide('bad.ui.Layout');
 goog.provide('bad.ui.Layout.CssClassMap');
 goog.provide('bad.ui.Layout.IdFragment');
 
-goog.require('bad.CssClassMap');
+goog.require('bad.CssPrefix');
 goog.require('bad.ui.Component');
 goog.require('bad.ui.EventType');
+goog.require('goog.array');
+goog.require('goog.dom');
+goog.require('goog.dom.TagName');
 goog.require('goog.dom.ViewportSizeMonitor');
+goog.require('goog.events.Event');
+goog.require('goog.events.EventType');
 goog.require('goog.fx.Animation');
 goog.require('goog.fx.Dragger');
+goog.require('goog.fx.Transition');
+goog.require('goog.math.Box');
+goog.require('goog.math.Rect');
+goog.require('goog.math.Size');
+goog.require('goog.object');
+goog.require('goog.style');
+goog.require('goog.ui.Component');
 
 /**
  * Create layout that gives three resizable cells. The layout can be set
@@ -336,24 +348,44 @@ bad.ui.Layout.prototype.enterDocument = function() {
 
   // Init the event handlers.
   this.getHandler()
-    .listen(this.dragger_.AB.dragger, goog.fx.Dragger.EventType.START,
-      this.onDragStart_)
-    .listen(this.dragger_.AB.dragger, goog.fx.Dragger.EventType.DRAG,
-      goog.bind(this.onDrag_, this, this.dragger_.AB))
-    .listen(this.dragger_.AB.dragger, goog.fx.Dragger.EventType.END,
-      this.onABDragEnd_)
-    .listen(this.dragger_.BC.dragger, goog.fx.Dragger.EventType.START,
-      this.onDragStart_)
-    .listen(this.dragger_.BC.dragger, goog.fx.Dragger.EventType.DRAG,
-      goog.bind(this.onDrag_, this, this.dragger_.BC))
-    .listen(this.dragger_.BC.dragger, goog.fx.Dragger.EventType.END,
-      this.onBCDragEnd_)
-    .listen(this.dragger_.BC.element, goog.events.EventType.DBLCLICK,
-      goog.bind(this.onDoubleClick_, this, this.cell_.C))
-    .listen(this.dragger_.AB.element, goog.events.EventType.DBLCLICK,
-      goog.bind(this.onDoubleClick_, this, this.cell_.A))
-    .listen(this, bad.ui.EventType.PANEL_MINIMIZE, this.onPanelMinimize_)
-    .listen(this, goog.ui.Component.EventType.CHANGE,
+    .listen(
+      this.dragger_.AB.dragger,
+      goog.fx.Dragger.EventType.START,
+      this.onDragStart_
+    ).listen(
+      this.dragger_.AB.dragger,
+      goog.fx.Dragger.EventType.DRAG,
+      goog.bind(this.onDrag_, this, this.dragger_.AB)
+    ).listen(
+      this.dragger_.AB.dragger,
+      goog.fx.Dragger.EventType.END,
+      this.onABDragEnd_
+    ).listen(
+      this.dragger_.BC.dragger,
+      goog.fx.Dragger.EventType.START,
+      this.onDragStart_
+    ).listen(
+      this.dragger_.BC.dragger,
+      goog.fx.Dragger.EventType.DRAG,
+      goog.bind(this.onDrag_, this, this.dragger_.BC)
+    ).listen(
+      this.dragger_.BC.dragger,
+      goog.fx.Dragger.EventType.END,
+      this.onBCDragEnd_
+    ).listen(
+      this.dragger_.BC.element, goog.events.EventType.DBLCLICK,
+      goog.bind(this.onDoubleClick_, this, this.cell_.C)
+    ).listen(
+      this.dragger_.AB.element,
+      goog.events.EventType.DBLCLICK,
+      goog.bind(this.onDoubleClick_, this, this.cell_.A)
+    ).listen(
+      this,
+      bad.ui.EventType.PANEL_MINIMIZE,
+      this.onPanelMinimize_
+    ).listen(
+      this,
+      goog.ui.Component.EventType.CHANGE,
       this.updateChildSizes_
     );
 
@@ -372,8 +404,8 @@ bad.ui.Layout.prototype.enterDocument = function() {
       goog.dom.ViewportSizeMonitor.getInstanceForWindow();
     this.getHandler().listen(
       this.viewportSizeMonitor_,
-      goog.events.EventType.RESIZE, this.onViewportSizeChanged_,
-      undefined, this
+      goog.events.EventType.RESIZE,
+      this.onViewportSizeChanged_
     );
     this.matchSizeToViewport();
   }
@@ -1173,11 +1205,11 @@ bad.ui.Layout.prototype.onDoubleClick_ = function(cell) {
 
 /**
  * Handle the start drag event on the BC dragger.
- * @param {string} name The name of the dragger that fired the event.
- * @param {goog.events.Event} e The event.
  * @private
  */
-bad.ui.Layout.prototype.onDragStart_ = goog.nullFunction;
+bad.ui.Layout.prototype.onDragStart_ = function() {
+    goog.nullFunction();
+};
 
 /**
  * Handle the AB-dragger drag event. Move the containers.
@@ -1625,13 +1657,11 @@ bad.ui.Layout.prototype.doAnimate_ = function(dragger, end, opt_callback) {
   this.getHandler().listen(
       anim,
       goog.fx.Animation.EventType.ANIMATE,
-      onAnimate,
-      undefined, this
+      onAnimate
     ).listen(
       anim,
       goog.fx.Transition.EventType.END,
-      onEnd,
-      undefined, this
+      onEnd
     );
   anim.play();
 };
