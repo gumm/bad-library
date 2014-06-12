@@ -1109,8 +1109,7 @@ bad.ui.Layout.prototype.updatePositionAndSize_ =
       this.dispatchEvent(
         new bad.ui.Layout.Event(
           bad.ui.Layout.EventType['SIZE_CHANGED_' + opt_nestId],
-          this,
-          {
+          this, {
             'element': element,
             'rect': rect,
             'nestId': opt_nestId
@@ -1302,29 +1301,8 @@ bad.ui.Layout.prototype.matchSizeToViewport = function() {
  * @private
  */
 bad.ui.Layout.prototype.addInteraction_ = function() {
-
-  /**
-   * @type {Object}
-   */
-  var compA = this.cell_.A;
-
-  /**
-   * @type {Object}
-   */
-  var compC = this.cell_.C;
-
-  /**
-   * @type {Object}
-   */
-  var dragAB = this.dragger_.AB;
-
-  /**
-   * @type {Object}
-   */
-  var dragBC = this.dragger_.BC;
-
-  this.addInteractionA_(compA, compC, dragAB);
-  this.addInteractionC_(compA, compC, dragBC);
+  this.addInteractionA_(this.cell_.A, this.cell_.C, this.dragger_.AB);
+  this.addInteractionC_(this.cell_.A, this.cell_.C, this.dragger_.BC);
 };
 
 /**
@@ -1726,3 +1704,4 @@ bad.ui.Layout.Event = function(type, target, data) {
   var nestId = data.nestId;
 };
 goog.inherits(bad.ui.Layout.Event, goog.events.Event);
+

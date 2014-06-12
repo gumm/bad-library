@@ -5,6 +5,7 @@ goog.provide('bad.MqttEvent');
 goog.provide('bad.MqttEventType');
 goog.provide('bad.MqttWsIo');
 
+goog.require('bad.MqttParse');
 goog.require('bad.utils');
 goog.require('goog.dom');
 goog.require('goog.events.Event');
@@ -25,6 +26,7 @@ bad.MqttWsIo = function(wsServer, wsPort) {
   this.wsServer = wsServer;
   this.wsPort = wsPort;
   this.webSocket = new goog.net.WebSocket(false);
+  this.parser_ = new bad.MqttParse();
 
   this.sysTopics = {
     ACTIVE_CLIENTS: {
@@ -60,14 +62,14 @@ bad.MqttWsIo.prototype.init_ = function(mqttEl, sysEl) {
   this.MQTTElement_ = mqttEl;
   this.sysElement_ = sysEl;
 
-//    this.getHandler().listen(
-//        goog.dom.getElement('subscrGo'),
-//        goog.events.EventType.CLICK,
-//        function(e) {
-//            var topic = document.getElementById('subscrIn').value;
-//            this.mqttSubscribe(topic);
-//            this.mqttSubscribe('blah');
-//        }, undefined, this);
+//  this.getHandler().listen(
+//      goog.dom.getElement('subscrGo'),
+//      goog.events.EventType.CLICK,
+//      function(e) {
+//          var topic = document.getElementById('subscrIn').value;
+//          this.mqttSubscribe(topic);
+//          this.mqttSubscribe('blah');
+//      }, undefined, this);
 //
 //    this.getHandler().listen(
 //        goog.dom.getElement('clickme'),
@@ -109,6 +111,12 @@ bad.MqttWsIo.prototype.openWebsocket = function() {
           console.debug('Did not understand this message type');
       }
     }
+  ).listen(
+      this.parser_,
+      'tct',
+      function(e) {
+        console.debug('Got a TCT:', e.tct, e.payload);
+      }
   );
   this.webSocket.open('ws://' + this.wsServer + ':' + this.wsPort);
 };
@@ -117,6 +125,8 @@ bad.MqttWsIo.prototype.routeWs = function(data) {
   var target = data['target'];
   var topic = data['topic'];
   var payload = data['message'];
+
+  this.parser_.parse(payload);
 
   switch (target) {
     case '@received':
@@ -129,7 +139,7 @@ bad.MqttWsIo.prototype.routeWs = function(data) {
       this.displaySys(topic, payload);
       break;
     default:
-      console.debug('Unknown target: ', target);
+      console.debug('Unknow target: ', target, topic, payload);
   }
 };
 
@@ -159,6 +169,8 @@ bad.MqttWsIo.prototype.trackBytesSent = function(el) {
 };
 
 bad.MqttWsIo.prototype.receivedMQTT = function(topic, payload) {
+
+  console.debug(topic, payload);
 
   var event = new bad.MqttEvent(
     this,
@@ -199,6 +211,7 @@ bad.MqttWsIo.prototype.displayMQTT = function(topic, payload, pull, col) {
 };
 
 bad.MqttWsIo.prototype.displaySys = function(topic, payload) {
+  console.debug('This is the sys element:', this.sysElement_);
   if (this.sysElement_) {
     this.sysElement_.appendChild(
       goog.dom.createDom('li', {},
@@ -221,6 +234,13 @@ bad.MqttWsIo.prototype.mqttPublish = function(topic, payload) {
 bad.MqttWsIo.prototype.mqttSubscribe = function(topic) {
   this.webSocket.send(goog.json.serialize({
     'action': 'subscribe',
+    'topic': topic
+  }));
+};
+
+bad.MqttWsIo.prototype.mqttUnSubscribe = function(topic) {
+  this.webSocket.send(goog.json.serialize({
+    'action': 'unsubscribe',
     'topic': topic
   }));
 };

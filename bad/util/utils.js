@@ -21,8 +21,24 @@ bad.utils.getIconString = function(string, icon) {
 };
 
 /**
+ * Get a list of the raw form elements. That is all the elements in the form
+ * with a type.
+ * @param {Element} form
+ * @return {Array}
+ */
+bad.utils.getRawFormElements = function(form) {
+    var formElements = [];
+    goog.array.forEach(form.elements, function(el) {
+        if (el.type && el.type !== 'fieldset') {
+            formElements.push(el);
+        }
+    });
+    return formElements;
+};
+
+/**
  * Make a default button.
- * @param {!string} elId The element id that will be decorated.
+ * @param {!(string|Element)} elId The element id that will be decorated.
  * @param {goog.ui.Component} parent The buttons parent.
  * @param {Function=} opt_callback The callback function to execute on
  *      button action.
@@ -30,6 +46,7 @@ bad.utils.getIconString = function(string, icon) {
  * @return {?goog.ui.CustomButton}
  */
 bad.utils.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
+
   var el = goog.dom.getElement(elId);
   var button = null;
   if (el) {
@@ -97,7 +114,7 @@ bad.utils.makeMenu = function(menuItems, domHelper, handler, scope, opt_rend,
        * @type {goog.ui.Menu}
        */
       var menu = new goog.ui.Menu(domHelper, opt_rend);
-      goog.array.forEach(menuItems, function(arr) {
+      menu.addListItem = function(arr) {
         var item;
         if (arr[0]) {
           /**
@@ -109,6 +126,10 @@ bad.utils.makeMenu = function(menuItems, domHelper, handler, scope, opt_rend,
           item = new goog.ui.MenuSeparator(domHelper);
         }
         menu.addChild(item, true);
+      };
+
+      goog.array.forEach(menuItems, function(arr) {
+        menu.addListItem(arr);
       }, scope);
 
       menu.unStickAll = function() {

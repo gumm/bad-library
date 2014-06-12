@@ -1,6 +1,7 @@
 goog.provide('bad.ui.Form');
 
 goog.require('bad.ui.Panel');
+goog.require('bad.utils');
 goog.require('goog.dom');
 goog.require('goog.dom.classes');
 goog.require('goog.dom.forms');
@@ -89,8 +90,9 @@ bad.ui.Form.prototype.getPostContentFromForm = function(form) {
 //----------------------------------------------------------[ Alert Messages ]--
 
 bad.ui.Form.prototype.checkValidation = function() {
+
   this.clearAlerts();
-  var fields = this.form_.elements;
+  var fields = bad.utils.getRawFormElements(this.form_);
   goog.object.forEach(fields, function(field) {
     if (field.willValidate && !field.checkValidity()) {
       this.displayError(field, field.validationMessage);

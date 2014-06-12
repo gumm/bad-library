@@ -26,6 +26,13 @@ bad.ui.Panel = function(opt_domHelper) {
    */
   this.nest_ = null;
 
+  /**
+   * An array of classes to be added to the panel element when it is created.
+   * @type {Array}
+   * @private
+   */
+  this.elementClasses_ = [];
+
   this.responseObject = {
     html: '',
     scripts: ''
@@ -76,14 +83,36 @@ bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
 
 bad.ui.Panel.prototype.createDom = function() {
   bad.ui.Panel.superClass_.createDom.call(this);
+
+  var classes = bad.CssClassMap.PANEL_WRAPPER;
+  goog.array.forEach(this.elementClasses_, function(className) {
+    classes = classes + ' ' + className;
+  }, this);
+
   this.setElementInternal(goog.dom.createDom(
     goog.dom.TagName.DIV,
-    bad.CssClassMap.PANEL_WRAPPER,
+    classes,
     this.responseObject.html
   ));
+
+//  goog.array.forEach(this.elementClasses_, function(className) {
+//    goog.dom.classes.add(this.element_, className);
+//  }, this);
+
+
+
+
 };
 
 bad.ui.Panel.prototype.enterDocument = function() {
+
+//  console.debug('HERE IS THE PANEL ELEMENT:', this.element_);
+//
+//  goog.array.forEach(this.elementClasses_, function(className) {
+//    console.debug('CLASSNAME', className);
+//    goog.dom.classes.add(this.element_, className);
+//  }, this);
+
   this.dom_ = goog.dom.getDomHelper(this.getElement());
   this.initDom();
 
@@ -130,18 +159,27 @@ bad.ui.Panel.prototype.getUri = function() {
 };
 
 /**
- * @param {Object} user
+ * @param {bad.UserManager} user
  */
 bad.ui.Panel.prototype.setUser = function(user) {
   this.user_ = user;
 };
 
 /**
- * @return {Object}
+ * @return {?bad.UserManager}
  */
 bad.ui.Panel.prototype.getUser = function() {
   return this.user_;
 };
+
+bad.ui.Panel.prototype.setMqtt = function(mqtt) {
+  this.mqtt = mqtt;
+};
+
+bad.ui.Panel.prototype.addElementClass = function(className) {
+  this.elementClasses_.push(className);
+};
+
 
 //------------------------------------------------------------[ Ajax Control ]--
 

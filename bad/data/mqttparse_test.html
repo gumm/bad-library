@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Layout Unit Tests - bad.ui.Layout</title>
+    <script src="../../../closure-library/closure/goog/base.js"></script>
+    <script src="../../../deps.js"></script>
+    <script type="text/javascript">
+        goog.require('bad.MqttParse');
+        goog.require('goog.testing.jsunit');
+        goog.require('goog.events');
+        goog.require('goog.math');
+    </script>
+</head>
+<body>
+<script>
+
+var ftc = 1502476730236; // Some time it the future
+var ptc = -60 * 60 * 3;  // 3 hours ago.
+
+var timeFuture =        '{"c": ['+ ftc +',      ["func"]]}';
+var timePast =          '{"c": ['+ ptc +',      ["func"]]}';
+var timeZero =          '{"c": [0, "zero",      ["zero"]]}';
+var commandMin =        '{"c": [0,              ["func"]]}';
+var commandConcat =     '{"c": [0, "concat",    ["concat", true, false, null, 1, "string"]]}';
+var commandSum =        '{"c": [0, "sum",       ["sum", 1, 2, 3, 4, 5]]}';
+var commandNoMatch =    '{"c": [0, "nomatch",   ["noMatch", 1, 2, 3, 4, 5]]}';
+var eventMin =          '{"e": [0,              [[100]]]}';
+var eventMaxNoFunc =    '{"e": [0, "eventnf",   [[100, true]]]}';
+var eventMax =          '{"e": [0, "eventmax",  [[100, true], [101, false], [102, "string"], [103, 123.345]]]}';
+var dataMin =           '{"d": [0,              []]}';
+var dataMax =           '{"d": [0, "datamax",   [100, true, false, {"a":"string", "b":123}, null, [1,2,3], "some string"]]}';
+var dataMaxNoFunc =     '{"d": [0, "datamaxnf", [100, true, false, {"a":"string", "b":123}, null, [1,2,3], "some string"]]}';
+var transReplyMin =     '{"x": [0, "tct", -1         ]}';
+var transReplyMax =     '{"x": [0, "tct", 0,   [100, true, false, null, "some string"]]}';
+var nullMessage =       '{"n": null}';
+
+var blah = {"e": [0, "eventmax",  [[100, true], [101, false], [102, "string"], [103, 123.345]]]}
+
+/*
+ assertTrue([comment,] value)
+ assertFalse([comment,] value)
+ assertEquals([comment,] expectedValue, observedValue)
+ assertNotEquals([comment,] expectedValue, observedValue)
+ assertNull([comment,] value)
+ assertNotNull([comment,] value)
+ assertUndefined([comment,] value)
+ assertNotUndefined([comment,] value)
+ assertArrayEquals([comment,] expectedValue, observedValue)
+ assertSameElements([comment,] expectedValue, observedValue)
+ */
+
+var xparser = new bad.MqttParse();
+goog.events.listen(xparser,"tctreply", function(e) {
+    var pl = e.tctReply;
+    var ts = pl.ts;
+    var tcr = pl.tcr; //<----- Note - This is the reply response.
+    var code = pl.code;
+    var res = pl.res;
+    switch (tcr) {
+        case 'concat':
+            console.debug(pl)
+            assertEquals('The TCT should be:', 'concat', tcr);
+            assertEquals('All OK', 0, code);
+            assertEquals('Command Reply', 'truefalsenull1string', res);
+            break;
+        case 'sum':
+            assertEquals('The TCT should be:', 'sum', tcr);
+            assertEquals('All OK', 0, code);
+            assertEquals('Command Reply', 15, res);
+            break;
+        case 'nomatch':
+            assertEquals('The TCT should be:', 'nomatch', tcr);
+            assertEquals('UNKNOWN COMMAND', -1, code);
+            assertUndefined('No reply component', res);
+            break;
+        case 'eventnf':
+            assertEquals('The TCT should be:', 'eventnf', tcr);
+            assertEquals('UNKNOWN ERROR CODE', -2, code);
+            assertUndefined('No reply component', res);
+            break;
+        case 'eventmax':
+            assertEquals('The TCT should be:', 'eventmax', tcr);
+            assertEquals('PARTIAL SUCCESS', 1, code);
+            break;
+        case 'eventall':
+            assertEquals('The TCT should be:', 'eventall', tcr);
+            assertEquals('ALL OK', 0, code);
+            break;
+        case 'datamax':
+            assertEquals('The TCT should be:', 'datamax', tcr);
+            break;
+        case 'datamaxnf':
+            assertEquals('The TCT should be:', 'datamaxnf', tcr);
+            break;
+        case 'tct':
+            assertEquals('The TCT should be:', 'tct', tcr);
+            break;
+        case 'zero':
+            assertEquals('The TCT should be:', 'zero', tcr);
+            break;
+        default:
+            assertEquals('Switch fall through. ' + tcr, false, true);
+    }
+});
+
+function setUp() {
+    /**
+     * Create a new layout
+     * @type {bad.MqttParse}
+     * @private
+     */
+    parser = new bad.MqttParse();
+
+    // This just plugs the tct event emit from the first parser into the input
+    // of the xparser. So the first parses the given message. Some of those messages
+    // require a response. The parser thus emits an event that should be picked up
+    // at the application level to make sure a response is published on the
+    // TCT. This just short circuits that entire MQTT tct response, and simply
+    // plugs the JSON string into the xparser as if it received the response.
+    goog.events.listen(parser,"tct", function(e) {
+        xparser.parse(goog.json.serialize(e.payload))
+    });
+}
+
+function tearDown() {
+    parser.dispose();
+}
+
+function test_parseFutureTimeStamp() {
+    parser.parse(timeFuture);
+}
+
+function test_parsePastTimeStamp() {
+    parser.parse(timePast);
+}
+
+function test_parseZeroTimeStamp() {
+    var now = new Date();
+    parser.addCommandParseFunc('zero',
+        function(var_args) {
+            console.debug(arguments, now);
+        }
+    );
+    parser.parse(timeZero);
+}
+
+function test_parseCommandMin() {
+    parser.parse(commandMin);
+}
+
+function test_parseCommandMax() {
+
+    parser.addCommandParseFunc('concat',
+        /**
+         * This function just concatenates its parameters in a string, and
+         * returns the string
+         * @param var_args
+         * @returns {string}
+         */
+        function(var_args) {
+            var concat = '';
+            goog.array.forEach(arguments, function (item, i) {
+                concat = concat + (i, goog.typeOf(item), item);
+            }, this);
+            return concat;
+        }
+    );
+
+    parser.addCommandParseFunc('sum',
+        /**
+         * This simply returns the sum of its inputs, or NaN if any of the
+         * inputs was not a number.
+         * @param var_args
+         * @returns {number}
+         */
+        function(var_args) {
+            return goog.math.sum.apply(this, arguments);
+        }
+    );
+
+    parser.addCommandParseFunc('reflect',
+        /**
+         * This simply returns the arguments passed in.
+         * @param var_args
+         * @returns {Arguments}
+         */
+        function(var_args) {
+            return arguments;
+        }
+    );
+
+    parser.parse(commandNoMatch);
+    parser.parse(commandConcat);
+    parser.parse(commandSum);
+}
+
+function test_parseEventMin() {
+    var eventParse = function(param) {
+        assertUndefined('The event gave no more info', param);
+    };
+    parser.addEventParseFunc(100, eventParse);
+    parser.parse(eventMin);
+}
+
+function test_parseEventSome() {
+    var eventMax = '{"e": [0, "eventmax",  [[100, true], [101, false], [102, "string"], [103, 123.345]]]}';
+    parser.addEventParseFunc(101, function(param) {
+        assertFalse('The event description is:', param);
+    });
+    parser.addEventParseFunc(102, function(param) {
+        assertEquals('The event description is:', 'string', param);
+    });
+    parser.parse(eventMax);
+}
+
+function test_parseEventMax() {
+    var eventMax = '{"e": [0, "eventall",  [[100, true], [101, false], [102, "string"], [103, 123.345]]]}';
+    parser.addEventParseFunc(100, function(param) {
+        assertTrue('The event description is:', param);
+    });
+    parser.addEventParseFunc(101, function(param) {
+        assertFalse('The event description is:', param);
+    });
+    parser.addEventParseFunc(102, function(param) {
+        assertEquals('The event description is:', 'string', param);
+    });
+    parser.addEventParseFunc(103, function(param) {
+        assertEquals('The event description is:', 123.345, param);
+    });
+    parser.parse(eventMax);
+}
+
+function test_parseEventNoFunc() {
+    parser.parse(eventMaxNoFunc);
+}
+
+function test_parseDataMin() {
+    var dataParse = function(msg) {
+        assertUndefined('No paramaers passed to the parser', msg);
+    };
+    parser.setDataParseFunc(dataParse);
+    parser.parse(dataMin);
+}
+
+function test_parseDataMax() {
+    var dataParse = function(var_args) {
+        assertEquals('First argument is', 100, arguments[0]);
+        assertTrue('Second argument is true', arguments[1]);
+        assertFalse('Third argument is false', arguments[2]);
+        assertTrue('Fourth argument is an object', goog.isObject(arguments[3]));
+        assertNull('Fifth arg is null', arguments[4]);
+        assertTrue('Sixth arg is an array', goog.isArray(arguments[5]));
+        assertEquals('Sevent arg is', 'some string', arguments[6]);
+    };
+    parser.setDataParseFunc(dataParse);
+    parser.parse(dataMax);
+}
+
+function test_parseDataMaxNoFunc() {
+    parser.parse(dataMaxNoFunc);
+}
+
+function test_parseTransReplyMax() {
+
+    parser.parse(transReplyMax);
+}
+
+function test_parseTransReplyMin() {
+    parser.parse(transReplyMin);
+}
+
+function test_parseNullMessage() {
+    parser.parse(nullMessage);
+}
+
+
+</script>
+</body>
+</html>

@@ -65,7 +65,7 @@ bad.ui.View.prototype.dispose = function() {
   }
 
   goog.object.forEach(this.panelMap, function(panel, uid) {
-    console.debug('Dispose panel: ', uid, '-->', panel);
+//    console.debug('Dispose panel: ', uid, '-->', panel);
     panel.dispose();
   }, this);
 };
@@ -103,7 +103,7 @@ bad.ui.View.prototype.initListenersForPanel_ = function(panel) {
  * optionally a single parameter object. This allows the view to ask the
  * app to do something without having direct access to the app object.
  *
- * @param {string} view The target view that the site should change to.
+ * @param {!string} view The target view that the site should change to.
  * @param {?(Object|string)=} opt_data An optional payload to include in the
  *      event.
  */
@@ -122,7 +122,9 @@ bad.ui.View.prototype.configurePanels = goog.nullFunction;
 
 bad.ui.View.prototype.displayPanels = goog.nullFunction;
 
-bad.ui.View.prototype.onPanelAction = goog.nullFunction;
+bad.ui.View.prototype.onPanelAction = function(e) {
+  e.stopPropagation();
+};
 
 /**
  * @param {bad.ui.Layout} layout
@@ -153,7 +155,7 @@ bad.ui.View.prototype.getXMan = function() {
 };
 
 /**
- * @param {Object} user
+ * @param {bad.UserManager} user
  */
 bad.ui.View.prototype.setUser = function(user) {
   this.user_ = user;
@@ -166,8 +168,16 @@ bad.ui.View.prototype.setUser = function(user) {
 };
 
 /**
- * @return {Object}
+ * @return {bad.UserManager}
  */
 bad.ui.View.prototype.getUser = function() {
   return this.user_;
 };
+
+/***
+ * @param {bad.MqttWsIo} mqtt
+ */
+bad.ui.View.prototype.setMqtt = function(mqtt) {
+  this.mqtt = mqtt;
+};
+
