@@ -48,13 +48,19 @@ bad.utils.getRawFormElements = function(form) {
 bad.utils.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
 
   var el = goog.dom.getElement(elId);
+  var parentEl = goog.dom.getParentElement(el);
   var button = null;
   if (el) {
     button = new goog.ui.CustomButton('',
       goog.ui.Css3ButtonRenderer.getInstance(), opt_domHelper);
     button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
     button.decorateInternal(goog.dom.getElement(elId));
-    parent.addChild(button);
+    if (parent) {
+      parent.addChild(button);
+    } else {
+      button.render(parentEl);
+    }
+
     if (opt_callback) {
       button.getHandler().listenWithScope(
         button,
