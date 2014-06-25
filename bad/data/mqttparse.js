@@ -91,32 +91,42 @@ bad.MqttParse.replyCode = {
   UNKNOWN_ERROR_CODE: -2,
 
   // No data parser available.
-  DATA_NOT_PARSED: -3
+  DATA_NOT_PARSED: -3,
+
+  // No data parser available.
+  PAYLOAD_NOT_JSON: -4
 };
 
 /**
  * @param {!string} payload A JSON parsable string.
  */
 bad.MqttParse.prototype.parse = function(payload) {
-  var obj = goog.json.parse(payload);
-  var map = {
-    'c': this.parseCommand_,
-    'd': this.parseData_,
-    'e': this.parseEvent_,
-    'n': this.nullFunc_,
-    'x': this.parseXReply_
-  };
 
-  goog.object.forEach(map, function(func, type) {
-    if (obj[type]) {
-      /**
-       * @type {!bad.MqttParse.NormData}
-       */
-      var normPayload = this.normalizePayload_(type, obj[type]);
-      console.debug(type, 'Normalised Payload ----> ', normPayload);
-      this.parseWith_(normPayload, func);
-    }
-  }, this);
+  var obj;
+  try {
+    obj = goog.json.parse(payload);
+      var map = {
+      'c': this.parseCommand_,
+      'd': this.parseData_,
+      'e': this.parseEvent_,
+      'n': this.nullFunc_,
+      'x': this.parseXReply_
+    };
+
+    goog.object.forEach(map, function(func, type) {
+      if (obj[type]) {
+        /**
+         * @type {!bad.MqttParse.NormData}
+         */
+        var normPayload = this.normalizePayload_(type, obj[type]);
+        console.debug(type, 'Normalised Payload ----> ', normPayload);
+        this.parseWith_(normPayload, func);
+      }
+    }, this);
+  } catch (e) {
+    console.debug('Payload not JSON. Error:', e);
+  }
+
 };
 
 /**
