@@ -543,29 +543,20 @@ function test_parseAlarmOnConfirmation() {
 }
 
 function test_parseAlarmEvent() {
-    var pl = {"e": [0,"panel",[101, "FIRE - MAIN BEDROOM"]]};
+    var pl = {"e": [0,"panel",[[101, "FIRE - MAIN BEDROOM"]]]};
     var reply = parser.parse(goog.json.serialize(pl));
-//    reply.ts = reply.ts.valueOf();
+    reply.ts = reply.ts.valueOf();
     console.debug(reply)
 
-    reply = {
-        command: null,
-        events: [],
-        tct: 'TCT',
-        tcr: 'TCR',
-        msg: 'a string',
-        res: 'res',
-        data: []
-    };
-
-    assertUndefined('No events', reply.events);
-    assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
-    assertUndefined('No msg:', reply.msg);
-    assertUndefined('No res', reply.res);
-    assertUndefined('No data:', reply.data);
-
-
+//    reply = {
+//        command: null,
+//        events: [],
+//        tct: 'TCT',
+//        tcr: 'TCR',
+//        msg: 'a string',
+//        res: 'res',
+//        data: []
+//    };
 
 }
 
