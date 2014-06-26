@@ -486,6 +486,8 @@ function test_parseTransReplyMax() {
     var pl = {"x": [0, "reply_topic", 0, res]};
     var reply = parser.parse(goog.json.serialize(pl));
 
+    console.debug('HERE THE REPLY:', reply);
+
     assertEquals('tcr should be:', 'reply_topic', reply.tcr);
     assertArrayEquals('response res should be', res, reply.res);
     assertEquals('Code key should be 0', 0, reply.code);
@@ -532,6 +534,42 @@ function test_parseNullMessage() {
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
 }
+
+function test_parseAlarmOnConfirmation() {
+    var pl = {"d": [0, [true, "alarm", "on"]]};
+    var reply = parser.parse(goog.json.serialize(pl));
+    reply.ts = reply.ts.valueOf();
+    console.debug(reply)
+}
+
+function test_parseAlarmEvent() {
+    var pl = {"e": [0,"panel",[101, "FIRE - MAIN BEDROOM"]]};
+    var reply = parser.parse(goog.json.serialize(pl));
+//    reply.ts = reply.ts.valueOf();
+    console.debug(reply)
+
+    reply = {
+        command: null,
+        events: [],
+        tct: 'TCT',
+        tcr: 'TCR',
+        msg: 'a string',
+        res: 'res',
+        data: []
+    };
+
+    assertUndefined('No events', reply.events);
+    assertUndefined('No tct:', reply.tct);
+    assertUndefined('No tcr:', reply.tcr);
+    assertUndefined('No msg:', reply.msg);
+    assertUndefined('No res', reply.res);
+    assertUndefined('No data:', reply.data);
+
+
+
+}
+
+
 
 
 </script>

@@ -242,7 +242,6 @@ bad.MqttParse.prototype.parseHeader_ = function(type, val, reply) {
       }
   }
   return reply;
-
 };
 
 bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
