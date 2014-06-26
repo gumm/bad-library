@@ -102,8 +102,13 @@ bad.MqttParse.replyCode = {
   /**
    * Raised when the event code is not a number.
    */
-  EVENT_CODE_NOT_NUMBER: -13
+  EVENT_CODE_NOT_NUMBER: -13,
 
+  /**
+   * Raised when the master payload is not parseable as a JSON
+   * object.
+   */
+  PAYLOAD_NOT_JSON: -14
 
 };
 
@@ -119,14 +124,23 @@ bad.MqttParse.NormData;
  * @param {!string} payload A JSON parsable string.
  */
 bad.MqttParse.prototype.parse = function(payload) {
-  var obj = goog.json.parse(payload);
-  var type = goog.object.getAnyKey(obj);
   var normPayload = null;
-  if (type) {
-    /**
-     * @type {!bad.MqttParse.NormData}
-     */
-    normPayload = this.normalizePayload_(type, obj[type]);
+  try {
+    var obj = goog.json.parse(payload);
+    var type = goog.object.getAnyKey(obj);
+    if (type) {
+      /**
+       * @type {!bad.MqttParse.NormData}
+       */
+      normPayload = this.normalizePayload_(type, obj[type]);
+    }
+  } catch (e) {
+    console.log('ERR: PAYLOAD_NOT_JSON', e);
+    normPayload = {
+      code: bad.MqttParse.replyCode.PAYLOAD_NOT_JSON,
+      ts: new Date(),
+      org: payload
+    }
   }
   return normPayload;
 };
@@ -224,7 +238,7 @@ bad.MqttParse.prototype.parseHeader_ = function(type, val, reply) {
         reply = this.parseEventMsg_(second, reply);
         break;
       default:
-          console.debug('We really should not have come here', type, val.length);
+          console.log('We really should not have come here', type, val.length);
       }
   }
   return reply;
