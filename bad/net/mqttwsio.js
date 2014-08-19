@@ -210,21 +210,36 @@ bad.MqttWsIo.prototype.publishedMQTT = function(topic, payload) {
 
 bad.MqttWsIo.prototype.displayMQTT = function(topic, payload, pull, col) {
 
+  var isJunk =  goog.string.contains(topic, 'owntracks') ||
+    goog.string.contains(topic, 'Hello');
+  var isSpyglass = goog.string.contains(topic, 'spyglass');
+  var isREST2MQTT = goog.string.contains(topic, '/p');
+  var isDEV2MQTT = goog.string.contains(topic, '/u');
+
+  var dirContent = isSpyglass ? 'Smart -> Cytrus' :
+    isREST2MQTT ? 'Smart -> Hub' :
+    isDEV2MQTT ? 'Hub -> Smart' : '';
+
   var theDate = new Date();
 
   var plDom = goog.dom.createDom('pre', 'payload', '');
+  var dirDom = goog.dom.createDom('kbd', 'dirIndicator', dirContent);
   var dom = goog.dom.createDom('div', pull + ' blah',
+      dirDom,
       goog.dom.createDom('kbd', '', topic),
       goog.dom.createDom('kbd', 'rightinline', theDate.toLocaleTimeString()),
       goog.dom.createDom('div', col, plDom)
   );
+  if(isSpyglass) {
+    goog.dom.classlist.add(plDom, 'spyglass')
+  }
 
   try {
     plDom.innerHTML = this.jsonFormat_.format(payload);
   } catch (e) {
     plDom.innerHTML = payload;
   }
-  return dom;
+  return isJunk ? goog.dom.createDom('div') : dom;
 };
 
 bad.MqttWsIo.prototype.displaySys = function(topic, payload) {
