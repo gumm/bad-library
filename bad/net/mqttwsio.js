@@ -239,7 +239,7 @@ bad.MqttWsIo.prototype.displayMQTT = function(topic, payload, pull, col) {
   } catch (e) {
     plDom.innerHTML = payload;
   }
-  return isJunk ? goog.dom.createDom('div') : dom;
+  return isJunk ? goog.dom.createDom(div) : dom;
 };
 
 bad.MqttWsIo.prototype.displaySys = function(topic, payload) {
