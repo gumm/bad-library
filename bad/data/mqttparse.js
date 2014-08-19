@@ -121,7 +121,9 @@ bad.MqttParse.replyCode = {
 bad.MqttParse.NormData;
 
 /**
- * @param {!string} payload A JSON parsable string.
+ * Parse a string into a JSON object.
+ * @param payload A JSON parsable string.
+ * @returns {Object}
  */
 bad.MqttParse.prototype.parse = function(payload) {
   var normPayload = null;
