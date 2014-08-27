@@ -210,8 +210,6 @@ bad.MqttWsIo.prototype.publishedMQTT = function(topic, payload) {
 
 bad.MqttWsIo.prototype.displayMQTT = function(topic, payload, pull, col) {
 
-  var isJunk =  goog.string.contains(topic, 'owntracks') ||
-    goog.string.contains(topic, 'Hello');
   var isSpyglass = goog.string.contains(topic, 'spyglass');
   var isREST2MQTT = goog.string.contains(topic, '/p');
   var isDEV2MQTT = goog.string.contains(topic, '/u');
@@ -239,7 +237,7 @@ bad.MqttWsIo.prototype.displayMQTT = function(topic, payload, pull, col) {
   } catch (e) {
     plDom.innerHTML = payload;
   }
-  return isJunk ? goog.dom.createDom(div) : dom;
+  return dom;
 };
 
 bad.MqttWsIo.prototype.displaySys = function(topic, payload) {

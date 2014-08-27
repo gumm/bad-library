@@ -39,7 +39,7 @@ bad.utils.getRawFormElements = function(form) {
 /**
  * Make a default button.
  * @param {!(string|Element)} elId The element id that will be decorated.
- * @param {goog.ui.Component} parent The buttons parent.
+ * @param {goog.ui.Component|undefined} parent The buttons parent.
  * @param {Function=} opt_callback The callback function to execute on
  *      button action.
  * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.

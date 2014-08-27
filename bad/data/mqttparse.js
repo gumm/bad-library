@@ -131,6 +131,7 @@ bad.MqttParse.replyCode = {
  *       code: !number,
  *       tct: !string,
  *       rpc: !number,
+ *       iah: !boolean,
  *       ts: !Date,
  *       msg: !Array,
  *       data: *,
@@ -144,7 +145,7 @@ bad.MqttParse.NormData;
 /**
  * Parse a string into a JSON object.
  * @param payload A JSON parsable string.
- * @returns {Object}
+ * @return {Object}
  */
 bad.MqttParse.prototype.parse = function(payload) {
   var normPayload = null;
@@ -154,9 +155,6 @@ bad.MqttParse.prototype.parse = function(payload) {
     // A valid payload only has one key. Either c, d, e, x or i
     var type = goog.object.getAnyKey(obj);
     if (type) {
-      /**
-       * @type {!bad.MqttParse.NormData}
-       */
       normPayload = this.normalizePayload_(type, obj[type]);
     }
   } catch (e) {
@@ -166,7 +164,7 @@ bad.MqttParse.prototype.parse = function(payload) {
       org: payload
     }
   }
-  return normPayload;
+  return /** @type {!bad.MqttParse.NormData} */ (normPayload);
 };
 
 //----------------------------------------------------------[ Normalise Data ]--
@@ -174,17 +172,21 @@ bad.MqttParse.prototype.parse = function(payload) {
 /**
  * This is the entry point to the parser.
  * @param {!string} type Will be either c, d, e, x, or i
- * @param {!Array} msg The message component of the payload.
+ * @param {!(Array|number)} msg The message component of the payload.
  * @return {!bad.MqttParse.NormData}
  * @private
  */
 bad.MqttParse.prototype.normalizePayload_ = function(type, msg) {
-  var reply = {type: type};
+
+  var reply = /** @type {!bad.MqttParse.NormData} */ ({});
+  reply.type = type;
+
   if (type === 'i') {
     reply.iah = true;
-    this.parseTimeStamp_(msg, reply);
+    this.parseTimeStamp_(/** @type {number} */ (msg), reply);
   } else {
-    reply = this.testPayloadType_(type, msg, reply);
+    msg = /** @type {!Array} */ (msg);
+    reply = this.testPayloadType_(msg, reply);
 
     // Code 0 = all OK will pass this test.
     if (!reply.code) {
@@ -227,10 +229,16 @@ bad.MqttParse.prototype.parseTimeStamp_ = function(ts, reply) {
   return reply;
 };
 
-bad.MqttParse.prototype.testPayloadType_ = function(type, val, reply) {
-  var passIsArray = this.isArray(val);
-  var passNotEmpty = !this.isEmptyArr(val);
-  var passIsKnownType = goog.string.contains('cdex', type);
+/**
+ * @param {Array} msg The message component of the payload.
+ * @param {!bad.MqttParse.NormData} reply
+ * @returns {!bad.MqttParse.NormData}
+ * @private
+ */
+bad.MqttParse.prototype.testPayloadType_ = function(msg, reply) {
+  var passIsArray = this.isArray(msg);
+  var passNotEmpty = !this.isEmptyArr(msg);
+  var passIsKnownType = goog.string.contains('cdex', reply.type);
 
   reply.code =
     !passIsArray ? bad.MqttParse.replyCode.PAYLOAD_NOT_ARRAY :
@@ -238,7 +246,6 @@ bad.MqttParse.prototype.testPayloadType_ = function(type, val, reply) {
     !passIsKnownType ? bad.MqttParse.replyCode.TYPE_ERR :
     bad.MqttParse.replyCode.ALL_OK;
 
-  reply.type = type;
   return reply;
 };
 
@@ -258,7 +265,7 @@ bad.MqttParse.prototype.testPayloadLength_ = function(type, msg, reply) {
    * A map of known payload lengths. The array value represents
    *   arr[0] == min allowed length
    *   arr[1] == max allowed length.
-   * @type {{c: number[], d: number[], e: number[], x: number[]}}
+   * @type {Object.<string, Array.<number>>}
    */
   var allowedMessageLengths = {
     'c': [2,3],
