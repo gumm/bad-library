@@ -16,6 +16,7 @@
 
 var ftc = 1502476730236; // Some time it the future
 var ptc = -60 * 60 * 3;  // 3 hours ago.
+var tct = ">ticket_id_12345";
 
 /*
  assertTrue([comment,] value)
@@ -107,6 +108,8 @@ function test_parserTests() {
 function test_parseFutureTimeStamp() {
     var pl = {"c": [ftc,["func"]]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
+
     assertIsDate('The reply.ts should be a date', reply.ts);
     assertSmallerThan(
         'The is allowed to be in the future',
@@ -119,6 +122,8 @@ function test_parseFutureTimeStamp() {
 function test_parsePastTimeStamp() {
     var pl = {"c": [ptc, ["func"]]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
+
     var now = new Date();
     assertEquals(
         'The reply timestamp should be 3 hours in the past',
@@ -131,6 +136,8 @@ function test_parsePastTimeStamp() {
 function test_parseZeroTimeStamp() {
     var pl = {"c": [0, ["zero"]]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
+
     var now = new Date();
     assertRoughlyEquals(
         'The reply timestamp should be within 10ms from now',
@@ -143,6 +150,7 @@ function test_parseZeroTimeStamp() {
 function test_parseBrokenTooShort() {
     var pl = {"c": ["func"]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertEquals('Payload too short',
         bad.MqttParse.replyCode.PAYLOAD_TOO_SHORT, reply.code);
@@ -150,16 +158,16 @@ function test_parseBrokenTooShort() {
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
-};
+    assertUndefined('No iah', reply.iah);
+}
 
 function test_parseBrokenTooLong() {
     var pl = {"c": [1,2,3,4]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertEquals('Payload too long of non-X',
         bad.MqttParse.replyCode.PAYLOAD_TOO_LONG, reply.code);
@@ -167,16 +175,16 @@ function test_parseBrokenTooLong() {
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseBrokenTooLongX() {
     var pl = {"x": [1,2,3,4,5]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertEquals('Payload too long for X',
         bad.MqttParse.replyCode.PAYLOAD_TOO_LONG, reply.code);
@@ -184,16 +192,16 @@ function test_parseBrokenTooLongX() {
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseBrokenWrongType() {
     var pl = {"z": [1,2,3]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertEquals('Payload too short',
         bad.MqttParse.replyCode.TYPE_ERR, reply.code);
@@ -201,16 +209,16 @@ function test_parseBrokenWrongType() {
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseCommandMin() {
     var pl = {"c": [0, ["func"]]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertNotUndefined('Should have a command key', reply.command);
     assertIsObject('command value should be an object', reply.command);
@@ -219,16 +227,16 @@ function test_parseCommandMin() {
     assertIsDate('The timestamp should be a date', reply.ts);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseCommandMax() {
-    var pl = {"c": [0, "concat", ["concat", true, false, null, 1, "string"]]};
+    var pl = {"c": [0, tct, ["concat", true, false, null, 1, "string"]]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertNotUndefined('Should have a command key', reply.command);
     assertIsObject('command value should be an object', reply.command);
@@ -238,19 +246,19 @@ function test_parseCommandMax() {
 
     assertEquals('Code key should be 0', 0, reply.code);
     assertIsDate('The timestamp should be a date', reply.ts);
-    assertEquals('The tct key is:', 'concat', reply.tct);
+    assertEquals('The tct key is:', tct, reply.tct);
 
     assertUndefined('No events', reply.events);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseCommandBrokenNotArray() {
-    var pl = {"c": [1,2,3]};
+    var pl = {"c": [0,tct,3]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertEquals('Command component must be an array',
         bad.MqttParse.replyCode.COMMAND_NOT_ARRAY, reply.code);
@@ -258,15 +266,14 @@ function test_parseCommandBrokenNotArray() {
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseCommandBrokenArrEmpty() {
-    var pl = {"c": [1,2,[]]};
+    var pl = {"c": [0, tct, []]};
     var reply = parser.parse(goog.json.serialize(pl));
 
     assertEquals('Command component may not be empty',
@@ -275,16 +282,16 @@ function test_parseCommandBrokenArrEmpty() {
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseCommandBrokenNotString() {
-    var pl = {"c": [1,2,[1]]};
+    var pl = {"c": [1,tct,[1]]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertEquals('Command name must be a string',
         bad.MqttParse.replyCode.COMMAND_STRING, reply.code);
@@ -292,16 +299,16 @@ function test_parseCommandBrokenNotString() {
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseEventMin() {
     var pl = {"e": [0, [[100]]]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertNotUndefined('Should have a events key', reply.events);
     assertIsObject('events value should be an object', reply.events);
@@ -314,11 +321,10 @@ function test_parseEventMin() {
 
     assertUndefined('No command', reply.command);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseEventMax() {
@@ -329,6 +335,7 @@ function test_parseEventMax() {
         [103, 123.345]
     ]]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertNotUndefined('Should have a events key', reply.events);
     assertIsObject('events value should be an object', reply.events);
@@ -346,16 +353,16 @@ function test_parseEventMax() {
     assertEquals('The tct key is:', 'eventmax', reply.tct);
 
     assertUndefined('No command', reply.command);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseEventBrokenNotArray() {
     var pl = {"e": [0, 2]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertEquals('Command name must be a string',
         bad.MqttParse.replyCode.EVENTS_NOT_ARRAY, reply.code);
@@ -363,16 +370,16 @@ function test_parseEventBrokenNotArray() {
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseEventBrokenArrayEmpty() {
     var pl = {"e": [0, []]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertEquals('Command name must be a string',
         bad.MqttParse.replyCode.EVENTS_ARR_EMPTY, reply.code);
@@ -380,16 +387,16 @@ function test_parseEventBrokenArrayEmpty() {
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseEventBrokenInnerNotArray() {
     var pl = {"e": [0, [1]]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertEquals('Command name must be a string',
         bad.MqttParse.replyCode.EVENT_NOT_ARRAY, reply.code);
@@ -397,16 +404,16 @@ function test_parseEventBrokenInnerNotArray() {
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseEventBrokenInnerArrayEmpty() {
     var pl = {"e": [0, [[]]]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertEquals('Command name must be a string',
         bad.MqttParse.replyCode.EVENT_ARR_EMPTY, reply.code);
@@ -414,16 +421,16 @@ function test_parseEventBrokenInnerArrayEmpty() {
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseEventBrokenInnerCodeNotNumber() {
     var pl = {"e": [0, [["hello"]]]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertEquals('Command name must be a string',
         bad.MqttParse.replyCode.EVENT_CODE_NOT_NUMBER, reply.code);
@@ -431,17 +438,17 @@ function test_parseEventBrokenInnerCodeNotNumber() {
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 
 function test_parseDataMin() {
     var pl = {"d": [0,[]]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertNotUndefined('Should have a data key', reply.data);
     assertIsArray('data value should be an array', reply.data);
@@ -453,16 +460,16 @@ function test_parseDataMin() {
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseDataMax() {
-    var dataPl = [100, true, false, {"a":"string", "b":123}, null, [1,2,3], "some string"]
+    var dataPl = [100, true, false, {"a":"string", "b":123}, null, [1,2,3], "some string"];
     var pl = {"d": [0, "datamax", dataPl]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
     assertNotUndefined('Should have a data key', reply.data);
     assertIsArray('data value should be an array', reply.data);
@@ -474,38 +481,36 @@ function test_parseDataMax() {
 
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
-    assertUndefined('No tcr:', reply.tcr);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 
 function test_parseTransReplyMax() {
     var res = [100, true, false, null, "some string"];
-    var pl = {"x": [0, "reply_topic", 0, res]};
+    var pl = {"x": [0, 0, res]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
-    console.debug('HERE THE REPLY:', reply);
 
-    assertEquals('tcr should be:', 'reply_topic', reply.tcr);
     assertArrayEquals('response res should be', res, reply.res);
     assertEquals('Code key should be 0', 0, reply.code);
     assertIsDate('The timestamp should be a date', reply.ts);
 
+    assertUndefined('No tct:', reply.tct);
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
-    assertUndefined('No tct:', reply.tct);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
 function test_parseTransReplyMin() {
-    var pl = {"x": [0, "reply_topic", 0]};
+    var pl = {"x": [0, 0]};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
 
-    assertEquals('tcr should be:', 'reply_topic', reply.tcr);
     assertEquals('Code key should be 0', 0, reply.code);
     assertIsDate('The timestamp should be a date', reply.ts);
 
@@ -515,21 +520,71 @@ function test_parseTransReplyMin() {
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
-    assertUndefined('No nullMsg', reply.nullMsg);
+    assertUndefined('No iah', reply.iah);
 }
 
-function test_parseNullMessage() {
-    var pl = {"n": null};
+function test_parseIamHereMessageZeroTimestamp() {
+    var pl = {"i": 0};
     var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
+
+    assertEquals(
+        'The reply timestamp be now ',
+        Math.floor(new Date().valueOf()/1000),
+        Math.floor(reply.ts.valueOf()/1000)
+    );
 
     assertEquals('Code key should be 0', 0, reply.code);
-    assertTrue('This is the null message', reply.nullMsg);
+    assertTrue('This is the iah message', reply.iah);
+    assertUndefined('No command', reply.command);
+    assertUndefined('No events', reply.events);
+    assertUndefined('No tct:', reply.tct);
+    assertUndefined('No msg:', reply.msg);
+    assertUndefined('No res', reply.res);
+    assertUndefined('No data:', reply.data);
+}
+
+function test_parseIamHereMessageNormTimestamp() {
+    var now = new Date();
+    var pl = {"i": now.valueOf()/1000};
+    var reply = parser.parse(goog.json.serialize(pl));
+    console.debug(reply);
+
+    assertEquals('Code key should be 0', 0, reply.code);
+    assertTrue('This is the iah message', reply.iah);
     assertIsDate('The timestamp should be a date', reply.ts);
+
+    assertEquals(
+        'The reply timestamp be exactly the given time ',
+        now.valueOf(),
+        reply.ts.valueOf()
+    );
 
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
-    assertUndefined('No tcr:', reply.tcr);
+    assertUndefined('No msg:', reply.msg);
+    assertUndefined('No res', reply.res);
+    assertUndefined('No data:', reply.data);
+}
+
+function test_parseBrokenIamHereMessage() {
+    var pl = {"i": "broken here"};
+    var reply = parser.parse(goog.json.serialize(pl));
+
+    assertEquals('Code key should be 0', 1, reply.code);
+    assertTrue('This is the iah message', reply.iah);
+    assertIsDate('The timestamp should be a date', reply.ts);
+
+    assertEquals(
+        'The reply timestamp be exactly the given time ',
+        Math.floor(new Date().valueOf()/1000),
+        Math.floor(reply.ts.valueOf()/1000)
+    );
+
+    assertUndefined('No command', reply.command);
+    assertUndefined('No events', reply.events);
+    assertUndefined('No tct:', reply.tct);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
     assertUndefined('No data:', reply.data);
@@ -547,17 +602,6 @@ function test_parseAlarmEvent() {
     var reply = parser.parse(goog.json.serialize(pl));
     reply.ts = reply.ts.valueOf();
     console.debug(reply)
-
-//    reply = {
-//        command: null,
-//        events: [],
-//        tct: 'TCT',
-//        tcr: 'TCR',
-//        msg: 'a string',
-//        res: 'res',
-//        data: []
-//    };
-
 }
 
 

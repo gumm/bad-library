@@ -60,7 +60,7 @@ bad.MqttParse.replyCode = {
   PAYLOAD_TOO_LONG: -4,
 
   /**
-   * The message is not of the type c, d, e, x or n.
+   * The message is not of the type c, d, e, x or i.
    */
   TYPE_ERR: -5,
 
@@ -105,18 +105,39 @@ bad.MqttParse.replyCode = {
   EVENT_CODE_NOT_NUMBER: -13,
 
   /**
-   * Raised when the master payload is not parseable as a JSON
+   * Raised when the master payload is not parsable as a JSON
    * object.
    */
-  PAYLOAD_NOT_JSON: -14
+  PAYLOAD_NOT_JSON: -14,
+
+  /**
+   * Raised when the given tct is not a string
+   */
+  TCT_NOT_STRING: -15,
+
+  /**
+   * Raised when the reply code on an reply message is not an number
+   */
+  RESULT_CODE_NOT_INT: -16
 
 };
 
 /**
  * This parser internally normalises the MQTT payload to a data structure
  * that is passed into its internal and proxy parsing functions.
- * @typedef {{code: !number, tct: !string, tcr: !string,
- *    ts: !Date, msg: !Array, res: *}}
+ * @typedef {
+ *    {
+ *       type: !string,
+ *       code: !number,
+ *       tct: !string,
+ *       rpc: !number,
+ *       ts: !Date,
+ *       msg: !Array,
+ *       data: *,
+ *       events: !Array,
+ *       res: *
+ *    }
+ * }
  */
 bad.MqttParse.NormData;
 
@@ -129,6 +150,8 @@ bad.MqttParse.prototype.parse = function(payload) {
   var normPayload = null;
   try {
     var obj = goog.json.parse(payload);
+
+    // A valid payload only has one key. Either c, d, e, x or i
     var type = goog.object.getAnyKey(obj);
     if (type) {
       /**
@@ -137,7 +160,6 @@ bad.MqttParse.prototype.parse = function(payload) {
       normPayload = this.normalizePayload_(type, obj[type]);
     }
   } catch (e) {
-    console.log('ERR: PAYLOAD_NOT_JSON', e);
     normPayload = {
       code: bad.MqttParse.replyCode.PAYLOAD_NOT_JSON,
       ts: new Date(),
@@ -149,41 +171,44 @@ bad.MqttParse.prototype.parse = function(payload) {
 
 //----------------------------------------------------------[ Normalise Data ]--
 
-bad.MqttParse.prototype.testPayloadType_ = function(type, val, reply) {
-  var passIsArray = this.isArray(val);
-  var passNotEmpty = !this.isEmptyArr(val);
-  var passIsKnownType = goog.string.contains('cdex', type);
+/**
+ * This is the entry point to the parser.
+ * @param {!string} type Will be either c, d, e, x, or i
+ * @param {!Array} msg The message component of the payload.
+ * @return {!bad.MqttParse.NormData}
+ * @private
+ */
+bad.MqttParse.prototype.normalizePayload_ = function(type, msg) {
+  var reply = {type: type};
+  if (type === 'i') {
+    reply.iah = true;
+    this.parseTimeStamp_(msg, reply);
+  } else {
+    reply = this.testPayloadType_(type, msg, reply);
 
-  reply.code =
-    !passIsArray ? bad.MqttParse.replyCode.PAYLOAD_NOT_ARRAY :
-    !passNotEmpty ? bad.MqttParse.replyCode.PAYLOAD_EMPTY :
-    !passIsKnownType ? bad.MqttParse.replyCode.TYPE_ERR :
-    bad.MqttParse.replyCode.ALL_OK;
-  return reply;
-};
+    // Code 0 = all OK will pass this test.
+    if (!reply.code) {
+      reply = this.testPayloadLength_(type, msg, reply);
 
-bad.MqttParse.prototype.testPayloadLength_ = function(type, val, reply) {
-  var len = val.length;
-  var passMin = type === 'n' ? len === 1 : len >= 2;
-  var passMax = type === 'n' ? len === 1 :
-                type === 'x' ? len <= 4:
-                len <= 3;
-
-  reply.code =
-    !passMin ? bad.MqttParse.replyCode.PAYLOAD_TOO_SHORT :
-    !passMax ? bad.MqttParse.replyCode.PAYLOAD_TOO_LONG :
-    reply.code;
+      // All still OK.
+      if (!reply.code) {
+        reply = this.parseMessage_(type, msg, reply);
+      }
+    }
+  }
   return reply;
 };
 
 /**
  * @param {number} ts A signed integer. If the number is negative, it is treated
- * as seconds in the past, and the reply is now - ts(seconds).
- * If the number is 0 it is treated as now.
- * If the number is positive, it is treated as the number of seconds since
- * 1970, and parsed as such. A final check is done to make sure the result is
- * not in the future. If it is, then now is returned.
- * @return {!Date}
+ *   as seconds in the past, and the reply is now - ts(seconds).
+ *   If the number is 0 it is treated as now.
+ *   If the number is positive, it is treated as the number of seconds since
+ *   1970, and parsed as such. Future timestamps are allowed.
+ *   If the date can not be parsed from the given timestamp, the parsers own now
+ *   is inserted, and the reply code is set to BAD_TIMESTAMP.
+ * @param {!bad.MqttParse.NormData} reply
+ * @return {!bad.MqttParse.NormData}
  * @private
  */
 bad.MqttParse.prototype.parseTimeStamp_ = function(ts, reply) {
@@ -197,51 +222,108 @@ bad.MqttParse.prototype.parseTimeStamp_ = function(ts, reply) {
       var milli = ts * 1000;
       date.setTime(milli);
     }
-    reply.ts = date;
   }
+  reply.ts = date;
   return reply;
 };
 
-bad.MqttParse.prototype.parseHeader_ = function(type, val, reply) {
-  reply = this.parseTimeStamp_(val[0], reply);
-  if (!reply.code) {
-    var first = val[1];
-    var second = val[2];
-    var third = val[3];
-    switch(type + val.length) {
-      case 'x3':
-        reply.tcr = first;
-        reply.code = second;
-        break;
-      case 'x4':
-        reply.tcr = first;
-        reply.code = second;
-        reply.res = third;
-        break;
-      case 'c2':
-        reply = this.parseCommandMsg_(first, reply);
-        break;
-      case 'c3':
-        reply.tct = first;
-        reply = this.parseCommandMsg_(second, reply);
-        break;
-      case 'd2':
-        reply.data = first;
-        break;
-      case 'd3':
-        reply.tct = first;
-        reply.data = second;
-        break;
-      case 'e2':
-        reply = this.parseEventMsg_(first, reply);
-        break;
-      case 'e3':
-        reply.tct = first;
-        reply = this.parseEventMsg_(second, reply);
-        break;
-      default:
-          console.log('We really should not have come here', type, val.length);
+bad.MqttParse.prototype.testPayloadType_ = function(type, val, reply) {
+  var passIsArray = this.isArray(val);
+  var passNotEmpty = !this.isEmptyArr(val);
+  var passIsKnownType = goog.string.contains('cdex', type);
+
+  reply.code =
+    !passIsArray ? bad.MqttParse.replyCode.PAYLOAD_NOT_ARRAY :
+    !passNotEmpty ? bad.MqttParse.replyCode.PAYLOAD_EMPTY :
+    !passIsKnownType ? bad.MqttParse.replyCode.TYPE_ERR :
+    bad.MqttParse.replyCode.ALL_OK;
+
+  reply.type = type;
+  return reply;
+};
+
+/**
+ * Test the payload length against the know allowed lengths for payloads of
+ * a particular type.
+ * @param {!string} type The payload type. Only c,d,e and x messages come here.
+ * @param {!Array} msg The message component of the payload.
+ * @param {!bad.MqttParse.NormData} reply
+ * @return {!bad.MqttParse.NormData}
+ * @private
+ */
+bad.MqttParse.prototype.testPayloadLength_ = function(type, msg, reply) {
+  var len = msg.length;
+
+  /**
+   * A map of known payload lengths. The array value represents
+   *   arr[0] == min allowed length
+   *   arr[1] == max allowed length.
+   * @type {{c: number[], d: number[], e: number[], x: number[]}}
+   */
+  var allowedMessageLengths = {
+    'c': [2,3],
+    'd': [2,3],
+    'e': [2,3],
+    'x': [2,3]
+  };
+
+  var passMin = len >= allowedMessageLengths[type][0];
+  var passMax = len <= allowedMessageLengths[type][1];
+
+  reply.code =
+    !passMin ? bad.MqttParse.replyCode.PAYLOAD_TOO_SHORT :
+    !passMax ? bad.MqttParse.replyCode.PAYLOAD_TOO_LONG :
+    reply.code;
+  return reply;
+};
+
+
+
+/**
+ * Parse the message component.
+ * @param {!string} type The payload type. Only c,d,e and x messages come here.
+ * @param {!Array} msg The message component of the payload.
+ * @param {!bad.MqttParse.NormData} reply
+ * @returns {!bad.MqttParse.NormData}
+ * @private
+ */
+bad.MqttParse.prototype.parseMessage_ = function(type, msg, reply) {
+  var ts = msg.shift();
+  reply = this.parseTimeStamp_(ts, reply);
+
+  var parseMap_ = {
+    'c': goog.bind(this.parseCommandMsg_, this),
+    'd': goog.bind(this.parseDataMsg_, this),
+    'e': goog.bind(this.parseEventMsg_, this),
+    'x': goog.bind(this.parseReplyMsg_, this)
+  };
+
+  if (reply.code >= 0) {
+    // First get the anomaly out the way.
+    // For type x message, the rules are:
+    // message[0] must be int.
+    // message[1] is optional. Can be anything
+    if (type === 'x') {
+      reply.rpc = this.isInt(msg[0]) ? msg[0] :
+        bad.MqttParse.replyCode.RESULT_CODE_NOT_INT;
+      reply = parseMap_[type](msg[1], reply)
+    } else {
+      // All other message rules are:
+      // If message.length === 1, message[0] must be array.
+      // If message.length === 2, message[0] must be string and
+      //    message[1] array.
+      var len = msg.length;
+      if (len === 1) {
+        reply = parseMap_[type](msg.shift(), reply);
+      } else if (len === 2) {
+        if (this.isString(msg[0])) {
+          reply.tct = msg.shift();
+          reply = parseMap_[type](msg.shift(), reply);
+        } else {
+          reply.code = bad.MqttParse.replyCode.TCT_NOT_STRING;
+        }
       }
+    }
   }
   return reply;
 };
@@ -316,27 +398,13 @@ bad.MqttParse.prototype.parseCommandMsg_ = function(msg, reply) {
   return reply;
 };
 
-/**
- * @param {!string} type
- * @param {!Array} val
- * @return {!bad.MqttParse.NormData}
- * @private
- */
-bad.MqttParse.prototype.normalizePayload_ = function(type, val) {
-  var reply = {};
-  if (type === 'n') {
-    reply.code = bad.MqttParse.replyCode.ALL_OK;
-    reply.nullMsg = true;
-    reply.ts = new Date();
-  } else {
-    reply = this.testPayloadType_(type, val, reply);
-    if (!reply.code) {
-      reply = this.testPayloadLength_(type, val, reply);
-      if (!reply.code) {
-        reply = this.parseHeader_(type, val, reply);
-      }
-    }
-  }
+bad.MqttParse.prototype.parseDataMsg_ = function(msg, reply) {
+  reply.data = msg;
+  return reply;
+};
+
+bad.MqttParse.prototype.parseReplyMsg_ = function(msg, reply) {
+  reply.res = msg;
   return reply;
 };
 
@@ -349,7 +417,7 @@ bad.MqttParse.prototype.isNotEmptyArr = function(a) {
 };
 
 bad.MqttParse.prototype.isEmptyArr = function(a) {
-    return goog.isDef(a[0]) ? false : true;
+    return !goog.isDef(a[0]);
 };
 
 bad.MqttParse.prototype.isString = function(a) {
