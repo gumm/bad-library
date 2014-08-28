@@ -143,6 +143,52 @@ bad.MqttParse.replyCode = {
 bad.MqttParse.NormData;
 
 /**
+ * Parse a payload and topic in one go.
+ * @param {string} topic A string.
+ * @param {*} payload Could be anything
+ * @param {Object=} packet The raw packet.
+ * @return {Object}
+ */
+bad.MqttParse.prototype.parseAll = function(topic, payload, packet) {
+  var tArr = topic.split('/');
+  var parseResult = this.normalize_(payload, tArr, packet);
+  return parseResult;
+};
+
+/**
+ * Normalise and parse the payload.
+ * @param {*} pl
+ * @param {Array} tArr
+ * @param {!Object=} opt_packet
+ * @returns {*[]}
+ */
+bad.MqttParse.prototype.normalize_ = function(pl, tArr, opt_packet) {
+  var root = tArr[0];
+  // TODO: Look in root for further parsing symbols.
+
+  var hid = tArr[1];
+  var pid = tArr[2];
+  var dir = tArr[3];
+  var tct = tArr[4];
+
+  var nlData = this.parse(pl);
+  nlData.hid = hid;
+  nlData.pid = pid;
+  nlData.dir = dir;
+  nlData.ts = nlData.ts.valueOf();
+  if (tct && goog.string.startsWith(tct, '>')) {
+    nlData.reply_ticket = tct.substr(1);
+  }
+
+  if (opt_packet) {
+    nlData.qos = opt_packet.qos;
+    nlData.dup = opt_packet.dup;
+    nlData.retain = opt_packet.retain;
+  }
+  return [root, nlData];
+};
+
+/**
  * Parse a string into a JSON object.
  * @param payload A JSON parsable string.
  * @return {Object}
@@ -441,7 +487,7 @@ bad.MqttParse.prototype.isNumber = function(a) {
 bad.MqttParse.prototype.isInt = function(a) {
     var aS = a.toString();
     return goog.typeOf(a) === 'number' &&
-      a > 0 &&
+      a >= 0 &&
       !goog.string.contains(aS, '.');
 };
 
