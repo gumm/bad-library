@@ -172,7 +172,7 @@ bad.MqttParse.prototype.parse = function(payload) {
 /**
  * This is the entry point to the parser.
  * @param {!string} type Will be either c, d, e, x, or i
- * @param {!(Array|number)} msg The message component of the payload.
+ * @param {*} msg The message component of the payload.
  * @return {!bad.MqttParse.NormData}
  * @private
  */
@@ -180,10 +180,11 @@ bad.MqttParse.prototype.normalizePayload_ = function(type, msg) {
 
   var reply = /** @type {!bad.MqttParse.NormData} */ ({});
   reply.type = type;
+  reply.ts = new Date();
 
   if (type === 'i') {
     reply.iah = true;
-    this.parseTimeStamp_(/** @type {number} */ (msg), reply);
+    this.parseTimeStamp_(msg, reply);
   } else {
     msg = /** @type {!Array} */ (msg);
     reply = this.testPayloadType_(msg, reply);
@@ -202,7 +203,8 @@ bad.MqttParse.prototype.normalizePayload_ = function(type, msg) {
 };
 
 /**
- * @param {number} ts A signed integer. If the number is negative, it is treated
+ * @param {*} ts Could be anything, but a signed integer is the only thing
+ *   that will parse to a timestamp. If the number is negative, it is treated
  *   as seconds in the past, and the reply is now - ts(seconds).
  *   If the number is 0 it is treated as now.
  *   If the number is positive, it is treated as the number of seconds since
@@ -217,6 +219,7 @@ bad.MqttParse.prototype.parseTimeStamp_ = function(ts, reply) {
   reply.code = bad.MqttParse.replyCode.BAD_TIMESTAMP;
   var date = new Date();
   if (this.isNumber(ts)) {
+    ts = /** @type{!number} */ (ts);
     reply.code = bad.MqttParse.replyCode.ALL_OK;
     if (ts < 0) {
       date.setSeconds(date.getSeconds() + ts);
