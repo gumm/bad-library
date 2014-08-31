@@ -1,5 +1,6 @@
 /**
- * @fileoverview Base scripts for initialising the bad site.
+ * @fileoverview A web socket client that can interact with a server side
+ *    MQTT client.
  */
 goog.provide('bad.MqttEvent');
 goog.provide('bad.MqttEventType');
@@ -11,10 +12,9 @@ goog.require('goog.dom');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventHandler');
 goog.require('goog.events.EventTarget');
+goog.require('goog.format.JsonPrettyPrinter');
 goog.require('goog.json');
 goog.require('goog.net.WebSocket');
-goog.require('goog.object');
-goog.require('goog.format.JsonPrettyPrinter');
 
 /**
  * Constructor of the main site object.
@@ -35,6 +35,14 @@ bad.MqttWsIo = function(wsServer, wsPort) {
 };
 goog.inherits(bad.MqttWsIo, goog.events.EventTarget);
 
+/**
+ * @typedef {Object|null|number|string}
+ */
+bad.MqttWsIo.PAYLOAD;
+
+/**
+ * @return {goog.events.EventHandler|*}
+ */
 bad.MqttWsIo.prototype.getHandler = function() {
   return this.googUiComponentHandler_ ||
     (this.googUiComponentHandler_ = new goog.events.EventHandler(this));
@@ -47,6 +55,10 @@ bad.MqttWsIo.prototype.init = function(mqttEl) {
   this.MQTTElement_ = mqttEl;
 };
 
+/**
+ * @param {!string} topic
+ * @param {bad.MqttWsIo.PAYLOAD} payload
+ */
 bad.MqttWsIo.prototype.mqttPublish = function(topic, payload) {
   this.webSocket.send(goog.json.serialize({
     'action': 'publish',
@@ -55,6 +67,9 @@ bad.MqttWsIo.prototype.mqttPublish = function(topic, payload) {
   }));
 };
 
+/**
+ * @param {!string} topic
+ */
 bad.MqttWsIo.prototype.mqttSubscribe = function(topic) {
   this.webSocket.send(goog.json.serialize({
     'action': 'subscribe',
@@ -62,6 +77,9 @@ bad.MqttWsIo.prototype.mqttSubscribe = function(topic) {
   }));
 };
 
+/**
+ * @param {!string} topic
+ */
 bad.MqttWsIo.prototype.mqttUnSubscribe = function(topic) {
   this.webSocket.send(goog.json.serialize({
     'action': 'unsubscribe',
@@ -71,6 +89,7 @@ bad.MqttWsIo.prototype.mqttUnSubscribe = function(topic) {
 
 /**
  * This can be called right after instantiation.
+ * @param {Function=} opt_callback
  */
 bad.MqttWsIo.prototype.openWebsocket = function(opt_callback) {
   this.getHandler().listen(
@@ -96,6 +115,9 @@ bad.MqttWsIo.prototype.openWebsocket = function(opt_callback) {
   this.webSocket.open('ws://' + this.wsServer + ':' + this.wsPort);
 };
 
+/**
+ * @param {Object} data
+ */
 bad.MqttWsIo.prototype.routeWs = function(data) {
   var target = data['target'];
   var topic = data['topic'];
@@ -117,6 +139,11 @@ bad.MqttWsIo.prototype.routeWs = function(data) {
   }
 };
 
+/**
+ * @param {!string} target
+ * @param {!string} topic
+ * @param {bad.MqttWsIo.PAYLOAD} payload
+ */
 bad.MqttWsIo.prototype.onSys = function(target, topic, payload) {
   if (this.MQTTElement_) {
     goog.dom.insertChildAt(
@@ -129,7 +156,7 @@ bad.MqttWsIo.prototype.onSys = function(target, topic, payload) {
 /**
  * Called when the MQTT client for this websocket recived a message.
  * @param {!string} topic
- * @param {*} payload
+ * @param {bad.MqttWsIo.PAYLOAD} payload
  * @param {!Object} packet
  */
 bad.MqttWsIo.prototype.onMessage = function(target, topic, payload, packet) {
@@ -148,6 +175,12 @@ bad.MqttWsIo.prototype.onMessage = function(target, topic, payload, packet) {
   }
 };
 
+/**
+ * @param {!string} target
+ * @param {!string} topic
+ * @param {bad.MqttWsIo.PAYLOAD} payload
+ * @return {!Element}
+ */
 bad.MqttWsIo.prototype.displayMQTT = function(target, topic, payload) {
 
   var dirMap = {
@@ -158,12 +191,12 @@ bad.MqttWsIo.prototype.displayMQTT = function(target, topic, payload) {
     '@sys': 'SYSTEM'
   };
 
-  var dirContent = dirMap[target];
+  var dirTxt = dirMap[target];
   var pullRight = target === '@puback' ? 'pull-right' : '';
 
   var theDate = new Date();
   var plDom = goog.dom.createDom('pre', 'payload', '');
-  var dirDom = goog.dom.createDom('kbd', 'dirIndicator ' + dirContent, dirContent);
+  var dirDom = goog.dom.createDom('kbd', 'dirIndicator ' + dirTxt, dirTxt);
   var dom = goog.dom.createDom('div', pullRight + ' blah',
     goog.dom.createDom('kbd', 'event-time', theDate.toLocaleTimeString()),
     dirDom,
@@ -181,6 +214,9 @@ bad.MqttWsIo.prototype.displayMQTT = function(target, topic, payload) {
   return dom;
 };
 
+/**
+ * @enum {string}
+ */
 bad.MqttEventType = {
   RECEIVED: bad.utils.privateRandom()
 };
@@ -188,7 +224,7 @@ bad.MqttEventType = {
 /**
  * @param {bad.MqttWsIo} target
  * @param {!string} topic
- * @param {(string|number|Object)} payload
+ * @param {bad.MqttWsIo.PAYLOAD} payload
  * @param {Object} packet
  * @param {!string} root
  * @param {!Object} nlData
@@ -204,7 +240,7 @@ bad.MqttEvent = function(target, type, topic, payload, packet, root, nlData) {
   this.topic = topic;
 
   /**
-   * @type {(string|number|Object)}
+   * @type {bad.MqttWsIo.PAYLOAD}
    */
   this.payload = payload;
 

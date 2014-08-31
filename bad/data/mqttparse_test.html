@@ -98,10 +98,10 @@ function tearDown() {
 }
 
 function test_parserTests() {
-    assertTrue(parser.isEmptyArr([]));
-    assertFalse(parser.isEmptyArr(['a']));
-    assertFalse(parser.isNotEmptyArr([]));
-    assertTrue(parser.isNotEmptyArr(['a']));
+    assertTrue(bad.typeCheck.isEmptyArr([]));
+    assertFalse(bad.typeCheck.isEmptyArr(['a']));
+    assertFalse(bad.typeCheck.isNotEmptyArr([]));
+    assertTrue(bad.typeCheck.isNotEmptyArr(['a']));
 }
 
 // Future timestamps should be honoured.

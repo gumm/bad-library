@@ -5,10 +5,12 @@
 goog.provide('bad.MqttParse');
 goog.provide('bad.MqttParse.replyCode');
 
+goog.require('bad.typeCheck');
 goog.require('goog.array');
 goog.require('goog.events.EventTarget');
 goog.require('goog.json');
 goog.require('goog.object');
+goog.require('goog.string');
 
 /**
  * Constructor of a basic Trinity MQTT payload parser.
@@ -159,8 +161,8 @@ bad.MqttParse.prototype.parseAll = function(topic, payload, packet) {
  * Normalise and parse the payload.
  * @param {*} pl
  * @param {Array} tArr
- * @param {!Object=} opt_packet
- * @returns {*[]}
+ * @param {Object=} opt_packet
+ * @return {!Array}
  */
 bad.MqttParse.prototype.normalize_ = function(pl, tArr, opt_packet) {
   var root = tArr[0];
@@ -177,7 +179,7 @@ bad.MqttParse.prototype.normalize_ = function(pl, tArr, opt_packet) {
   nlData.dir = dir;
   nlData.ts = nlData.ts.valueOf();
   if (tct && goog.string.startsWith(tct, '>')) {
-    nlData.reply_ticket = tct.substr(1);
+    nlData.tckt = tct.substr(1);
   }
 
   if (opt_packet) {
@@ -190,7 +192,7 @@ bad.MqttParse.prototype.normalize_ = function(pl, tArr, opt_packet) {
 
 /**
  * Parse a string into a JSON object.
- * @param payload A JSON parsable string.
+ * @param {*} payload A JSON parsable string.
  * @return {Object}
  */
 bad.MqttParse.prototype.parse = function(payload) {
@@ -208,7 +210,7 @@ bad.MqttParse.prototype.parse = function(payload) {
       code: bad.MqttParse.replyCode.PAYLOAD_NOT_JSON,
       ts: new Date(),
       org: payload
-    }
+    };
   }
   return /** @type {!bad.MqttParse.NormData} */ (normPayload);
 };
@@ -264,8 +266,8 @@ bad.MqttParse.prototype.normalizePayload_ = function(type, msg) {
 bad.MqttParse.prototype.parseTimeStamp_ = function(ts, reply) {
   reply.code = bad.MqttParse.replyCode.BAD_TIMESTAMP;
   var date = new Date();
-  if (this.isNumber(ts)) {
-    ts = /** @type{!number} */ (ts);
+  if (bad.typeCheck.isNumber(ts)) {
+    ts = /** @type {!number} */ (ts);
     reply.code = bad.MqttParse.replyCode.ALL_OK;
     if (ts < 0) {
       date.setSeconds(date.getSeconds() + ts);
@@ -281,12 +283,12 @@ bad.MqttParse.prototype.parseTimeStamp_ = function(ts, reply) {
 /**
  * @param {Array} msg The message component of the payload.
  * @param {!bad.MqttParse.NormData} reply
- * @returns {!bad.MqttParse.NormData}
+ * @return {!bad.MqttParse.NormData}
  * @private
  */
 bad.MqttParse.prototype.testPayloadType_ = function(msg, reply) {
-  var passIsArray = this.isArray(msg);
-  var passNotEmpty = !this.isEmptyArr(msg);
+  var passIsArray = bad.typeCheck.isArray(msg);
+  var passNotEmpty = !bad.typeCheck.isEmptyArr(msg);
   var passIsKnownType = goog.string.contains('cdex', reply.type);
 
   reply.code =
@@ -317,10 +319,10 @@ bad.MqttParse.prototype.testPayloadLength_ = function(type, msg, reply) {
    * @type {Object.<string, Array.<number>>}
    */
   var allowedMessageLengths = {
-    'c': [2,3],
-    'd': [2,3],
-    'e': [2,3],
-    'x': [2,3]
+    'c': [2, 3],
+    'd': [2, 3],
+    'e': [2, 3],
+    'x': [2, 3]
   };
 
   var passMin = len >= allowedMessageLengths[type][0];
@@ -340,7 +342,7 @@ bad.MqttParse.prototype.testPayloadLength_ = function(type, msg, reply) {
  * @param {!string} type The payload type. Only c,d,e and x messages come here.
  * @param {!Array} msg The message component of the payload.
  * @param {!bad.MqttParse.NormData} reply
- * @returns {!bad.MqttParse.NormData}
+ * @return {!bad.MqttParse.NormData}
  * @private
  */
 bad.MqttParse.prototype.parseMessage_ = function(type, msg, reply) {
@@ -360,9 +362,9 @@ bad.MqttParse.prototype.parseMessage_ = function(type, msg, reply) {
     // message[0] must be int.
     // message[1] is optional. Can be anything
     if (type === 'x') {
-      reply.rpc = this.isInt(msg[0]) ? msg[0] :
+      reply.rpc = bad.typeCheck.isInt(msg[0]) ? msg[0] :
         bad.MqttParse.replyCode.RESULT_CODE_NOT_INT;
-      reply = parseMap_[type](msg[1], reply)
+      reply = parseMap_[type](msg[1], reply);
     } else {
       // All other message rules are:
       // If message.length === 1, message[0] must be array.
@@ -372,7 +374,7 @@ bad.MqttParse.prototype.parseMessage_ = function(type, msg, reply) {
       if (len === 1) {
         reply = parseMap_[type](msg.shift(), reply);
       } else if (len === 2) {
-        if (this.isString(msg[0])) {
+        if (bad.typeCheck.isString(msg[0])) {
           reply.tct = msg.shift();
           reply = parseMap_[type](msg.shift(), reply);
         } else {
@@ -387,8 +389,8 @@ bad.MqttParse.prototype.parseMessage_ = function(type, msg, reply) {
 bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
 
   reply.code =
-    !this.isArray(msg) ? bad.MqttParse.replyCode.EVENTS_NOT_ARRAY :
-    this.isEmptyArr(msg) ? bad.MqttParse.replyCode.EVENTS_ARR_EMPTY :
+    !bad.typeCheck.isArray(msg) ? bad.MqttParse.replyCode.EVENTS_NOT_ARRAY :
+    bad.typeCheck.isEmptyArr(msg) ? bad.MqttParse.replyCode.EVENTS_ARR_EMPTY :
     reply.code;
   var broken = {};
   if (!reply.code) {
@@ -396,16 +398,19 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
     var events = {};
     var isArrCode = 0;
     var isNumberCode = 0;
-    goog.array.forEach(msg, function (event) {
+    goog.array.forEach(msg, function(event) {
       isArrCode =
-        !this.isArray(event) ? bad.MqttParse.replyCode.EVENT_NOT_ARRAY :
-        this.isEmptyArr(event) ? bad.MqttParse.replyCode.EVENT_ARR_EMPTY :
+        !bad.typeCheck.isArray(event) ?
+          bad.MqttParse.replyCode.EVENT_NOT_ARRAY :
+        bad.typeCheck.isEmptyArr(event) ?
+          bad.MqttParse.replyCode.EVENT_ARR_EMPTY :
         isArrCode;
 
       if (!isArrCode) {
         var code = event.shift();
         isNumberCode =
-          !this.isInt(code) ? bad.MqttParse.replyCode.EVENT_CODE_NOT_NUMBER :
+          !bad.typeCheck.isInt(code) ?
+            bad.MqttParse.replyCode.EVENT_CODE_NOT_NUMBER :
           isNumberCode;
 
         if (!isNumberCode) {
@@ -436,9 +441,9 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
 
 bad.MqttParse.prototype.parseCommandMsg_ = function(msg, reply) {
   reply.code =
-    !this.isArray(msg) ? bad.MqttParse.replyCode.COMMAND_NOT_ARRAY :
-    this.isEmptyArr(msg) ? bad.MqttParse.replyCode.COMMAND_ARR_EMPTY :
-    !this.isString(msg[0]) ? bad.MqttParse.replyCode.COMMAND_STRING :
+    !bad.typeCheck.isArray(msg) ? bad.MqttParse.replyCode.COMMAND_NOT_ARRAY :
+    bad.typeCheck.isEmptyArr(msg) ? bad.MqttParse.replyCode.COMMAND_ARR_EMPTY :
+    !bad.typeCheck.isString(msg[0]) ? bad.MqttParse.replyCode.COMMAND_STRING :
     reply.code;
 
   if (!reply.code) {
@@ -462,45 +467,4 @@ bad.MqttParse.prototype.parseDataMsg_ = function(msg, reply) {
 bad.MqttParse.prototype.parseReplyMsg_ = function(msg, reply) {
   reply.res = msg;
   return reply;
-};
-
-bad.MqttParse.prototype.isArray = function(a) {
-    return goog.typeOf(a) === 'array';
-};
-
-bad.MqttParse.prototype.isNotEmptyArr = function(a) {
-    return !this.isEmptyArr(a);
-};
-
-bad.MqttParse.prototype.isEmptyArr = function(a) {
-    return !goog.isDef(a[0]);
-};
-
-bad.MqttParse.prototype.isString = function(a) {
-  return goog.typeOf(a) === 'string';
-};
-
-bad.MqttParse.prototype.isNumber = function(a) {
-  return goog.typeOf(a) === 'number';
-};
-
-bad.MqttParse.prototype.isInt = function(a) {
-    var aS = a.toString();
-    return goog.typeOf(a) === 'number' &&
-      a >= 0 &&
-      !goog.string.contains(aS, '.');
-};
-
-bad.MqttParse.prototype.isSignedInt = function(a) {
-    var aS = a.toString();
-    return goog.typeOf(a) === 'number' &&
-      !goog.string.contains(aS, '.');
-};
-
-bad.MqttParse.prototype.isObject = function(a) {
-    return goog.typeOf(a) === 'object';
-};
-
-bad.MqttParse.prototype.isDate = function(a) {
-    return Object.prototype.toString.call(a) === '[object Date]';
 };
