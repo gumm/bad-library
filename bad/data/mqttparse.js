@@ -32,7 +32,12 @@ goog.inherits(bad.MqttParse, goog.events.EventTarget);
 bad.MqttParse.replyCode = {
 
   /**
-   * Could only parse some of the given data.
+   * Only some events could be parsed.
+   */
+  SOME_EVENTS_BROKEN: 2,
+
+  /**
+   * The given timestamp is untrustworthy.
    */
   BAD_TIMESTAMP: 1,
 
@@ -97,14 +102,14 @@ bad.MqttParse.replyCode = {
   EVENT_NOT_ARRAY: -11,
 
   /**
-   * Raised when the event array is empty.
+   * Raised when the event array is not between 2 and 3 elements long.
    */
-  EVENT_ARR_EMPTY: -12,
+  EVENT_ARR_WRONG_LENGTH: -12,
 
   /**
    * Raised when the event code is not a number.
    */
-  EVENT_CODE_NOT_NUMBER: -13,
+  EVENT_CODE_NOT_INT: -13,
 
   /**
    * Raised when the master payload is not parsable as a JSON
@@ -120,7 +125,12 @@ bad.MqttParse.replyCode = {
   /**
    * Raised when the reply code on an reply message is not an number
    */
-  RESULT_CODE_NOT_INT: -16
+  RESULT_CODE_NOT_INT: -16,
+
+  /**
+   * Raised when no events could successfully be parsed from an event message.
+   */
+  ALL_EVENTS_BROKEN: -17
 
 };
 
@@ -197,7 +207,7 @@ bad.MqttParse.prototype.normalize_ = function(pl, tArr, opt_packet) {
  */
 bad.MqttParse.prototype.parse = function(payload) {
   var normPayload = null;
-  try {
+//  try {
     var obj = goog.json.parse(payload);
 
     // A valid payload only has one key. Either c, d, e, x or i
@@ -205,13 +215,13 @@ bad.MqttParse.prototype.parse = function(payload) {
     if (type) {
       normPayload = this.normalizePayload_(type, obj[type]);
     }
-  } catch (e) {
-    normPayload = {
-      code: bad.MqttParse.replyCode.PAYLOAD_NOT_JSON,
-      ts: new Date(),
-      org: payload
-    };
-  }
+//  } catch (e) {
+//    normPayload = {
+//      code: bad.MqttParse.replyCode.PAYLOAD_NOT_JSON,
+//      ts: new Date(),
+//      org: payload
+//    };
+//  }
   return /** @type {!bad.MqttParse.NormData} */ (normPayload);
 };
 
@@ -388,53 +398,77 @@ bad.MqttParse.prototype.parseMessage_ = function(type, msg, reply) {
 
 bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
 
-  reply.code =
-    !bad.typeCheck.isArray(msg) ? bad.MqttParse.replyCode.EVENTS_NOT_ARRAY :
-    bad.typeCheck.isEmptyArr(msg) ? bad.MqttParse.replyCode.EVENTS_ARR_EMPTY :
-    reply.code;
   var broken = {};
-  if (!reply.code) {
+  var events = {};
+  var errCode = 0;
 
-    var events = {};
-    var isArrCode = 0;
-    var isNumberCode = 0;
-    goog.array.forEach(msg, function(event) {
-      isArrCode =
+  // Check if the given message is an array.
+  errCode = !bad.typeCheck.isArray(msg) ?
+    bad.MqttParse.replyCode.EVENTS_NOT_ARRAY :
+      bad.typeCheck.isEmptyArr(msg) ?
+        bad.MqttParse.replyCode.EVENTS_ARR_EMPTY :
+         errCode;
+
+  if (errCode) {
+    reply.code = errCode;
+  } else {
+    // Check each of the events. Must be an array between 2 and 3 elements.
+    goog.array.forEach(msg, function (event) {
+      errCode = 0;
+      errCode =
         !bad.typeCheck.isArray(event) ?
           bad.MqttParse.replyCode.EVENT_NOT_ARRAY :
-        bad.typeCheck.isEmptyArr(event) ?
-          bad.MqttParse.replyCode.EVENT_ARR_EMPTY :
-        isArrCode;
+          !bad.typeCheck.arrLengthBetween(event, 2, 3) ?
+            bad.MqttParse.replyCode.EVENT_ARR_WRONG_LENGTH :
+            errCode;
 
-      if (!isArrCode) {
-        var code = event.shift();
-        isNumberCode =
-          !bad.typeCheck.isInt(code) ?
-            bad.MqttParse.replyCode.EVENT_CODE_NOT_NUMBER :
-          isNumberCode;
+      if (errCode) {
+        broken[errCode.toString()] = broken[errCode.toString()] ?
+          broken[errCode.toString()].push(event) : [event];
+      } else {
+        // So the event is an array with between 2 and 3 elements.
+        // Good. Lets check the element types.
+        var timestamp = event[0];
+        var eventCode = event[1];
+        var extra = event[2];
 
-        if (!isNumberCode) {
-          if (goog.isDef(event[0])) {
-            events[code] = event[0];
+        // Check timestamp.
+        errCode = bad.typeCheck.isInt(timestamp) ? errCode :
+          bad.MqttParse.replyCode.BAD_TIMESTAMP;
+        if (errCode) {
+          broken[errCode.toString()] = broken[errCode.toString()] ?
+            broken[errCode.toString()].push(event) : [event];
+        } else {
+          // So the timestamp is OK.
+          // Lets check the event code.
+          errCode = bad.typeCheck.isInt(eventCode) ? errCode :
+            bad.MqttParse.replyCode.EVENT_CODE_NOT_INT;
+          if (errCode) {
+            broken[errCode.toString()] = broken[errCode.toString()] ?
+              broken[errCode.toString()].push(event) : [event];
           } else {
-            events[code] = null;
+            // So the event code is an int.
+            // Good. We can parse this.
+            events[eventCode.toString()] = [timestamp]
+            if (goog.isDef(extra)) {
+              events[eventCode.toString()].push(extra);
+            }
           }
         }
       }
-    }, this);
 
-    if (isArrCode) {
-      broken.code = isArrCode;
-      reply = broken;
-    } else if (isNumberCode) {
-      broken.code = isNumberCode;
-      reply = broken;
-    } else {
-      reply.events = events;
-    }
-  } else {
-    broken.code = reply.code;
-    reply = broken;
+      if (goog.object.getAnyKey(broken)) {
+        reply.broken = broken;
+        reply.code = bad.MqttParse.replyCode.SOME_EVENTS_BROKEN
+      }
+
+      if (goog.object.getAnyKey(events)) {
+        reply.events = events;
+      } else {
+        reply.code = bad.MqttParse.replyCode.ALL_EVENTS_BROKEN
+      }
+
+    }, this);
   }
   return reply;
 };

@@ -30,6 +30,10 @@ bad.typeCheck.isEmptyArr = function(a) {
     return !goog.isDef(a[0]);
 };
 
+bad.typeCheck.arrLengthBetween = function(a, min, max) {
+  return a.length >= min && a.length <= max;
+};
+
 bad.typeCheck.isString = function(a) {
   return goog.typeOf(a) === 'string';
 };
@@ -58,5 +62,3 @@ bad.typeCheck.isObject = function(a) {
 bad.typeCheck.isDate = function(a) {
     return Object.prototype.toString.call(a) === '[object Date]';
 };
-
-// Add some comments to make sure it edit

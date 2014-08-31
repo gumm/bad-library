@@ -306,7 +306,7 @@ function test_parseCommandBrokenNotString() {
 }
 
 function test_parseEventMin() {
-    var pl = {"e": [0, [[100]]]};
+    var pl = {"e": [0, [[0, 100]]]};
     var reply = parser.parse(goog.json.serialize(pl));
     console.debug(reply);
 
@@ -314,7 +314,7 @@ function test_parseEventMin() {
     assertIsObject('events value should be an object', reply.events);
     assertObjectEquals(
             'events object should be',
-            {'100':null}, reply.events);
+            {'100': [0]}, reply.events);
 
     assertEquals('Code key should be 0', 0, reply.code);
     assertIsDate('The timestamp should be a date', reply.ts);
@@ -329,10 +329,10 @@ function test_parseEventMin() {
 
 function test_parseEventMax() {
     var pl = {"e": [0, "eventmax",  [
-        [100, true],
-        [101, false],
-        [102, "string"],
-        [103, 123.345]
+        [0, 100, true],
+        [0, 101, false],
+        [0, 102, "string"],
+        [0, 103, 123.345]
     ]]};
     var reply = parser.parse(goog.json.serialize(pl));
     console.debug(reply);
@@ -342,10 +342,10 @@ function test_parseEventMax() {
     assertObjectEquals(
             'events object should be',
             {
-                '100':true,
-                '101':false,
-                '102':'string',
-                '103':123.345
+                '100': [0, true],
+                '101': [0, false],
+                '102': [0, 'string'],
+                '103': [0, 123.345]
             }, reply.events);
 
     assertEquals('Code key should be 0', 0, reply.code);
@@ -394,15 +394,26 @@ function test_parseEventBrokenArrayEmpty() {
 }
 
 function test_parseEventBrokenInnerNotArray() {
-    var pl = {"e": [0, [1]]};
+    var pl = {"e": [0, ['broken', [0, 100, true]]]};
     var reply = parser.parse(goog.json.serialize(pl));
     console.debug(reply);
 
-    assertEquals('Command name must be a string',
-        bad.MqttParse.replyCode.EVENT_NOT_ARRAY, reply.code);
+    assertEquals('One event passed the other failed',
+        bad.MqttParse.replyCode.SOME_EVENTS_BROKEN, reply.code);
+
+    assertObjectEquals(
+            'One broken event',
+            {
+                '-11': ['broken']
+            }, reply.broken);
+
+    assertObjectEquals(
+            'Only one parsed event object',
+            {
+                '100': [0, true]
+            }, reply.events);
 
     assertUndefined('No command', reply.command);
-    assertUndefined('No events', reply.events);
     assertUndefined('No tct:', reply.tct);
     assertUndefined('No msg:', reply.msg);
     assertUndefined('No res', reply.res);
@@ -416,7 +427,7 @@ function test_parseEventBrokenInnerArrayEmpty() {
     console.debug(reply);
 
     assertEquals('Command name must be a string',
-        bad.MqttParse.replyCode.EVENT_ARR_EMPTY, reply.code);
+        bad.MqttParse.replyCode.ALL_EVENTS_BROKEN, reply.code);
 
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
@@ -428,12 +439,18 @@ function test_parseEventBrokenInnerArrayEmpty() {
 }
 
 function test_parseEventBrokenInnerCodeNotNumber() {
-    var pl = {"e": [0, [["hello"]]]};
+    var pl = {"e": [0, [[0, "hello"]]]};
     var reply = parser.parse(goog.json.serialize(pl));
     console.debug(reply);
 
-    assertEquals('Command name must be a string',
-        bad.MqttParse.replyCode.EVENT_CODE_NOT_NUMBER, reply.code);
+    assertEquals('All events failed',
+        bad.MqttParse.replyCode.ALL_EVENTS_BROKEN, reply.code);
+
+    assertObjectEquals(
+            'One broken event',
+            {
+                '-13': [[0, "hello"]]
+            }, reply.broken);
 
     assertUndefined('No command', reply.command);
     assertUndefined('No events', reply.events);
