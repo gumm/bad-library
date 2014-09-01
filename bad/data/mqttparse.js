@@ -369,10 +369,10 @@ bad.MqttParse.prototype.parseMessage_ = function(type, msg, reply) {
   if (reply.code >= 0) {
     // First get the anomaly out the way.
     // For type x message, the rules are:
-    // message[0] must be int.
+    // message[0] must be signed int.
     // message[1] is optional. Can be anything
     if (type === 'x') {
-      reply.rpc = bad.typeCheck.isInt(msg[0]) ? msg[0] :
+      reply.rpc = bad.typeCheck.isSignedInt(msg[0]) ? msg[0] :
         bad.MqttParse.replyCode.RESULT_CODE_NOT_INT;
       reply = parseMap_[type](msg[1], reply);
     } else {
@@ -499,6 +499,8 @@ bad.MqttParse.prototype.parseDataMsg_ = function(msg, reply) {
 };
 
 bad.MqttParse.prototype.parseReplyMsg_ = function(msg, reply) {
-  reply.res = msg;
+  if (goog.isDef(msg)) {
+    reply.res = msg;
+  }
   return reply;
 };
