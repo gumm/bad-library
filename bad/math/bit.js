@@ -6,6 +6,7 @@
  */
 
 goog.provide('bad.math.bit');
+goog.provide('bad.math.buff');
 
 /**
  * Convert a decimal number to a binary string.
@@ -93,4 +94,14 @@ bad.math.bit.invBitAt = function(b, n) {
  */
 bad.math.bit.hasBitAt = function(b, n) {
     return bad.math.bit.getBitAt(b, n) == 1;
+};
+
+
+/**
+ * @param buff
+ * @param bitNum
+ * @param byteSize
+ */
+bad.math.buff.invBitAt8 = function(buff, bitNum) {
+  buff[Math.floor(bitNum/8)] ^= 1 << (bitNum % 8);
 };
