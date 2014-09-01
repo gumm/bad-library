@@ -413,7 +413,7 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
     reply.code = errCode;
   } else {
     // Check each of the events. Must be an array between 2 and 3 elements.
-    goog.array.forEach(msg, function (event) {
+    goog.array.forEach(msg, function(event) {
       errCode = 0;
       errCode =
         !bad.typeCheck.isArray(event) ?
@@ -449,7 +449,7 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
           } else {
             // So the event code is an int.
             // Good. We can parse this.
-            events[eventCode.toString()] = [timestamp]
+            events[eventCode.toString()] = [timestamp];
             if (goog.isDef(extra)) {
               events[eventCode.toString()].push(extra);
             }
@@ -459,13 +459,13 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
 
       if (goog.object.getAnyKey(broken)) {
         reply.broken = broken;
-        reply.code = bad.MqttParse.replyCode.SOME_EVENTS_BROKEN
+        reply.code = bad.MqttParse.replyCode.SOME_EVENTS_BROKEN;
       }
 
       if (goog.object.getAnyKey(events)) {
         reply.events = events;
       } else {
-        reply.code = bad.MqttParse.replyCode.ALL_EVENTS_BROKEN
+        reply.code = bad.MqttParse.replyCode.ALL_EVENTS_BROKEN;
       }
 
     }, this);

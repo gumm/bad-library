@@ -10,7 +10,7 @@ goog.require('goog.ui.MenuItem');
 goog.require('goog.ui.MenuSeparator');
 goog.require('goog.ui.ToggleButton');
 
-bad.utils.getTimeNow = function(){
+bad.utils.getTimeNow = function() {
   return Math.floor(new Date().valueOf() / 1000);
 };
 

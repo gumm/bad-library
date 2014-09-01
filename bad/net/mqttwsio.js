@@ -52,7 +52,7 @@ bad.MqttWsIo.prototype.getHandler = function() {
  * Home page and landing page after login.
  */
 bad.MqttWsIo.prototype.init = function(mqttEl) {
-  this.MQTTElement_ = mqttEl;
+  this.outputEl_ = mqttEl;
 };
 
 /**
@@ -145,9 +145,9 @@ bad.MqttWsIo.prototype.routeWs = function(data) {
  * @param {bad.MqttWsIo.PAYLOAD} payload
  */
 bad.MqttWsIo.prototype.onSys = function(target, topic, payload) {
-  if (this.MQTTElement_) {
+  if (this.outputEl_) {
     goog.dom.insertChildAt(
-      this.MQTTElement_,
+      this.outputEl_,
       this.displayMQTT(target, topic, payload),
       0);
   }
@@ -167,9 +167,9 @@ bad.MqttWsIo.prototype.onMessage = function(target, topic, payload, packet) {
   this.dispatchEvent(new bad.MqttEvent(this, bad.MqttEventType.RECEIVED,
     topic, payload, packet, root, nlData));
 
-  if (this.MQTTElement_) {
+  if (this.outputEl_) {
     goog.dom.insertChildAt(
-      this.MQTTElement_,
+      this.outputEl_,
       this.displayMQTT(target, topic, payload),
       0);
   }
