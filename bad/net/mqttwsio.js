@@ -102,6 +102,10 @@ bad.MqttWsIo.prototype.openWebsocket = function(opt_callback) {
       switch (e.type) {
         case goog.net.WebSocket.EventType.OPENED:
           this.mqttPublish('Hello', 'Website came on-line');
+
+          console.debug(this.webSocket);
+
+
           if (opt_callback) {opt_callback();}
           break;
         case goog.net.WebSocket.EventType.MESSAGE:

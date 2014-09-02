@@ -182,14 +182,6 @@ bad.utils.privateCounter = function(opt_start) {
 };
 
 /**
- * Returns a pseudo random string. Good for ids.
- * @return {string}
- */
-bad.utils.makeId = function() {
-  return Math.floor(Math.random() * 2147483648).toString(36);
-};
-
-/**
  * Private function that will always return the same random string each time
  * it is called.
  * @return {string}
@@ -204,6 +196,16 @@ bad.utils.privateRandom = function() {
     return c;
   })();
 };
+
+/**
+ * Returns a pseudo random string. Good for ids.
+ * @return {string}
+ */
+bad.utils.makeId = function() {
+  return Math.floor(Math.random() * 2147483648).toString(36);
+};
+
+
 
 /**
  * @param {number} number
