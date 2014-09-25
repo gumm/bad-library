@@ -148,7 +148,8 @@ bad.MqttParse.replyCode = {
  *       msg: !Array,
  *       data: *,
  *       events: !Array,
- *       res: *
+ *       res: *,
+ *       broken: *
  *    }
  * }
  */
@@ -159,12 +160,11 @@ bad.MqttParse.NormData;
  * @param {string} topic A string.
  * @param {*} payload Could be anything
  * @param {Object=} packet The raw packet.
- * @return {Object}
+ * @return {!Array}
  */
 bad.MqttParse.prototype.parseAll = function(topic, payload, packet) {
   var tArr = topic.split('/');
-  var parseResult = this.normalize_(payload, tArr, packet);
-  return parseResult;
+  return this.normalize_(payload, tArr, packet);
 };
 
 /**
@@ -207,21 +207,21 @@ bad.MqttParse.prototype.normalize_ = function(pl, tArr, opt_packet) {
  */
 bad.MqttParse.prototype.parse = function(payload) {
   var normPayload = null;
-//  try {
+  try {
     var obj = goog.json.parse(payload);
 
     // A valid payload only has one key. Either c, d, e, x or i
     var type = goog.object.getAnyKey(obj);
     if (type) {
-      normPayload = this.normalizePayload_(type, obj[type]);
+      normPayload = this.normalizePayload_(type, obj[type], payload);
     }
-//  } catch (e) {
-//    normPayload = {
-//      code: bad.MqttParse.replyCode.PAYLOAD_NOT_JSON,
-//      ts: new Date(),
-//      org: payload
-//    };
-//  }
+  } catch (e) {
+    normPayload = {
+      code: bad.MqttParse.replyCode.PAYLOAD_NOT_JSON,
+      ts: new Date().getTime(),
+      broken: payload
+    };
+  }
   return /** @type {!bad.MqttParse.NormData} */ (normPayload);
 };
 
@@ -231,6 +231,7 @@ bad.MqttParse.prototype.parse = function(payload) {
  * This is the entry point to the parser.
  * @param {!string} type Will be either c, d, e, x, or i
  * @param {*} msg The message component of the payload.
+ * @param {*} payload A JSON parsable string.
  * @return {!bad.MqttParse.NormData}
  * @private
  */
@@ -238,7 +239,7 @@ bad.MqttParse.prototype.normalizePayload_ = function(type, msg) {
 
   var reply = /** @type {!bad.MqttParse.NormData} */ ({});
   reply.type = type;
-  reply.ts = new Date();
+  reply.ts = new Date().getTime();
 
   if (type === 'i') {
     reply.iah = true;
@@ -246,7 +247,6 @@ bad.MqttParse.prototype.normalizePayload_ = function(type, msg) {
   } else {
     msg = /** @type {!Array} */ (msg);
     reply = this.testPayloadType_(msg, reply);
-
     // Code 0 = all OK will pass this test.
     if (!reply.code) {
       reply = this.testPayloadLength_(type, msg, reply);
@@ -286,7 +286,7 @@ bad.MqttParse.prototype.parseTimeStamp_ = function(ts, reply) {
       date.setTime(milli);
     }
   }
-  reply.ts = date;
+  reply.ts = date.getTime();
   return reply;
 };
 
@@ -306,6 +306,10 @@ bad.MqttParse.prototype.testPayloadType_ = function(msg, reply) {
     !passNotEmpty ? bad.MqttParse.replyCode.PAYLOAD_EMPTY :
     !passIsKnownType ? bad.MqttParse.replyCode.TYPE_ERR :
     bad.MqttParse.replyCode.ALL_OK;
+
+  if (!passIsKnownType) {
+    delete reply.type;
+  }
 
   return reply;
 };
@@ -342,6 +346,11 @@ bad.MqttParse.prototype.testPayloadLength_ = function(type, msg, reply) {
     !passMin ? bad.MqttParse.replyCode.PAYLOAD_TOO_SHORT :
     !passMax ? bad.MqttParse.replyCode.PAYLOAD_TOO_LONG :
     reply.code;
+
+  if (reply.code) {
+    reply.broken = msg;
+  }
+
   return reply;
 };
 
@@ -411,6 +420,7 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
 
   if (errCode) {
     reply.code = errCode;
+    reply.broken = msg;
   } else {
     // Check each of the events. Must be an array between 2 and 3 elements.
     goog.array.forEach(msg, function(event) {
@@ -485,9 +495,7 @@ bad.MqttParse.prototype.parseCommandMsg_ = function(msg, reply) {
     reply.command = {};
     reply.command[funcName] = msg;
   } else {
-    var broken = {};
-    broken.code = reply.code;
-    reply = broken;
+    reply.broken = msg;
   }
 
   return reply;
