@@ -1,5 +1,5 @@
-require('../../../../../../../app/public/js/closure-library/closure/goog/bootstrap/nodejs');
-require('../../../../../../../app/public/js/deps.js');
+require('../../../../closure-library/closure/goog/bootstrap/nodejs');
+require('../../../../deps.js');
 
 goog.require('bad.AesCmac');
 
