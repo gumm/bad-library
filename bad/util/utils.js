@@ -9,6 +9,17 @@ goog.require('goog.ui.Menu');
 goog.require('goog.ui.MenuItem');
 goog.require('goog.ui.MenuSeparator');
 goog.require('goog.ui.ToggleButton');
+goog.require('bad.Crypto');
+goog.require('goog.crypt.Sha1');
+goog.require('goog.crypt.base64');
+
+
+bad.utils.stringToBytes = function(s) {
+  var bytes = new Array(s.length);
+  for (var i = 0; i < s.length; ++i)
+    bytes[i] = s.charCodeAt(i) & 255;
+  return bytes;
+};
 
 bad.utils.getTimeNow = function() {
   return Math.floor(new Date().valueOf() / 1000);

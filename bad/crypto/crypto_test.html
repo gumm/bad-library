@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crypto Unit Tests</title>
+    <script src="../../../closure-library/closure/goog/base.js"></script>
+    <script src="../../../deps.js"></script>
+    <script type="text/javascript">
+        goog.require('bad.utils');
+        goog.require('goog.crypt');
+        goog.require('goog.crypt.Aes');
+        goog.require('goog.crypt.Cbc');
+        goog.require('goog.testing.jsunit');
+    </script>
+</head>
+<body>
+<script>
+
+/*
+ assertTrue([comment,] value)
+ assertFalse([comment,] value)
+ assertEquals([comment,] expectedValue, observedValue)
+ assertNotEquals([comment,] expectedValue, observedValue)
+ assertNull([comment,] value)
+ assertNotNull([comment,] value)
+ assertUndefined([comment,] value)
+ assertNotUndefined([comment,] value)
+ assertArrayEquals([comment,] expectedValue, observedValue)
+ assertSameElements([comment,] expectedValue, observedValue)
+ */
+
+var PROFILE      = '0000000000000000'; // (given in the clear) (16bytes)
+var USER         = '0000000000000000'; // (can be anything ASCII) (16bytes)
+var USERNAME     = PROFILE + USER;
+var MK           = 'C0DEC0DEC0DEC0DEC0DEC0DEC0DEC0DE'; //Master Key. Given. **secret**SUPER SECRET**secret**: Potentially collect this from remote host
+
+// SALT 4bytes (uInt32) Little endian: has only one rule: must increment. Timestamp in ms or somesuch
+
+// Step 1
+// PROFILE_KEY = AES_ENCRYPT(MK, PROFILE_ID)
+
+// Step 2
+// REAL_PASSWORD = OMAC_ALGO(PROFILE_KEY, USERNAME)
+
+// Step 3
+// DISPATCHED_PW = base64(sha1(concat(SALT, REAL_PASSWORD))
+
+function setUp() {
+    // For now... do nothing.
+}
+
+function tearDown() {
+    // For now... do nothing.
+}
+
+function test_computeProfileKey() {
+    // Profile ID               : 0000000000000000
+    // Master Key               : 0xC0DEC0DEC0DEC0DEC0DEC0DEC0DEC0DE
+    // Profile Key              : 0x0CE79D42D5A923FC9D8DD1D9919902F5
+
+    // Compute Profile Key
+    var masterKey = goog.crypt.hexToByteArray(MK);
+    var aes = new goog.crypt.Aes(masterKey);
+    var PROFILE_KEY = aes.encrypt(bad.utils.stringToBytes(PROFILE));
+
+    // Test the results
+    var given_hex_profile_key = '0CE79D42D5A923FC9D8DD1D9919902F5';
+    var required_result = goog.crypt.hexToByteArray(given_hex_profile_key);
+    console.debug('PROFILE_KEY: ', goog.crypt.byteArrayToHex(PROFILE_KEY));
+    assertArrayEquals('Given the required result, they should match',
+               required_result,
+               PROFILE_KEY);
+}
+
+function test_computePassword() {
+  // SALT 4bytes (uInt32) Little endian: has only one rule: must increment. Timestamp in ms or somesuch
+  // REAL_PASSWORD = OMAC_ALGO(PROFILE_KEY, right_zero_padded(USERNAME, 32bytes))
+
+    // UserName                 : 00000000000000000000000000000000
+    // Profile Key              : 0x0CE79D42D5A923FC9D8DD1D9919902F5
+    // Password                 : 0xBE709791EDBAA12D8900E4C72FDB3800
+
+
+
+}
+
+
+
+
+
+
+</script>
+</body>
+</html>
