@@ -8,7 +8,7 @@ var assert = require('assert');
 describe('buffer-tools', function () {
   describe('bitShiftLeft', function () {
     function testBitShiftLeft(input) {
-      return bad.Crypto.bitShiftLeft(new Buffer(input, 'hex')).toString('hex');
+      return bad.CryptUtils.bitShiftLeft(new Buffer(input, 'hex')).toString('hex');
     }
 
     it('returns a buffer bitshifted left 1 bit (buffer_value << 1)', function () {
@@ -26,7 +26,7 @@ describe('buffer-tools', function () {
 
   describe('xor', function () {
     function testXor(a, b) {
-      return bad.Crypto.xor(new Buffer(a, 'hex'), new Buffer(b, 'hex')).toString('hex');
+      return bad.CryptUtils.xor(new Buffer(a, 'hex'), new Buffer(b, 'hex')).toString('hex');
     };
 
     it('returns the logical XOR of two buffers', function () {
@@ -43,7 +43,7 @@ describe('buffer-tools', function () {
 
   describe('toBinaryString', function () {
     function testToBinaryString(input) {
-      return bad.Crypto.toBinaryString(new Buffer(input, 'hex'));
+      return bad.CryptUtils.toBinaryString(new Buffer(input, 'hex'));
     }
 
     it('returns the binary string representation of a buffer', function () {

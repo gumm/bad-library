@@ -220,7 +220,7 @@ bad.MqttParse.prototype.parse = function(payload) {
     // A valid payload only has one key. Either c, d, e, x or i
     var type = goog.object.getAnyKey(obj);
     if (type) {
-      normPayload = this.normalizePayload_(type, obj[type], payload);
+      normPayload = this.normalizePayload_(type, obj[type]);
     }
   } catch (e) {
     normPayload = {
@@ -238,7 +238,6 @@ bad.MqttParse.prototype.parse = function(payload) {
  * This is the entry point to the parser.
  * @param {!string} type Will be either c, d, e, x, or i
  * @param {*} msg The message component of the payload.
- * @param {*} payload A JSON parsable string.
  * @return {!bad.MqttParse.NormData}
  * @private
  */

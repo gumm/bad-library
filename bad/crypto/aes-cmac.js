@@ -1,5 +1,6 @@
 goog.provide('bad.AesCmac');
-goog.require('bad.Crypto');
+
+goog.require('bad.CryptUtils');
 
 /**
  * A constant block size.
@@ -11,16 +12,16 @@ bad.AesCmac.generateSubkeys = function (key) {
   var const_Zero = new Buffer('00000000000000000000000000000000', 'hex');
   var const_Rb = new Buffer('00000000000000000000000000000087', 'hex');
 
-  var l = bad.Crypto.aes128(key, const_Zero);
+  var l = bad.CryptUtils.aes128(key, const_Zero);
 
-  var subkey1 = bad.Crypto.bitShiftLeft(l);
+  var subkey1 = bad.CryptUtils.bitShiftLeft(l);
   if (l[0] & 0x80) {
-    subkey1 = bad.Crypto.xor(subkey1, const_Rb);
+    subkey1 = bad.CryptUtils.xor(subkey1, const_Rb);
   }
 
-  var subkey2 = bad.Crypto.bitShiftLeft(subkey1);
+  var subkey2 = bad.CryptUtils.bitShiftLeft(subkey1);
   if (subkey1[0] & 0x80) {
-    subkey2 = bad.Crypto.xor(subkey2, const_Rb);
+    subkey2 = bad.CryptUtils.xor(subkey2, const_Rb);
   }
 
   return {
@@ -43,20 +44,20 @@ bad.AesCmac.aesCmac = function (key, message) {
   lastBlockIndex = blockCount -1;
 
   if (lastBlockCompleteFlag) {
-    lastBlock = bad.Crypto.xor(bad.AesCmac.getMessageBlock(message, lastBlockIndex), subkeys.subkey1);
+    lastBlock = bad.CryptUtils.xor(bad.AesCmac.getMessageBlock(message, lastBlockIndex), subkeys.subkey1);
   } else {
-    lastBlock = bad.Crypto.xor(bad.AesCmac.getPaddedMessageBlock(message, lastBlockIndex), subkeys.subkey2);
+    lastBlock = bad.CryptUtils.xor(bad.AesCmac.getPaddedMessageBlock(message, lastBlockIndex), subkeys.subkey2);
   }
 
   var x = new Buffer('00000000000000000000000000000000', 'hex');
   var y;
 
   for (var index = 0; index < lastBlockIndex; index++) {
-    y = bad.Crypto.xor(x, bad.AesCmac.getMessageBlock(message, index));
-    x = bad.Crypto.aes128(key, y);
+    y = bad.CryptUtils.xor(x, bad.AesCmac.getMessageBlock(message, index));
+    x = bad.CryptUtils.aes128(key, y);
   }
-  y = bad.Crypto.xor(lastBlock, x);
-  return bad.Crypto.aes128(key, y);
+  y = bad.CryptUtils.xor(lastBlock, x);
+  return bad.CryptUtils.aes128(key, y);
 };
 
 bad.AesCmac.getMessageBlock = function(message, blockIndex) {

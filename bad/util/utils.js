@@ -9,9 +9,6 @@ goog.require('goog.ui.Menu');
 goog.require('goog.ui.MenuItem');
 goog.require('goog.ui.MenuSeparator');
 goog.require('goog.ui.ToggleButton');
-goog.require('bad.Crypto');
-goog.require('goog.crypt.Sha1');
-goog.require('goog.crypt.base64');
 
 
 bad.utils.stringToBytes = function(s) {
