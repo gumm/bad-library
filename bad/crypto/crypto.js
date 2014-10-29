@@ -38,8 +38,10 @@ bad.Crypto.getPassword = function(profile, user) {
   );
 
   // Salt the password.
+  // TODO: Make sure the salt is little endian.
   var salt = bad.utils.getTimeNow().toString(16);
   var pwBlock = new Buffer(salt + pw.toString('hex'), 'hex');
+
 
   // SHA1 the salted password and the salt
   sha1.update(pwBlock);

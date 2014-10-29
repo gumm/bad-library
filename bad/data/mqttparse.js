@@ -206,6 +206,13 @@ bad.MqttParse.prototype.normalize_ = function(pl, tArr, opt_packet) {
  * @return {Object}
  */
 bad.MqttParse.prototype.parse = function(payload) {
+
+  // There is an assumption here that the payload is a JSON string, but comming
+  // in form C, this string may have a null terminator. The google JSON parser
+  // croaks on this at the moment. So lets have a look at the last char of
+  // the string...
+  payload.replace(/\0/g, '');
+
   var normPayload = null;
   try {
     var obj = goog.json.parse(payload);
