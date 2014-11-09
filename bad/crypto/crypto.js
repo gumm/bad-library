@@ -20,14 +20,15 @@ bad.Crypto.getProfileKey = function(profile_id) {
   var MK = 'C0DEC0DEC0DEC0DEC0DEC0DEC0DEC0DE';
   var masterKey = goog.crypt.hexToByteArray(MK);
   var aes = new goog.crypt.Aes(masterKey);
-
   var profile = '\0\0\0\0\0\0\0\0' + profile_id;
-
   var pidByteArray = goog.crypt.stringToUtf8ByteArray(profile);
   return aes.encrypt(pidByteArray);
 };
 
 bad.Crypto.getPassword = function(profile, user) {
+
+  console.log(profile, user);
+
   // We will use this shortly
   var sha1 = new goog.crypt.Sha1();
 
