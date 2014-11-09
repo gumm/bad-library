@@ -2,6 +2,7 @@ goog.provide('bad.utils');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.object');
+goog.require('goog.string');
 goog.require('goog.ui.Component');
 goog.require('goog.ui.Css3ButtonRenderer');
 goog.require('goog.ui.CustomButton');
@@ -207,10 +208,13 @@ bad.utils.privateRandom = function() {
 
 /**
  * Returns a pseudo random string. Good for ids.
+ * @param {number=} opt_length An optional length for the string. Note this
+ *    clearly reduces the randomness, and increases the chances of a collision.
  * @return {string}
  */
-bad.utils.makeId = function() {
-  return Math.floor(Math.random() * 2147483648).toString(36);
+bad.utils.makeId = function(opt_length) {
+  var s = goog.string.getRandomString();
+  return opt_length ? s.substr(0, opt_length) : s;
 };
 
 
