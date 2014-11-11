@@ -45,13 +45,14 @@ bad.CryptUtils.toBinaryString = function (buffer) {
 
 /**
  * Take a 4bit number and convert it to the little endian hex string.
+ * This looks ugly but it works and it is fast.
  * @param {number} num
  * @returns {string}
  */
 bad.CryptUtils.toLittleEndianHex = function (num) {
-  var result = (num & 255).toString(16);
-  result = result + (((num >> 8)) & 255).toString(16);
-  result = result + (((num >> 16)) & 255).toString(16);
-  result = result + (((num >> 24)) & 255).toString(16);
+  var result = ('0' + (num & 255).toString(16)).substr(-2);
+  result = result + ('0' + (((num >> 8)) & 255).toString(16)).substr(-2);
+  result = result + ('0' + (((num >> 16)) & 255).toString(16)).substr(-2);
+  result = result + ('0' + (((num >> 24)) & 255).toString(16)).substr(-2);
   return result;
 };

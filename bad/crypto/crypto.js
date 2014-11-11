@@ -44,8 +44,7 @@ bad.Crypto.getPassword = function(profile, user) {
   );
 
   // Salt the password.
-  var timeSec = bad.utils.getTimeNow();
-  var salt = bad.CryptUtils.toLittleEndianHex(timeSec);
+  var salt = bad.CryptUtils.toLittleEndianHex(bad.utils.getTimeNow());
   var pwBlock = new Buffer(salt + pw.toString('hex'), 'hex');
 
 
