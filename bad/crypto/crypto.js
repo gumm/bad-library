@@ -50,7 +50,7 @@ bad.Crypto.getPassword = function(profile, user) {
   var salt = bad.utils.getTimeNow();
   console.log('Here the salt', salt, salt.toString(16));
 
-  var pwBlock = new Buffer(salt + pw.toString('hex'), 'hex');
+  var pwBlock = new Buffer(salt.toString('hex') + pw.toString('hex'), 'hex');
 
 
   // SHA1 the salted password and the salt
