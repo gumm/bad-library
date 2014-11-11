@@ -42,3 +42,16 @@ bad.CryptUtils.toBinaryString = function (buffer) {
   }
   return binary;
 };
+
+bad.CryptUtils.toLittleEndianHex = function (num) {
+  console.debug('Number:', num);
+  var result = (num & 255).toString(16);
+  console.debug('R1:', result);
+  result = result + (((num >> 8)) % 255).toString(16);
+  console.debug('R2:', result);
+  result = result + (((num >> 16)) % 255).toString(16);
+  console.debug('R3:', result);
+  result = result + (((num >> 24)) % 255).toString(16);
+  console.debug('Final:', result);
+  return result;
+};

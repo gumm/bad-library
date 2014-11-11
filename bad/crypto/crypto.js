@@ -47,10 +47,10 @@ bad.Crypto.getPassword = function(profile, user) {
   // TODO: Make sure the salt is little endian.
   // toString(16) converts the int to hex. See:
   // http://stackoverflow.com/questions/57803/
-  var salt = bad.utils.getTimeNow();
-  console.log('Here the salt', salt, salt.toString(16));
+  var timeSec = bad.utils.getTimeNow();
+  var salt = bad.CryptUtils.toLittleEndianHex(timeSec);
+  console.log('Here the salt', timeSec, salt);
 
-  salt = '8ed66154';
 
   var pwBlock = new Buffer(salt + pw.toString('hex'), 'hex');
 
