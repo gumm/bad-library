@@ -47,11 +47,11 @@ bad.CryptUtils.toLittleEndianHex = function (num) {
   console.log('Number:', num);
   var result = (num & 255).toString(16);
   console.log('R1:', result);
-  result = result + (((num >> 8)) % 255).toString(16);
+  result = result + (((num >> 8)) & 255).toString(16);
   console.log('R2:', result);
-  result = result + (((num >> 16)) % 255).toString(16);
+  result = result + (((num >> 16)) & 255).toString(16);
   console.log('R3:', result);
-  result = result + (((num >> 24)) % 255).toString(16);
+  result = result + (((num >> 24)) & 255).toString(16);
   console.log('Final:', result);
   return result;
 };
