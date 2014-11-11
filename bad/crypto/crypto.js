@@ -20,14 +20,14 @@ bad.Crypto.getProfileKey = function(profile_id) {
   var MK = 'C0DEC0DEC0DEC0DEC0DEC0DEC0DEC0DE';
   var masterKey = goog.crypt.hexToByteArray(MK);
   var aes = new goog.crypt.Aes(masterKey);
+
+  // Pad the profile ID with nulls.
   var profile = '\0\0\0\0\0\0\0\0' + profile_id;
   var pidByteArray = goog.crypt.stringToUtf8ByteArray(profile);
   return aes.encrypt(pidByteArray);
 };
 
 bad.Crypto.getPassword = function(profile, user) {
-
-  console.log(profile, user);
 
   // We will use this shortly
   var sha1 = new goog.crypt.Sha1();
@@ -45,7 +45,11 @@ bad.Crypto.getPassword = function(profile, user) {
 
   // Salt the password.
   // TODO: Make sure the salt is little endian.
-  var salt = bad.utils.getTimeNow().toString(16);
+  // toString(16) converts the int to hex. See:
+  // http://stackoverflow.com/questions/57803/
+  var salt = bad.utils.getTimeNow();
+  logger.debug('Here the salt', salt, salt.toString(16));
+
   var pwBlock = new Buffer(salt + pw.toString('hex'), 'hex');
 
 

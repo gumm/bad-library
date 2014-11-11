@@ -19,6 +19,10 @@ bad.utils.stringToBytes = function(s) {
   return bytes;
 };
 
+/**
+ * This returns now in seconds
+ * @returns {number} The current Epoch timestamp in seconds. Rounding down.
+ */
 bad.utils.getTimeNow = function() {
   return Math.floor(new Date().valueOf() / 1000);
 };
