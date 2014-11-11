@@ -48,7 +48,7 @@ bad.Crypto.getPassword = function(profile, user) {
   // toString(16) converts the int to hex. See:
   // http://stackoverflow.com/questions/57803/
   var salt = bad.utils.getTimeNow();
-  logger.debug('Here the salt', salt, salt.toString(16));
+  console.log('Here the salt', salt, salt.toString(16));
 
   var pwBlock = new Buffer(salt + pw.toString('hex'), 'hex');
 
