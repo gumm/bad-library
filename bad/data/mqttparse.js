@@ -144,7 +144,7 @@ bad.MqttParse.replyCode = {
  *       tct: !string,
  *       rpc: !number,
  *       iah: !boolean,
- *       ts: !Date,
+ *       ts: !number,
  *       msg: !Array,
  *       data: *,
  *       events: !Array,
@@ -175,6 +175,9 @@ bad.MqttParse.prototype.parseAll = function(topic, payload, packet) {
  * @return {!Array}
  */
 bad.MqttParse.prototype.normalize_ = function(pl, tArr, opt_packet) {
+
+  console.log('THIS IS PASSED INTO THE NORMALIZER:', pl, tArr, opt_packet)
+
   var root = tArr[0];
   // TODO: Look in root for further parsing symbols.
 
@@ -303,6 +306,9 @@ bad.MqttParse.prototype.parseTimeStamp_ = function(ts, reply) {
  * @private
  */
 bad.MqttParse.prototype.testPayloadType_ = function(msg, reply) {
+
+  console.log('THIS IS TESTED AS AN ARRAY', msg);
+
   var passIsArray = bad.typeCheck.isArray(msg);
   var passNotEmpty = !bad.typeCheck.isEmptyArr(msg);
   var passIsKnownType = goog.string.contains('cdex', reply.type);

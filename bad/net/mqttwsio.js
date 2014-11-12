@@ -63,12 +63,13 @@ bad.MqttWsIo.prototype.mqttPublish = function(topic, payload) {
   this.webSocket.send(goog.json.serialize({
     'action': 'publish',
     'topic': topic,
-    'payload': goog.json.serialize(payload)
+    'payload': payload
   }));
 };
 
 /**
- * @param {!string} topic
+ * @param {!string} profileId
+ * @param {!string} hId
  */
 bad.MqttWsIo.prototype.mqttSpawn = function(profileId, hId) {
   this.webSocket.send(goog.json.serialize({
@@ -118,7 +119,7 @@ bad.MqttWsIo.prototype.openWebsocket = function(opt_callback) {
           this.routeWs(goog.json.parse(e.message));
           break;
         default:
-          console.debug('Did not understand this message type');
+          console.log('Did not understand this message type');
       }
     }
   );
@@ -157,7 +158,7 @@ bad.MqttWsIo.prototype.routeWs = function(data) {
       this.onSys(target, topic, payload);
       break;
     default:
-      console.debug('Unknown target: ', target, topic, payload, packet);
+      console.log('Unknown target: ', target, topic, payload, packet);
   }
 };
 
@@ -251,6 +252,7 @@ bad.MqttEventType = {
  * @param {Object} packet
  * @param {!string} root
  * @param {!Object} nlData
+ * @param {Object=} opt_data
  * @constructor
  * @extends {goog.events.Event}
  */

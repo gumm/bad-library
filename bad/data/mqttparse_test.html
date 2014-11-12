@@ -40,7 +40,7 @@ var h = new goog.format.JsonPrettyPrinter(
 var maxOut = {};
 var extend = function(obj) {
     goog.object.extend(maxOut, obj);
-    console.debug(t.format(obj))
+    console.log(t.format(obj))
 };
 
 var assertBiggerThan = function(comment, a, b) {
