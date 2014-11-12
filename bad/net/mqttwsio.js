@@ -70,6 +70,17 @@ bad.MqttWsIo.prototype.mqttPublish = function(topic, payload) {
 /**
  * @param {!string} topic
  */
+bad.MqttWsIo.prototype.mqttSpawn = function(profileId, hId) {
+  this.webSocket.send(goog.json.serialize({
+    'action': 'spawn',
+    'profileId': profileId,
+    'hId': hId
+  }));
+};
+
+/**
+ * @param {!string} topic
+ */
 bad.MqttWsIo.prototype.mqttSubscribe = function(topic) {
   this.webSocket.send(goog.json.serialize({
     'action': 'subscribe',
@@ -124,11 +135,23 @@ bad.MqttWsIo.prototype.routeWs = function(data) {
   var packet = data['packet'];
 
   switch (target) {
+    case '@conack':
+      this.dispatchEvent(new bad.MqttEvent(this,
+        bad.MqttEventType.CONACK,
+        '', null, null, '', {}, data));
+      break;
     case '@received':
       this.onMessage(target, topic, payload, packet);
       break;
     case '@puback':
+      this.onSys(target, topic, payload);
+      break;
     case '@suback':
+      this.dispatchEvent(new bad.MqttEvent(this,
+        bad.MqttEventType.SUBACK,
+        topic, payload, packet, '', {}));
+      this.onSys(target, topic, payload);
+      break;
     case '@unsuback':
     case '@sys':
       this.onSys(target, topic, payload);
@@ -181,7 +204,6 @@ bad.MqttWsIo.prototype.onMessage = function(target, topic, payload, packet) {
  * @return {!Element}
  */
 bad.MqttWsIo.prototype.displayMQTT = function(target, topic, payload) {
-
   var dirMap = {
     '@received': 'MESSAGE',
     '@puback': 'PUBACK',
@@ -217,7 +239,9 @@ bad.MqttWsIo.prototype.displayMQTT = function(target, topic, payload) {
  * @enum {string}
  */
 bad.MqttEventType = {
-  RECEIVED: bad.utils.privateRandom()
+  SUBACK: bad.utils.privateRandom(),
+  RECEIVED: bad.utils.privateRandom(),
+  CONACK: bad.utils.privateRandom()
 };
 
 /**
@@ -230,10 +254,11 @@ bad.MqttEventType = {
  * @constructor
  * @extends {goog.events.Event}
  */
-bad.MqttEvent = function(target, type, topic, payload, packet, root, nlData) {
+bad.MqttEvent = function(target, type, topic, payload, packet, root, nlData, opt_data) {
   goog.events.Event.call(this, type, target);
 
   /**
+
    * @type {!string}
    */
   this.topic = topic;
@@ -257,5 +282,7 @@ bad.MqttEvent = function(target, type, topic, payload, packet, root, nlData) {
    * @type {!Object}
    */
   this.normalData = nlData;
+
+  this.rawData = opt_data;
 };
 goog.inherits(bad.MqttEvent, goog.events.Event);
