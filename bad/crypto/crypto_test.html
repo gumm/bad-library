@@ -65,7 +65,6 @@ function test_computeProfileKey() {
     // Test the results
     var given_hex_profile_key = '0CE79D42D5A923FC9D8DD1D9919902F5';
     var required_result = goog.crypt.hexToByteArray(given_hex_profile_key);
-    console.log('PROFILE_KEY: ', goog.crypt.byteArrayToHex(PROFILE_KEY));
     assertArrayEquals('Given the required result, they should match',
                required_result,
                PROFILE_KEY);
