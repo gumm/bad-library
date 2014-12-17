@@ -22,7 +22,7 @@ bad.utils.stringToBytes = function(s) {
 /**
  * This returns now in seconds.
  * The value returned by the getTime() method is the number of milliseconds
- * since 1 January 1970 00:00:00 UTC.
+ * since 1 January 1970 00:00:00 UTC. Always UTC.
  * @returns {number} The current Epoch timestamp in seconds. Rounding down.
  */
 bad.utils.getTimeNow = function() {
