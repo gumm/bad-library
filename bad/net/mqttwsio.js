@@ -256,7 +256,8 @@ bad.MqttEventType = {
  * @constructor
  * @extends {goog.events.Event}
  */
-bad.MqttEvent = function(target, type, topic, payload, packet, root, nlData, opt_data) {
+bad.MqttEvent = function(target, type, topic, payload, packet, root, nlData,
+                         opt_data) {
   goog.events.Event.call(this, type, target);
 
   /**

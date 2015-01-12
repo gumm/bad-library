@@ -1,35 +1,40 @@
 require('../../../../closure-library/closure/goog/bootstrap/nodejs');
 require('../../../../deps.js');
 
-goog.require('bad.Crypto');
+goog.require('bad.CryptUtils');
 
 var assert = require('assert');
 
-describe('buffer-tools', function () {
-  describe('bitShiftLeft', function () {
+describe('buffer-tools', function() {
+  describe('bitShiftLeft', function() {
     function testBitShiftLeft(input) {
-      return bad.CryptUtils.bitShiftLeft(new Buffer(input, 'hex')).toString('hex');
+      return bad.CryptUtils.bitShiftLeft(
+        new Buffer(input, 'hex')).toString('hex');
     }
 
-    it('returns a buffer bitshifted left 1 bit (buffer_value << 1)', function () {
-      assert.equal(testBitShiftLeft('01'), '02');
-      assert.equal(testBitShiftLeft('02'), '04');
-      assert.equal(testBitShiftLeft('04'), '08');
-      assert.equal(testBitShiftLeft('08'), '10');
-      assert.equal(testBitShiftLeft('10'), '20');
-      assert.equal(testBitShiftLeft('20'), '40');
-      assert.equal(testBitShiftLeft('40'), '80');
-      assert.equal(testBitShiftLeft('80'), '00');
-      assert.equal(testBitShiftLeft('55cc33'), 'ab9866');
-    });
+    it('returns a buffer bitshifted left 1 bit (buffer_value << 1)',
+      function() {
+        assert.equal(testBitShiftLeft('01'), '02');
+        assert.equal(testBitShiftLeft('02'), '04');
+        assert.equal(testBitShiftLeft('04'), '08');
+        assert.equal(testBitShiftLeft('08'), '10');
+        assert.equal(testBitShiftLeft('10'), '20');
+        assert.equal(testBitShiftLeft('20'), '40');
+        assert.equal(testBitShiftLeft('40'), '80');
+        assert.equal(testBitShiftLeft('80'), '00');
+        assert.equal(testBitShiftLeft('55cc33'), 'ab9866');
+      });
   });
 
-  describe('xor', function () {
+  describe('xor', function() {
     function testXor(a, b) {
-      return bad.CryptUtils.xor(new Buffer(a, 'hex'), new Buffer(b, 'hex')).toString('hex');
+      return bad.CryptUtils.xor(
+        new Buffer(a, 'hex'),
+        new Buffer(b, 'hex')
+      ).toString('hex');
     };
 
-    it('returns the logical XOR of two buffers', function () {
+    it('returns the logical XOR of two buffers', function() {
       assert.equal(testXor('5a', 'a5'), 'ff');
       assert.equal(testXor('5a', '5a'), '00');
       assert.equal(testXor('5a', 'ff'), 'a5');
@@ -41,15 +46,23 @@ describe('buffer-tools', function () {
     });
   });
 
-  describe('toBinaryString', function () {
+  describe('toBinaryString', function() {
     function testToBinaryString(input) {
       return bad.CryptUtils.toBinaryString(new Buffer(input, 'hex'));
     }
 
-    it('returns the binary string representation of a buffer', function () {
-      assert.equal(testToBinaryString('0f'), '00001111');
-      assert.equal(testToBinaryString('5ac3'), '0101101011000011');
-      assert.equal(testToBinaryString('deadbeef'), '11011110101011011011111011101111');
+    it('returns the binary string representation of a buffer', function() {
+      assert.equal(
+        testToBinaryString('0f'),
+        '00001111');
+
+      assert.equal(
+        testToBinaryString('5ac3'),
+        '0101101011000011');
+
+      assert.equal(
+        testToBinaryString('deadbeef'),
+        '11011110101011011011111011101111');
     });
   });
 });

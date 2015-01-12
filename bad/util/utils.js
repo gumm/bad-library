@@ -23,7 +23,7 @@ bad.utils.stringToBytes = function(s) {
  * This returns now in seconds.
  * The value returned by the getTime() method is the number of milliseconds
  * since 1 January 1970 00:00:00 UTC. Always UTC.
- * @returns {number} The current Epoch timestamp in seconds. Rounding down.
+ * @return {number} The current Epoch timestamp in seconds. Rounding down.
  */
 bad.utils.getTimeNow = function() {
   return Math.floor(new Date().getTime() / 1000);
@@ -180,16 +180,13 @@ bad.utils.makeMenu = function(menuItems, domHelper, handler, scope, opt_rend,
     };
 
 /**
- *
+ * Private function that will return an incremeted counter value each time it
+ * is called.
  * @param {number=} opt_start
  * @return {function(): number}
  */
 bad.utils.privateCounter = function(opt_start) {
   var c = opt_start ? opt_start : 0;
-
-  /**
-   * @return {number}
-   */
   return function() {
     c = c + 1;
     return c;
@@ -203,10 +200,6 @@ bad.utils.privateCounter = function(opt_start) {
  */
 bad.utils.privateRandom = function() {
   var c = bad.utils.makeId();
-
-  /**
-   * @return {string}
-   */
   return (function() {
     return c;
   })();

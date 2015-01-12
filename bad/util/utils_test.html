@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Utils Unit Tests -bad.utils</title>
+    <script src="../../../closure-library/closure/goog/base.js"></script>
+    <script src="../../../deps.js"></script>
+    <script type="text/javascript">
+        goog.require('bad.utils');
+        goog.require('goog.testing.jsunit');
+    </script>
+</head>
+<body>
+<script>
+
+/*
+ assertTrue([comment,] value)
+ assertFalse([comment,] value)
+ assertEquals([comment,] expectedValue, observedValue)
+ assertNotEquals([comment,] expectedValue, observedValue)
+ assertNull([comment,] value)
+ assertNotNull([comment,] value)
+ assertUndefined([comment,] value)
+ assertNotUndefined([comment,] value)
+ assertArrayEquals([comment,] expectedValue, observedValue)
+ assertSameElements([comment,] expectedValue, observedValue)
+ */
+
+
+    function setUp() {
+        // nothing here
+    }
+
+    function tearDown() {
+        // nothing here
+    }
+
+    function test_privateCounter() {
+        var counter = bad.utils.privateCounter();
+        assertEquals('Counter inits to 1', 1, counter());
+        var numTimesToCall = 9999999;
+        for (var i = 0; i < numTimesToCall; i++) {
+            counter();
+        }
+        assertEquals('Counter should stands at:', 1 + numTimesToCall + 1, counter())
+    }
+
+    function test_privateRandom() {
+        var numTimesToCall = 9999;
+        for (var i = 0; i < numTimesToCall; i++) {
+            assertNotEquals('Private randoms should never be the same:',
+                bad.utils.privateRandom(), bad.utils.privateRandom())
+        }
+    }
+
+    function test_load_google_maps() {
+        var count = 0;
+        var callback = function() {
+            count = count + 1;
+            if (goog.isDefAndNotNull(google.maps) && count < 2) {
+                console.log('MAPS LOADED', google.maps);
+                bad.utils.loadGoogleMaps(callback);
+            } else if (count < 1000) {
+                console.log('MAPS ARE NOT LOADED AGAIN', count);
+                bad.utils.loadGoogleMaps(callback);
+            } else {
+                console.log('Tried 1000 times. It does not load again.')
+            }
+        };
+        bad.utils.loadGoogleMaps(callback);
+    }
+
+
+
+
+
+
+</script>
+</body>
+</html>

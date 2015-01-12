@@ -3,18 +3,19 @@
  */
 goog.provide('bad.Crypto');
 
-goog.require('bad.utils');
 goog.require('bad.AesCmac');
+goog.require('bad.CryptUtils');
+goog.require('bad.utils');
 goog.require('goog.crypt');
 goog.require('goog.crypt.Aes');
-goog.require('goog.crypt.Cbc');
 goog.require('goog.crypt.Sha1');
 goog.require('goog.crypt.base64');
 
 
+
 /**
- * @param profile_id
- * @returns {*}
+ * @param {string} profile_id
+ * @return {*}
  */
 bad.Crypto.getProfileKey = function(profile_id) {
   var MK = 'C0DEC0DEC0DEC0DEC0DEC0DEC0DEC0DE';

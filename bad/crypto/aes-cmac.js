@@ -8,7 +8,7 @@ goog.require('bad.CryptUtils');
  */
 bad.AesCmac.BLOCK_SIZE = 16;
 
-bad.AesCmac.generateSubkeys = function (key) {
+bad.AesCmac.generateSubkeys = function(key) {
   var const_Zero = new Buffer('00000000000000000000000000000000', 'hex');
   var const_Rb = new Buffer('00000000000000000000000000000087', 'hex');
 
@@ -30,23 +30,27 @@ bad.AesCmac.generateSubkeys = function (key) {
   };
 };
 
-bad.AesCmac.aesCmac = function (key, message) {
+bad.AesCmac.aesCmac = function(key, message) {
   var subkeys = bad.AesCmac.generateSubkeys(key);
   var blockCount = Math.ceil(message.length / bad.AesCmac.BLOCK_SIZE);
   var lastBlockCompleteFlag, lastBlock, lastBlockIndex;
 
   if (blockCount === 0) {
     blockCount = 1;
-    lastBlockCompleteFlag = false
+    lastBlockCompleteFlag = false;
   } else {
     lastBlockCompleteFlag = (message.length % bad.AesCmac.BLOCK_SIZE === 0);
   }
-  lastBlockIndex = blockCount -1;
+  lastBlockIndex = blockCount - 1;
 
   if (lastBlockCompleteFlag) {
-    lastBlock = bad.CryptUtils.xor(bad.AesCmac.getMessageBlock(message, lastBlockIndex), subkeys.subkey1);
+    lastBlock = bad.CryptUtils.xor(
+      bad.AesCmac.getMessageBlock(message, lastBlockIndex),
+      subkeys.subkey1);
   } else {
-    lastBlock = bad.CryptUtils.xor(bad.AesCmac.getPaddedMessageBlock(message, lastBlockIndex), subkeys.subkey2);
+    lastBlock = bad.CryptUtils.xor(
+      bad.AesCmac.getPaddedMessageBlock(message, lastBlockIndex),
+      subkeys.subkey2);
   }
 
   var x = new Buffer('00000000000000000000000000000000', 'hex');
