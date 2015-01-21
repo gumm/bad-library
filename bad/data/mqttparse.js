@@ -163,7 +163,6 @@ bad.MqttParse.NormData;
  * @return {!Array}
  */
 bad.MqttParse.prototype.parseAll = function(topic, payload, packet) {
-  logger.debug('[PARSER]', '\n', topic, '\n', payload, '\n', packet);
   var tArr = topic.split('/');
   return this.normalize_(payload, tArr, packet);
 };
