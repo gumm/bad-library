@@ -7,20 +7,15 @@ goog.provide('bad.MqttParse.replyCode');
 
 goog.require('bad.typeCheck');
 goog.require('goog.array');
-goog.require('goog.events.EventTarget');
 goog.require('goog.json');
 goog.require('goog.object');
 goog.require('goog.string');
 
 /**
  * Constructor of a basic Trinity MQTT payload parser.
- * @extends {goog.events.EventTarget}
  * @constructor
  */
-bad.MqttParse = function() {
-  goog.events.EventTarget.call(this);
-};
-goog.inherits(bad.MqttParse, goog.events.EventTarget);
+bad.MqttParse = function() {};
 
 /**
  * Enum for reply codes.
@@ -157,25 +152,37 @@ bad.MqttParse.NormData;
 
 /**
  * Parse a payload and topic in one go.
- * @param {string} topic A string.
- * @param {*} payload Could be anything
- * @param {Object=} packet The raw packet.
+ * @param {Object} opt_packet Looks like this:
+ *    {cmd: 'publish',
+ *    retain: false,
+ *    qos: 0,
+ *    dup: false,
+ *    length: 41,
+ *    topic: 'iah_00010000/359568050218257/0/>',
+ *    payload: <Buffer 7b 22 69 22 3a 30 7d> }
  * @return {!Array}
  */
-bad.MqttParse.prototype.parseAll = function(topic, payload, packet) {
-  var tArr = topic.split('/');
-  return this.normalize_(payload, tArr, packet);
+bad.MqttParse.prototype.parseAll = function(packet, callback) {
+  callback(this.normalize_(packet));
 };
 
 /**
  * Normalise and parse the payload.
- * @param {*} pl
- * @param {Array} tArr
- * @param {Object=} opt_packet
+ * @param {Object} opt_packet Looks like this:
+ *    {cmd: 'publish',
+ *    retain: false,
+ *    qos: 0,
+ *    dup: false,
+ *    length: 41,
+ *    topic: 'iah_00010000/359568050218257/0/>',
+ *    payload: <Buffer 7b 22 69 22 3a 30 7d> }
  * @return {!Array}
  */
-bad.MqttParse.prototype.normalize_ = function(pl, tArr, opt_packet) {
+bad.MqttParse.prototype.normalize_ = function(packet) {
+
+  var tArr = packet.topic.split('/');
   var root = tArr[0];
+  var pl = packet.payload;
   // TODO: Look in root for further parsing symbols.
 
   var hid = tArr[1];
@@ -192,11 +199,9 @@ bad.MqttParse.prototype.normalize_ = function(pl, tArr, opt_packet) {
     nlData.tckt = tct.substr(1);
   }
 
-  if (opt_packet) {
-    nlData.qos = opt_packet.qos;
-    nlData.dup = opt_packet.dup;
-    nlData.retain = opt_packet.retain;
-  }
+  nlData.qos = packet.qos || null;
+  nlData.dup = packet.dup || null;
+  nlData.retain = packet.retain || null;
   return [root, nlData];
 };
 
@@ -207,11 +212,14 @@ bad.MqttParse.prototype.normalize_ = function(pl, tArr, opt_packet) {
  */
 bad.MqttParse.prototype.parse = function(payload) {
 
-  // There is an assumption here that the payload is a JSON string, but comming
+  // There is an assumption here that the payload is a JSON string, but coming
   // in form C, this string may have a null terminator. The google JSON parser
   // croaks on this at the moment. So lets have a look at the last char of
   // the string...
-  payload.replace(/\0/g, '');
+  //payload.replace(/\0/g, '');
+
+
+  //console.log('\nHERE THE PAYLOAD -- >', payload, '\n');
 
   var normPayload = null;
   try {
