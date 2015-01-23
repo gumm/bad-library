@@ -204,9 +204,9 @@ bad.MqttParse.prototype.normalize_ = function(packet) {
     nlData.tckt = tct.substr(1);
   }
 
-  nlData.qos = packet.qos || null;
-  nlData.dup = packet.dup || null;
-  nlData.retain = packet.retain || null;
+  nlData.qos = goog.isDefAndNotNull(packet.qos) ? packet.qos : null;
+  nlData.dup = goog.isDefAndNotNull(packet.dup) ? packet.dup : null;
+  nlData.retain = goog.isDefAndNotNull(packet.retain) ? packet.retain : null;
   return [
     /** @type {string} */ (root),
     /** @type {bad.MqttParse.NormData} */ (nlData)
