@@ -134,6 +134,13 @@ bad.MqttParse.replyCode = {
  * that is passed into its internal and proxy parsing functions.
  * @typedef {
  *    {
+ *       hid: !string,
+ *       pid: !(string|number),
+ *       dir: !string,
+ *       ts: !number,
+ *       qos: number,
+ *       dup: boolean,
+ *       retain: boolean,
  *       type: !string,
  *       code: !number,
  *       tct: !string,
@@ -151,8 +158,7 @@ bad.MqttParse.replyCode = {
 bad.MqttParse.NormData;
 
 /**
- * Parse a payload and topic in one go.
- * @param {Object} opt_packet Looks like this:
+ * @param {Object} packet Looks like this:
  *    {cmd: 'publish',
  *    retain: false,
  *    qos: 0,
@@ -160,7 +166,7 @@ bad.MqttParse.NormData;
  *    length: 41,
  *    topic: 'iah_00010000/359568050218257/0/>',
  *    payload: <Buffer 7b 22 69 22 3a 30 7d> }
- * @return {!Array}
+ * @param {Function} callback
  */
 bad.MqttParse.prototype.parseAll = function(packet, callback) {
   callback(this.normalize_(packet));
@@ -168,7 +174,7 @@ bad.MqttParse.prototype.parseAll = function(packet, callback) {
 
 /**
  * Normalise and parse the payload.
- * @param {Object} opt_packet Looks like this:
+ * @param {Object} packet Looks like this:
  *    {cmd: 'publish',
  *    retain: false,
  *    qos: 0,
@@ -176,24 +182,23 @@ bad.MqttParse.prototype.parseAll = function(packet, callback) {
  *    length: 41,
  *    topic: 'iah_00010000/359568050218257/0/>',
  *    payload: <Buffer 7b 22 69 22 3a 30 7d> }
- * @return {!Array}
+ * @return {Array}
+ * @private
  */
 bad.MqttParse.prototype.normalize_ = function(packet) {
 
   var tArr = packet.topic.split('/');
   var root = tArr[0];
   var pl = packet.payload;
-  // TODO: Look in root for further parsing symbols.
-
-  var hid = tArr[1];
-  var pid = tArr[2];
-  var dir = tArr[3];
   var tct = tArr[4];
 
+  /**
+   * @type {bad.MqttParse.NormData}
+   */
   var nlData = this.parse(pl);
-  nlData.hid = hid;
-  nlData.pid = pid;
-  nlData.dir = dir;
+  nlData.hid = tArr[1];
+  nlData.pid = tArr[2];
+  nlData.dir = tArr[3];
   nlData.ts = nlData.ts.valueOf();
   if (tct && goog.string.startsWith(tct, '>')) {
     nlData.tckt = tct.substr(1);
@@ -202,13 +207,16 @@ bad.MqttParse.prototype.normalize_ = function(packet) {
   nlData.qos = packet.qos || null;
   nlData.dup = packet.dup || null;
   nlData.retain = packet.retain || null;
-  return [root, nlData];
+  return [
+    /** @type {string} */ (root),
+    /** @type {bad.MqttParse.NormData} */ (nlData)
+  ];
 };
 
 /**
  * Parse a string into a JSON object.
  * @param {*} payload A JSON parsable string.
- * @return {Object}
+ * @return {bad.MqttParse.NormData}
  */
 bad.MqttParse.prototype.parse = function(payload) {
 
