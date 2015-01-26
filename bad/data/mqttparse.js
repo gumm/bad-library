@@ -136,7 +136,7 @@ bad.MqttParse.replyCode = {
  * @typedef {
  *    {
  *       hid: !string,
- *       pid: !(string|number),
+ *       pid: !string,
  *       dir: !string,
  *       ts: !number,
  *       qos: number,
