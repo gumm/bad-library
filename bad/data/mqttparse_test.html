@@ -32,6 +32,10 @@ var tct = ">ticket_id_12345";
  assertSameElements([comment,] expectedValue, observedValue)
  */
 
+/**
+ * @type {bad.MqttParse}
+ */
+var parser = new bad.MqttParse();
 
 var t = new goog.format.JsonPrettyPrinter();
 var h = new goog.format.JsonPrettyPrinter(
@@ -100,16 +104,12 @@ var assertHasBasics = function(reply) {
 
 
 function setUp() {
-    /**
-     * Create a new layout
-     * @type {bad.MqttParse}
-     * @private
-     */
-    parser = new bad.MqttParse();
+    // parser = new bad.MqttParse();
 }
 
 function tearDown() {
-    parser.dispose();
+    // parser.dispose();
+    // Do nothing. The parser ins now static.
 }
 
 function test_parserTests() {
@@ -655,29 +655,37 @@ function test_parseWithTopicEvent() {
     var topic = 'MYROOT/IMEI/PERIPHERALID/>';
     var event = [0, 2000, ["Disarm", 2, 0, 12]];
     var pl = {"e": [0,"panel",[event]]};
+    var packet = {
+        topic: topic,
+        payload: goog.json.serialize(pl)
+    };
 
-    var replyArr = parser.parseAll(topic, goog.json.serialize(pl));
-    var topicRoot = [0];
-    var reply = replyArr[1];
-    extend(reply);
-    assertHasBasics(reply);
+    var cb = function(result) {
+        var reply = result[1];
+        extend(reply);
+        assertHasBasics(reply);
+    };
+    parser.parseAll(packet, cb);
 }
 
 function test_parseWithTopicEventAndPacket() {
     var topic = 'MYROOT/IMEI/PERIPHERALID/>/>sometct';
-    var packet = {
-        "qos": 0,
-        "dup": false,
-        "retain": false
-    };
     var event = [0, 2000, ["Disarm", 2, 0, 12]];
     var pl = {"e": [0,"panel",[event]]};
+    var packet = {
+        topic: topic,
+        payload: goog.json.serialize(pl),
+        qos: 0,
+        dup: false,
+        retain: false
+    };
 
-    var replyArr = parser.parseAll(topic, goog.json.serialize(pl), packet);
-    var topicRoot = [0];
-    var reply = replyArr[1];
-    extend(reply);
-    assertHasBasics(reply);
+    var cb = function(result) {
+        var reply = result[1];
+        extend(reply);
+        assertHasBasics(reply);
+    };
+    parser.parseAll(packet, cb);
 }
 
 

@@ -10,6 +10,7 @@ goog.require('goog.array');
 goog.require('goog.json');
 goog.require('goog.object');
 goog.require('goog.string');
+goog.require('goog.format.JsonPrettyPrinter');
 
 /**
  * Constructor of a basic Trinity MQTT payload parser.
@@ -141,9 +142,11 @@ bad.MqttParse.replyCode = {
  *       qos: number,
  *       dup: boolean,
  *       retain: boolean,
+ *       msgId: !string,
  *       type: !string,
  *       code: !number,
- *       tct: !string,
+ *       tckt: (string|number),
+ *       tct: (string|number),
  *       rpc: !number,
  *       iah: !boolean,
  *       ts: !number,
@@ -199,6 +202,7 @@ bad.MqttParse.prototype.normalize_ = function(packet) {
   nlData.hid = tArr[1];
   nlData.pid = tArr[2];
   nlData.dir = tArr[3];
+  nlData.msgId = packet.messageId;
   nlData.ts = nlData.ts.valueOf();
   if (tct && goog.string.startsWith(tct, '>')) {
     nlData.tckt = tct.substr(1);
@@ -207,15 +211,22 @@ bad.MqttParse.prototype.normalize_ = function(packet) {
   nlData.qos = goog.isDefAndNotNull(packet.qos) ? packet.qos : null;
   nlData.dup = goog.isDefAndNotNull(packet.dup) ? packet.dup : null;
   nlData.retain = goog.isDefAndNotNull(packet.retain) ? packet.retain : null;
+
+  //var pp = new goog.format.JsonPrettyPrinter(
+  //  new goog.format.JsonPrettyPrinter.TextDelimiters()
+  //);
+  //console.log(pp.format(nlData));
+
   return [
     /** @type {string} */ (root),
     /** @type {bad.MqttParse.NormData} */ (nlData)
   ];
 };
 
+
 /**
  * Parse a string into a JSON object.
- * @param {*} payload A JSON parsable string.
+ * @param {ArrayBuffer} payload A JSON parsable string.
  * @return {bad.MqttParse.NormData}
  */
 bad.MqttParse.prototype.parse = function(payload) {
@@ -226,12 +237,9 @@ bad.MqttParse.prototype.parse = function(payload) {
   // the string...
   //payload.replace(/\0/g, '');
 
-
-  //console.log('\nHERE THE PAYLOAD -- >', payload, '\n');
-
-  var normPayload = null;
+  var normPayload;
   try {
-    var obj = goog.json.parse(payload);
+    var obj = goog.json.parse(payload.toString());
 
     // A valid payload only has one key. Either c, d, e, x or i
     var type = goog.object.getAnyKey(obj);
