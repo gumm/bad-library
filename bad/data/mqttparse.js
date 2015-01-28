@@ -10,7 +10,6 @@ goog.require('goog.array');
 goog.require('goog.json');
 goog.require('goog.object');
 goog.require('goog.string');
-goog.require('goog.format.JsonPrettyPrinter');
 
 /**
  * Constructor of a basic Trinity MQTT payload parser.

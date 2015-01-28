@@ -12,10 +12,10 @@ goog.require('goog.crypt.Sha1');
 goog.require('goog.crypt.base64');
 
 
-
 /**
+ * Given a profile id, create a password.
  * @param {string} profile_id
- * @return {*}
+ * @return {string}
  */
 bad.Crypto.getProfileKey = function(profile_id) {
   var MK = 'C0DEC0DEC0DEC0DEC0DEC0DEC0DEC0DE';
