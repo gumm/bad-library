@@ -4,8 +4,10 @@
     <title>MQTT Parse Unit Tests - bad.ui.Layout</title>
     <script src="../../../closure-library/closure/goog/base.js"></script>
     <script src="../../../deps.js"></script>
+    <script src="../../../../../../deps.js"></script>
     <script type="text/javascript">
         goog.require('bad.MqttParse');
+        goog.require('poc.OutSmartRouter');
         goog.require('goog.testing.jsunit');
         goog.require('goog.events');
         goog.require('goog.format.JsonPrettyPrinter');
@@ -110,6 +112,57 @@ function setUp() {
 function tearDown() {
     // parser.dispose();
     // Do nothing. The parser ins now static.
+}
+
+function test_vividDataPayload() {
+    var topic = 'CID/HID/PID/>';
+    var smartRouter = new poc.OutSmartRouter();
+    var payload = {"d": [0, [
+        {"CCID": "str"},
+        {"IMSI": "str"},
+        {"IMEI": "str"},
+        {"APN": "str"},
+        {"APN_USR": "str"},
+        {"APN_PSW": "str"},
+        {"RR": 123},
+        {"FW_MAIN": "str"},
+        {"FW_MODEM": "str"},
+        {"FW_BOOT": "str"},
+        {"HW_MODEM": "str"},
+        {"HW_MAIN": "str"},
+        {"RHP": 123},
+        {"CSQ": 123},
+        {"BER": 123},
+        {"CI": 123},
+        {"LAC": 123},
+        {"URL_BRK": "str"},
+        {"PRT_BRK": 123},
+        {"DNS1_IP": "str"},
+        {"DNS2_IP": "str"},
+        {"URL_SNTP": "str"},
+        {"PRT_SNTP": 123},
+        {"PID": "str"},
+        {"KRN": 123}
+      ]]};
+    var plString = goog.json.serialize(payload);
+    var packet = {
+        topic: topic,
+        payload: payload
+    };
+
+
+    var reply = parser.parse(plString);
+
+    console.log('-------------------------------------------');
+    extend(reply);
+    console.log('-------------------------------------------');
+
+
+    var callback = function(result) {
+         extend(result);
+    };
+    smartRouter.makeDataEnvelope(reply, callback)
+
 }
 
 function test_parserTests() {

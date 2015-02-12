@@ -7,6 +7,7 @@ goog.provide('bad.MqttParse.replyCode');
 
 goog.require('bad.typeCheck');
 goog.require('goog.array');
+goog.require('goog.format.JsonPrettyPrinter');
 goog.require('goog.json');
 goog.require('goog.object');
 goog.require('goog.string');
@@ -211,11 +212,6 @@ bad.MqttParse.prototype.normalize_ = function(packet) {
   nlData.dup = goog.isDefAndNotNull(packet.dup) ? packet.dup : null;
   nlData.retain = goog.isDefAndNotNull(packet.retain) ? packet.retain : null;
 
-  //var pp = new goog.format.JsonPrettyPrinter(
-  //  new goog.format.JsonPrettyPrinter.TextDelimiters()
-  //);
-  //console.log(pp.format(nlData));
-
   return [
     /** @type {string} */ (root),
     /** @type {bad.MqttParse.NormData} */ (nlData)
@@ -239,6 +235,12 @@ bad.MqttParse.prototype.parse = function(payload) {
   var normPayload;
   try {
     var obj = goog.json.parse(payload.toString());
+
+    // TODO: Debug OUTPUT...
+    //var pp = new goog.format.JsonPrettyPrinter(
+    //  new goog.format.JsonPrettyPrinter.TextDelimiters()
+    //);
+    //console.log(pp.format(obj));
 
     // A valid payload only has one key. Either c, d, e, x or i
     var type = goog.object.getAnyKey(obj);
