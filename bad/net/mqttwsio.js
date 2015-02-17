@@ -184,18 +184,27 @@ bad.MqttWsIo.prototype.onSys = function(target, topic, payload) {
  */
 bad.MqttWsIo.prototype.onMessage = function(target, topic, payload, packet) {
 
-  var parseResult = this.parser_.parseAll(topic, payload, packet);
-  var root = parseResult[0];
-  var nlData = parseResult[1];
-  this.dispatchEvent(new bad.MqttEvent(this, bad.MqttEventType.RECEIVED,
+  // We add the sting version of the payload into here, replacing the buffer
+  // version of the payload with the string.
+  packet.payload = payload;
+
+  var callback = goog.bind(function(parseResult) {
+    var root = parseResult[0];
+    var nlData = parseResult[1];
+    this.dispatchEvent(new bad.MqttEvent(this, bad.MqttEventType.RECEIVED,
     topic, payload, packet, root, nlData));
 
-  if (this.outputEl_) {
-    goog.dom.insertChildAt(
-      this.outputEl_,
-      this.displayMQTT(target, topic, payload),
-      0);
-  }
+    if (this.outputEl_) {
+      goog.dom.insertChildAt(
+        this.outputEl_,
+        this.displayMQTT(target, topic, payload),
+        0);
+    }
+  }, this);
+
+ this.parser_.parseAll(packet, callback);
+
+
 };
 
 /**
