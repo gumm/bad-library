@@ -145,7 +145,7 @@ bad.AWTEnvelope.prototype.makeEventEnvelope = function(data, callback) {
       if (!(avTicket != avTicket)) {
         // This is a hack to test against NaNs. isNaN has some unexpected
         // behavior, such like: isNaN(' ') evaluates to false.
-        // But one reliable effect is the NaN != NaN always evaluates to
+        // But one reliable effect is that NaN != NaN always evaluates to
         // true. So if (x != x) is true, then x is reliably NaN. I know, this
         // is not nice. But until ECMAScript (ES6) delivers the Number.isNaN(),
         // this is the workaround. Sorry.
@@ -167,6 +167,7 @@ bad.AWTEnvelope.prototype.makeEventEnvelope = function(data, callback) {
 };
 
 bad.AWTEnvelope.prototype.makeEventPayload = function(key, event, mTs) {
+
   var eventTimestamp = event[0];
   var data = event[1];
   var eventCode = parseInt(key, 10);
@@ -176,6 +177,12 @@ bad.AWTEnvelope.prototype.makeEventPayload = function(key, event, mTs) {
   // use the event timestamp if it is POSIX, else we use the message timestamp,
   // and sum it with the event timestamp.
   var ts = eventTimestamp > 0 ? eventTimestamp : mTs + eventTimestamp;
+
+  // For event 1000s - base station bound events
+  if (key === '1000') {
+    return this.makeContactIdPayload(event, ts);
+  }
+
   var eventPl = {
     'code': eventCode,
     'type': 1,
@@ -185,4 +192,18 @@ bad.AWTEnvelope.prototype.makeEventPayload = function(key, event, mTs) {
     eventPl['data'] = data;
   }
   return eventPl;
+};
+
+
+bad.AWTEnvelope.prototype.makeContactIdPayload = function(event, ts) {
+  var cidObj = event[1]; // { '130': '987618113001004' }
+  var key = goog.object.getAnyKey(cidObj);
+  var data = cidObj[key];
+  var eventCode = parseInt(key, 10);
+  return {
+    'code': eventCode,
+    'type': 1,
+    'timestamp': ts,
+    'data': data
+  };
 };
