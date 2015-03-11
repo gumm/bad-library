@@ -5,12 +5,16 @@
 require('../../../closure-library/closure/goog/bootstrap/nodejs');
 require('../../../../../../deps.js');
 goog.require('bad.MqttParse');
-goog.require('goog.testing.TestCase');
+goog.require('goog.testing.asserts');
 goog.require('goog.format.JsonPrettyPrinter');
+goog.require('bad.typeCheck');
+goog.require('goog.json');
+goog.require('goog.object');
+goog.require('goog.string');
 
 var ftc = 1502476730236; // Some time it the future
 var ptc = -60 * 60 * 3;  // 3 hours ago.
-var tct = ">ticket_id_12345";
+var tct = '>ticket_id_12345';
 
 /*
  assertTrue([comment,] value)
@@ -26,7 +30,7 @@ var tct = ">ticket_id_12345";
  */
 
 
-describe('testMqttParse', function () {
+describe('testMqttParse', function() {
 
   var parser = new bad.MqttParse();
 
@@ -35,31 +39,31 @@ describe('testMqttParse', function () {
     new goog.format.JsonPrettyPrinter.HtmlDelimiters());
 
   var maxOut = {};
-  var extend = function (obj) {
+  var extend = function(obj) {
     goog.object.extend(maxOut, obj);
   };
 
-  var assertBiggerThan = function (comment, a, b) {
+  var assertBiggerThan = function(comment, a, b) {
     assertTrue(comment, a > b);
   };
 
-  var assertSmallerThan = function (comment, a, b) {
+  var assertSmallerThan = function(comment, a, b) {
     assertTrue(comment, a < b);
   };
 
-  var assertIsArray = function (comment, a) {
+  var assertIsArray = function(comment, a) {
     assertEquals(comment, 'array', goog.typeOf(a));
   };
 
-  var assertIsString = function (comment, a) {
+  var assertIsString = function(comment, a) {
     assertEquals(comment, 'string', goog.typeOf(a));
   };
 
-  var assertIsNumber = function (comment, a) {
+  var assertIsNumber = function(comment, a) {
     assertEquals(comment, 'number', goog.typeOf(a));
   };
 
-  var assertIsInt = function (comment, a) {
+  var assertIsInt = function(comment, a) {
     assertFalse(
       'The number should not contain a "."',
       goog.string.contains(a.toString(), '.')
@@ -71,7 +75,7 @@ describe('testMqttParse', function () {
     assertEquals(comment, 'number', goog.typeOf(a));
   };
 
-  var assertIsSignedInt = function (comment, a) {
+  var assertIsSignedInt = function(comment, a) {
     assertFalse(
       'The number should not contain a "."',
       goog.string.contains(a.toString(), '.')
@@ -79,43 +83,43 @@ describe('testMqttParse', function () {
     assertEquals(comment, 'number', goog.typeOf(a));
   };
 
-  var assertIsObject = function (comment, a) {
+  var assertIsObject = function(comment, a) {
     assertEquals(comment, 'object', goog.typeOf(a));
   };
 
-  var assertIsDate = function (comment, a) {
+  var assertIsDate = function(comment, a) {
     assertTrue(comment,
       Object.prototype.toString.call(a) === '[object Date]');
   };
 
-  var assertHasBasics = function (reply) {
+  var assertHasBasics = function(reply) {
     assertContains('Type parsed out', reply.type, ['c', 'd', 'e', 'x', 'i']);
     assertNotUndefined('There should be a timestamp', reply.ts);
     assertIsInt('The timestamp should be an int', reply.ts);
   };
 
-  describe('bad.typeCheck.isEmptyArr', function () {
+  describe('bad.typeCheck.isEmptyArr', function() {
     it('returns true when the given array is empty and false' +
       'when it is not empty',
-      function () {
+      function() {
         assertTrue(bad.typeCheck.isEmptyArr([]));
         assertFalse(bad.typeCheck.isEmptyArr([1, 2]));
       });
   });
 
-  describe('bad.typeCheck.isNotEmptyArr', function () {
+  describe('bad.typeCheck.isNotEmptyArr', function() {
     it('returns true when the given array is not empty and ' +
       'false when it is empty',
-      function () {
+      function() {
         assertFalse(bad.typeCheck.isNotEmptyArr([]));
         assertTrue(bad.typeCheck.isNotEmptyArr([1, 2]));
       });
   });
 
-  describe('parser.parse', function () {
+  describe('parser.parse', function() {
     it('parses future timestamps to a date',
-      function () {
-        var pl = {"c": [ftc, ["func"]]};
+      function() {
+        var pl = {'c': [ftc, ['func']]};
         var result = parser.parse(goog.json.serialize(pl));
         assertIsInt('The reply.ts should be a date', result.ts);
         assertHasBasics(result);
@@ -125,9 +129,9 @@ describe('testMqttParse', function () {
       });
   });
 
-  describe('test_parsePastTimeStamp', function () {
-    it('should properly parse a timestamp', function () {
-      var pl = {"c": [ptc, ["func"]]};
+  describe('test_parsePastTimeStamp', function() {
+    it('should properly parse a timestamp', function() {
+      var pl = {'c': [ptc, ['func']]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -138,13 +142,13 @@ describe('testMqttParse', function () {
         'The reply timestamp should be 3 hours in the past',
         now.getHours() - 3,
         then.getHours()
-      )
+      );
     });
   });
 
-  describe('test_parseZeroTimeStamp', function () {
-    it('A zero timestamp should resolve to now', function () {
-      var pl = {"c": [0, ["zero"]]};
+  describe('test_parseZeroTimeStamp', function() {
+    it('A zero timestamp should resolve to now', function() {
+      var pl = {'c': [0, ['zero']]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -159,9 +163,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_brokenTooShort', function () {
-    it('should return proper broken messages', function () {
-      var pl = {"c": ["func"]};
+  describe('test_brokenTooShort', function() {
+    it('should return proper broken messages', function() {
+      var pl = {'c': ['func']};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -179,9 +183,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_brokenTooLong', function () {
-    it('should give proper feedback if the input is too long', function () {
-      var pl = {"c": [1, 2, 3, 4]};
+  describe('test_brokenTooLong', function() {
+    it('should give proper feedback if the input is too long', function() {
+      var pl = {'c': [1, 2, 3, 4]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -197,9 +201,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_brokenTooLongX', function () {
-    it('should give proper feedback if an x message is malformed', function () {
-      var pl = {"x": [1, 2, 3, 4, 5]};
+  describe('test_brokenTooLongX', function() {
+    it('should give proper feedback if an x message is malformed', function() {
+      var pl = {'x': [1, 2, 3, 4, 5]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -215,9 +219,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_brokenWrongType', function () {
-    it('', function () {
-      var pl = {"z": [1, 2, 3]};
+  describe('test_brokenWrongType', function() {
+    it('', function() {
+      var pl = {'z': [1, 2, 3]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
 
@@ -235,9 +239,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_parseCommandMin', function () {
-    it('', function () {
-      var pl = {"c": [0, ["func"]]};
+  describe('test_parseCommandMin', function() {
+    it('', function() {
+      var pl = {'c': [0, ['func']]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -255,9 +259,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_parseCommandMax', function () {
-    it('', function () {
-      var pl = {"c": [0, tct, ["concat", true, false, null, 1, "string"]]};
+  describe('test_parseCommandMax', function() {
+    it('', function() {
+      var pl = {'c': [0, tct, ['concat', true, false, null, 1, 'string']]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -266,7 +270,7 @@ describe('testMqttParse', function () {
       assertIsObject('command value should be an object', reply.command);
       assertObjectEquals(
         'Command object should be',
-        {concat: [true, false, null, 1, "string"]}, reply.command);
+        {concat: [true, false, null, 1, 'string']}, reply.command);
 
       assertEquals('Code key should be 0', 0, reply.code);
       assertEquals('The tct key is:', tct, reply.tct);
@@ -279,9 +283,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_brokenCommandNotArray', function () {
-    it('', function () {
-      var pl = {"c": [0, tct, 3]};
+  describe('test_brokenCommandNotArray', function() {
+    it('', function() {
+      var pl = {'c': [0, tct, 3]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -299,9 +303,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_brokenCommandArrEmpty', function () {
-    it('', function () {
-      var pl = {"c": [0, tct, []]};
+  describe('test_brokenCommandArrEmpty', function() {
+    it('', function() {
+      var pl = {'c': [0, tct, []]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -319,9 +323,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_brokenCommandNotString', function () {
-    it('', function () {
-      var pl = {"c": [1, tct, [1]]};
+  describe('test_brokenCommandNotString', function() {
+    it('', function() {
+      var pl = {'c': [1, tct, [1]]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -340,9 +344,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_parseEventMin', function () {
-    it('', function () {
-      var pl = {"e": [0, [[0, 100]]]};
+  describe('test_parseEventMin', function() {
+    it('', function() {
+      var pl = {'e': [0, [[0, 100]]]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -363,13 +367,13 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_parseEventMax', function () {
-    it('', function () {
+  describe('test_parseEventMax', function() {
+    it('', function() {
       var pl = {
-        "e": [0, "eventmax", [
+        'e': [0, 'eventmax', [
           [0, 100, true],
           [0, 101, false],
-          [0, 102, "string"],
+          [0, 102, 'string'],
           [0, 103, 123.345]
         ]]
       };
@@ -399,9 +403,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_brokenEventNotArray', function () {
-    it('', function () {
-      var pl = {"e": [0, 2]};
+  describe('test_brokenEventNotArray', function() {
+    it('', function() {
+      var pl = {'e': [0, 2]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -419,9 +423,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_brokenEventArrayEmpty', function () {
-    it('', function () {
-      var pl = {"e": [0, []]};
+  describe('test_brokenEventArrayEmpty', function() {
+    it('', function() {
+      var pl = {'e': [0, []]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -439,9 +443,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_brokenEventInnerNotArray', function () {
-    it('', function () {
-      var pl = {"e": [0, ['broken', [0, 100, true]]]};
+  describe('test_brokenEventInnerNotArray', function() {
+    it('', function() {
+      var pl = {'e': [0, ['broken', [0, 100, true]]]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -470,9 +474,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_brokenEventInnerArrayEmpty', function () {
-    it('', function () {
-      var pl = {"e": [0, [[]]]};
+  describe('test_brokenEventInnerArrayEmpty', function() {
+    it('', function() {
+      var pl = {'e': [0, [[]]]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -490,9 +494,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_brokenEventInnerCodeNotNumber', function () {
-    it('', function () {
-      var pl = {"e": [0, [[0, "hello"]]]};
+  describe('test_brokenEventInnerCodeNotNumber', function() {
+    it('', function() {
+      var pl = {'e': [0, [[0, 'hello']]]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -503,7 +507,7 @@ describe('testMqttParse', function () {
       assertObjectEquals(
         'One broken event',
         {
-          '-13': [[0, "hello"]]
+          '-13': [[0, 'hello']]
         }, reply.broken);
 
       assertUndefined('No command', reply.command);
@@ -516,9 +520,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_parseDataMin', function () {
-    it('', function () {
-      var pl = {"d": [0, []]};
+  describe('test_parseDataMin', function() {
+    it('', function() {
+      var pl = {'d': [0, []]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -537,13 +541,13 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_parseDataMax', function () {
-    it('', function () {
+  describe('test_parseDataMax', function() {
+    it('', function() {
       var dataPl = [100, true, false, {
-        "a": "string",
-        "b": 123
-      }, null, [1, 2, 3], "some string"];
-      var pl = {"d": [0, "datamax", dataPl]};
+        'a': 'string',
+        'b': 123
+      }, null, [1, 2, 3], 'some string'];
+      var pl = {'d': [0, 'datamax', dataPl]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -562,10 +566,10 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_parseTransReplyMax', function () {
-    it('', function () {
-      var res = [100, true, false, null, "some string"];
-      var pl = {"x": [0, 0, res]};
+  describe('test_parseTransReplyMax', function() {
+    it('', function() {
+      var res = [100, true, false, null, 'some string'];
+      var pl = {'x': [0, 0, res]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -581,9 +585,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_parseTransReplyMin', function () {
-    it('', function () {
-      var pl = {"x": [0, 0]};
+  describe('test_parseTransReplyMin', function() {
+    it('', function() {
+      var pl = {'x': [0, 0]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -599,9 +603,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_parseIamHereMessageZeroTimestamp', function () {
-    it('', function () {
-      var pl = {"i": 0};
+  describe('test_parseIamHereMessageZeroTimestamp', function() {
+    it('', function() {
+      var pl = {'i': 0};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -623,10 +627,10 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_parseIamHereMessageNormTimestamp', function () {
-    it('', function () {
+  describe('test_parseIamHereMessageNormTimestamp', function() {
+    it('', function() {
       var now = new Date();
-      var pl = {"i": now.valueOf() / 1000};
+      var pl = {'i': now.valueOf() / 1000};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -648,9 +652,9 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_brokenIamHereMessage', function () {
-    it('', function () {
-      var pl = {"i": "broken here"};
+  describe('test_brokenIamHereMessage', function() {
+    it('', function() {
+      var pl = {'i': 'broken here'};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
@@ -672,36 +676,36 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_parseAlarmOnConfirmation', function () {
-    it('', function () {
-      var pl = {"d": [0, [true, "alarm", "on"]]};
+  describe('test_parseAlarmOnConfirmation', function() {
+    it('', function() {
+      var pl = {'d': [0, [true, 'alarm', 'on']]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
     });
   });
 
-  describe('test_parseAlarmEvent', function () {
-    it('', function () {
-      var event = [0, 2000, ["Disarm", 2, 0, 12]];
-      var pl = {"e": [0, "panel", [event]]};
+  describe('test_parseAlarmEvent', function() {
+    it('', function() {
+      var event = [0, 2000, ['Disarm', 2, 0, 12]];
+      var pl = {'e': [0, 'panel', [event]]};
       var reply = parser.parse(goog.json.serialize(pl));
       extend(reply);
       assertHasBasics(reply);
     });
   });
 
-  describe('test_parseWithTopicEvent', function () {
-    it('', function () {
+  describe('test_parseWithTopicEvent', function() {
+    it('', function() {
       var topic = 'MYROOT/IMEI/PERIPHERALID/>';
-      var event = [0, 2000, ["Disarm", 2, 0, 12]];
-      var pl = {"e": [0, "panel", [event]]};
+      var event = [0, 2000, ['Disarm', 2, 0, 12]];
+      var pl = {'e': [0, 'panel', [event]]};
       var packet = {
         topic: topic,
         payload: goog.json.serialize(pl)
       };
 
-      var cb = function (result) {
+      var cb = function(result) {
         var reply = result[1];
         extend(reply);
         assertHasBasics(reply);
@@ -710,11 +714,11 @@ describe('testMqttParse', function () {
     });
   });
 
-  describe('test_parseWithTopicEventAndPacket', function () {
-    it('', function () {
+  describe('test_parseWithTopicEventAndPacket', function() {
+    it('', function() {
       var topic = 'MYROOT/IMEI/PERIPHERALID/>/>sometct';
-      var event = [0, 2000, ["Disarm", 2, 0, 12]];
-      var pl = {"e": [0, "panel", [event]]};
+      var event = [0, 2000, ['Disarm', 2, 0, 12]];
+      var pl = {'e': [0, 'panel', [event]]};
       var packet = {
         topic: topic,
         payload: goog.json.serialize(pl),
@@ -723,7 +727,7 @@ describe('testMqttParse', function () {
         retain: false
       };
 
-      var cb = function (result) {
+      var cb = function(result) {
         var reply = result[1];
         extend(reply);
         assertHasBasics(reply);
