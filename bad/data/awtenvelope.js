@@ -4,9 +4,9 @@
  */
 goog.provide('bad.AWTEnvelope');
 
-goog.require('bad.typeCheck');
-goog.require('goog.json');
-goog.require('goog.string');
+goog.require('goog.array');
+goog.require('goog.object');
+
 
 /**
  * Constructor of a basic Trinity MQTT payload parser.

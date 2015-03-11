@@ -7,7 +7,7 @@ goog.provide('bad.MqttParse.replyCode');
 
 goog.require('bad.typeCheck');
 goog.require('goog.array');
-goog.require('goog.format.JsonPrettyPrinter');
+//goog.require('goog.format.JsonPrettyPrinter');
 goog.require('goog.json');
 goog.require('goog.object');
 goog.require('goog.string');
