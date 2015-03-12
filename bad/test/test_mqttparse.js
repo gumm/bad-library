@@ -9,7 +9,6 @@ goog.require('goog.testing.asserts');
 goog.require('goog.format.JsonPrettyPrinter');
 goog.require('bad.typeCheck');
 goog.require('goog.json');
-goog.require('goog.object');
 goog.require('goog.string');
 
 var ftc = 1502476730236; // Some time it the future
