@@ -133,6 +133,8 @@ bad.MqttParse.replyCode = {
 /**
  * This parser internally normalises the MQTT payload to a data structure
  * that is passed into its internal and proxy parsing functions.
+ * In normalized data, timestamps are represented with an Int as the number
+ * of milliseconds since the epoch (POSIX time)
  * @typedef {
  *    {
  *       hid: !string,
@@ -307,17 +309,21 @@ bad.MqttParse.prototype.normalizePayload_ = function(type, msg) {
 bad.MqttParse.prototype.parseTimeStamp_ = function(ts, reply) {
   reply.code = bad.MqttParse.replyCode.BAD_TIMESTAMP;
   var date = new Date();
-  if (bad.typeCheck.isNumber(ts)) {
+
+  if (bad.typeCheck.isSignedInt(ts)) {
     ts = /** @type {!number} */ (ts);
     reply.code = bad.MqttParse.replyCode.ALL_OK;
+
     if (ts < 0) {
       date.setSeconds(date.getSeconds() + ts);
     } else if (ts > 0) {
+
       var milli = ts * 1000;
       date.setTime(milli);
+
     }
   }
-  reply.ts = date.getTime();
+  reply.ts = date.valueOf();
   return reply;
 };
 
@@ -438,6 +444,11 @@ bad.MqttParse.prototype.parseMessage_ = function(type, msg, reply) {
 
 bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
 
+  /**
+   * The message timestamp in milliseconds
+   * @type {!number}
+   */
+  var messageTimestamp = reply.ts;
   var broken = {};
   var events = {};
   var errCode = 0;
@@ -474,7 +485,7 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
         var extra = event[2];
 
         // Check timestamp.
-        errCode = bad.typeCheck.isInt(timestamp) ? errCode :
+        errCode = bad.typeCheck.isSignedInt(timestamp) ? errCode :
           bad.MqttParse.replyCode.BAD_TIMESTAMP;
         if (errCode) {
           broken[errCode.toString()] = broken[errCode.toString()] ?
@@ -490,6 +501,17 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
           } else {
             // So the event code is an int.
             // Good. We can parse this.
+            // If the negative subtract that number of seconds from the message
+            // timestamp. If it is 0, use the message timestamp, and it is
+            // positive, convert it to milliseconds.
+            if (timestamp > 0) {
+              timestamp = timestamp * 1000;
+            } else if (timestamp === 0) {
+              timestamp = messageTimestamp;
+            } else { // Timestamp is smaller than zero.
+              timestamp = messageTimestamp + timestamp * 1000;
+            }
+
             events[eventCode.toString()] = [timestamp];
             if (goog.isDef(extra)) {
               events[eventCode.toString()].push(extra);

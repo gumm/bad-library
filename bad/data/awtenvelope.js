@@ -45,7 +45,6 @@ bad.AWTEnvelope.prototype.getEnvelope = function(nlData, callback) {
 };
 
 // ------------------------------------------------------------------[ Paths ]--
-
 /**
  * @param {!(bad.MqttParse.NormData.pid|string)} pid
  * @return {string}
@@ -71,7 +70,6 @@ bad.AWTEnvelope.prototype.getEnvelopeHeader_ = function(data) {
 };
 
 // -----------------------------------------------------[ I am Here Envelope ]--
-
 /**
  * @param {!bad.MqttParse.NormData} data
  * @param {!Function} callback
@@ -92,7 +90,6 @@ bad.AWTEnvelope.prototype.makeIMHEnvelope = function(data, callback) {
 };
 
 // ----------------------------------------------------------[ Data Envelope ]--
-
 /**
  * @param {!bad.MqttParse.NormData} data
  * @param {!Function} callback
@@ -108,7 +105,9 @@ bad.AWTEnvelope.prototype.makeDataEnvelope = function(data, callback) {
   goog.array.forEach(data.data, function(el) {
     goog.object.forEach(el, function(v, k) {
       message.data.push({
-        'name': k, 'value': v, 'timestamp': data.ts
+        'name': k,
+        'value': v,
+        'timestamp': data.ts
       });
     }, this);
   }, this);
@@ -119,7 +118,6 @@ bad.AWTEnvelope.prototype.makeDataEnvelope = function(data, callback) {
 
 
 // ---------------------------------------------------------[ Event Envelope ]--
-
 /**
  * @param {!bad.MqttParse.NormData} data
  * @param {!Function} callback
@@ -166,6 +164,12 @@ bad.AWTEnvelope.prototype.makeEventEnvelope = function(data, callback) {
   callback(envelope, err);
 };
 
+/**
+ * @param {!string} key
+ * @param {!Object} event
+ * @param {!number} mTs The message timestamp.
+ * @return {*}
+ */
 bad.AWTEnvelope.prototype.makeEventPayload = function(key, event, mTs) {
 
   var eventTimestamp = event[0];
@@ -186,7 +190,7 @@ bad.AWTEnvelope.prototype.makeEventPayload = function(key, event, mTs) {
   var eventPl = {
     'code': eventCode,
     'type': 1,
-    'timestamp': ts
+    'timestamp': ts.valueOf()
   };
   if (goog.isDefAndNotNull(data)) {
     eventPl['data'] = data;
@@ -203,7 +207,7 @@ bad.AWTEnvelope.prototype.makeContactIdPayload = function(event, ts) {
   return {
     'code': eventCode,
     'type': 1,
-    'timestamp': ts,
+    'timestamp': ts.valueOf(),
     'data': data
   };
 };
