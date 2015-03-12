@@ -11,7 +11,11 @@ goog.require('goog.ui.MenuItem');
 goog.require('goog.ui.MenuSeparator');
 goog.require('goog.ui.ToggleButton');
 
-
+/**
+ * Given a string this returns an array of bytes
+ * @param {!string} s
+ * @return {Array}
+ */
 bad.utils.stringToBytes = function(s) {
   var bytes = new Array(s.length);
   for (var i = 0; i < s.length; ++i)
@@ -21,13 +25,51 @@ bad.utils.stringToBytes = function(s) {
 
 /**
  * This returns now in seconds.
- * The value returned by the getTime() method is the number of milliseconds
+ * The value returned by the Date.now() method is the number of milliseconds
  * since 1 January 1970 00:00:00 UTC. Always UTC.
  * @return {number} The current Epoch timestamp in seconds. Rounding down.
  */
-bad.utils.getTimeNow = function() {
-  return Math.floor(new Date().getTime() / 1000);
+bad.utils.getNowSeconds = function() {
+  return Math.floor(Date.now() / 1000);
 };
+
+/**
+ * Private function that will return an incremeted counter value each time it
+ * is called.
+ * @param {number=} opt_start
+ * @return {function(): number}
+ */
+bad.utils.privateCounter = function(opt_start) {
+  var c = opt_start ? opt_start : 0;
+  return function() {
+    c = c + 1;
+    return c;
+  };
+};
+
+/**
+ * Private function that will always return the same random string each time
+ * it is called.
+ * @return {string}
+ */
+bad.utils.privateRandom = function() {
+  var c = bad.utils.makeId();
+  return (function() {
+    return c;
+  })();
+};
+
+/**
+ * Returns a pseudo random string. Good for ids.
+ * @param {number=} opt_length An optional length for the string. Note this
+ *    clearly reduces the randomness, and increases the chances of a collision.
+ * @return {string}
+ */
+bad.utils.makeId = function(opt_length) {
+  var s = goog.string.getRandomString();
+  return opt_length ? s.substr(0, opt_length) : s;
+};
+
 
 /**
  * @param {string} string
@@ -178,44 +220,6 @@ bad.utils.makeMenu = function(menuItems, domHelper, handler, scope, opt_rend,
       );
       return menu;
     };
-
-/**
- * Private function that will return an incremeted counter value each time it
- * is called.
- * @param {number=} opt_start
- * @return {function(): number}
- */
-bad.utils.privateCounter = function(opt_start) {
-  var c = opt_start ? opt_start : 0;
-  return function() {
-    c = c + 1;
-    return c;
-  };
-};
-
-/**
- * Private function that will always return the same random string each time
- * it is called.
- * @return {string}
- */
-bad.utils.privateRandom = function() {
-  var c = bad.utils.makeId();
-  return (function() {
-    return c;
-  })();
-};
-
-/**
- * Returns a pseudo random string. Good for ids.
- * @param {number=} opt_length An optional length for the string. Note this
- *    clearly reduces the randomness, and increases the chances of a collision.
- * @return {string}
- */
-bad.utils.makeId = function(opt_length) {
-  var s = goog.string.getRandomString();
-  return opt_length ? s.substr(0, opt_length) : s;
-};
-
 
 
 /**

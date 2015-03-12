@@ -17,7 +17,7 @@ goog.require('goog.json');
 goog.require('goog.net.WebSocket');
 
 /**
- * Constructor of the main site object.
+ * A web socket client that interacts with a server side MQTT client.
  * @extends {goog.events.EventTarget}
  * @constructor
  */

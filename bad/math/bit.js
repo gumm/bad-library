@@ -1,6 +1,6 @@
 /**
  * User: Jan
- * Date: 2012/09/27
+ * Date: 2012-09-27
  * Time: 10:17 AM
  * http://graphics.stanford.edu/~seander/bithacks.html
  */
@@ -86,7 +86,7 @@ bad.math.bit.invBitAt = function(b, n) {
 };
 
 /**
- * Invert the bit at the position n of the number b.
+ * Return true if the bit at the given position is 1.
  * Bit count starts at 0.
  * @param {number} b
  * @param {number} n
