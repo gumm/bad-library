@@ -1,10 +1,7 @@
-
 require('../../../closure-library/closure/goog/bootstrap/nodejs');
 require('../../../../../../deps.js');
 goog.require('bad.utils');
 goog.require('goog.testing.asserts');
-goog.require('goog.array');
-
 
 /*
  assertTrue([comment,] value)
@@ -53,12 +50,12 @@ describe('Library Utils', function() {
   });
 
   it('can make random IDs', function() {
-    var numTimesToCall = 9999;
-    var testArray = [];
+    var numTimesToCall = 99999;
+    var testMap = {};
     for (var i = 0; i < numTimesToCall; i++) {
       var id = bad.utils.makeId();
-      assertFalse(goog.array.contains(testArray, id));
-      testArray.push(id);
+      assertUndefined(testMap[id]);
+      testMap[id] = true;
     }
   });
 
