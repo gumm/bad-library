@@ -4,7 +4,7 @@ goog.addDependency('../../../bad-library/bad/constants/constants.js', ['bad.CssC
 goog.addDependency('../../../bad-library/bad/crypto/aes-cmac.js', ['bad.AesCmac'], ['bad.CryptUtils'], false);
 goog.addDependency('../../../bad-library/bad/crypto/crypto.js', ['bad.Crypto'], ['bad.AesCmac', 'bad.CryptUtils', 'bad.utils', 'goog.crypt', 'goog.crypt.Aes', 'goog.crypt.Sha1', 'goog.crypt.base64'], false);
 goog.addDependency('../../../bad-library/bad/crypto/cryptutils.js', ['bad.CryptUtils'], ['goog.crypt.Aes'], false);
-goog.addDependency('../../../bad-library/bad/data/awtenvelope.js', ['bad.AWTEnvelope'], ['goog.array', 'goog.object'], false);
+goog.addDependency('../../../bad-library/bad/data/awtenvelope.js', ['bad.AWTEnvelope'], ['goog.object'], false);
 goog.addDependency('../../../bad-library/bad/data/mqttparse.js', ['bad.MqttParse', 'bad.MqttParse.replyCode'], ['bad.typeCheck'], false);
 goog.addDependency('../../../bad-library/bad/math/bit.js', ['bad.math.bit', 'bad.math.buff'], [], false);
 goog.addDependency('../../../bad-library/bad/net/mqttwsio.js', ['bad.MqttEvent', 'bad.MqttEventType', 'bad.MqttWsIo'], ['bad.MqttParse', 'bad.utils', 'goog.dom', 'goog.events.Event', 'goog.events.EventHandler', 'goog.events.EventTarget', 'goog.format.JsonPrettyPrinter', 'goog.json', 'goog.net.WebSocket'], false);

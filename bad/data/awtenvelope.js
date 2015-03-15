@@ -4,7 +4,6 @@
  */
 goog.provide('bad.AWTEnvelope');
 
-goog.require('goog.array');
 goog.require('goog.object');
 
 
@@ -102,7 +101,7 @@ bad.AWTEnvelope.prototype.makeDataEnvelope = function(data, callback) {
     'data': []
   };
 
-  goog.array.forEach(data.data, function(el) {
+  data.data.forEach(function(el) {
     goog.object.forEach(el, function(v, k) {
       message.data.push({
         'name': k,
