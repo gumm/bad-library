@@ -1,9 +1,6 @@
-/**
- * Created by gumm on 2015/03/11.
- */
-
 require('../../../closure-library/closure/goog/bootstrap/nodejs');
-require('../../../../../../deps.js');
+require('../deps.js');
+
 goog.require('bad.MqttParse');
 goog.require('goog.testing.asserts');
 goog.require('goog.format.JsonPrettyPrinter');
