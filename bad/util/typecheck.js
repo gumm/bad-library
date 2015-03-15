@@ -5,12 +5,12 @@ goog.provide('bad.typeCheck');
  * numbers, as well as the strings 'true' and 'True' and 'TRUE' as true.
  * Everything else is considered false. NaN, Undefined, null, all false.
  *
- * @param {(string|number|boolean|Boolean)=} value The value to parse.
+ * @param {(string|number|boolean|Boolean)=} a The value to parse.
  * @return {boolean} A boolean value.
  */
-bad.typeCheck.parseBool = function(value) {
+bad.typeCheck.parseBool = function(a) {
   var bool = false;
-  if (parseFloat(value) > 0 || (/^(true)/i).test(value)) {
+  if (parseFloat(a) > 0 || (/^(true)/i).test(a)) {
     bool = true;
   }
   return bool;
@@ -33,10 +33,7 @@ bad.typeCheck.isArray = function(a) {
  * @return {boolean}
  */
 bad.typeCheck.isEmptyArr = function(a) {
-  return !goog.isDef(a[0]);
-};
-bad.typeCheck.isNotEmptyArr = function(a) {
-  return !bad.typeCheck.isEmptyArr(a);
+  return bad.typeCheck.isArray(a) && !goog.isDef(a[0]);
 };
 
 /**
@@ -45,8 +42,8 @@ bad.typeCheck.isNotEmptyArr = function(a) {
  * @param {*} a The value to check
  * @return {boolean}
  */
-bad.typeCheck.isEmptyArr = function(a) {
-  return !goog.isDef(a[0]);
+bad.typeCheck.isNotEmptyArr = function(a) {
+  return !bad.typeCheck.isEmptyArr(a);
 };
 
 /**
@@ -56,9 +53,6 @@ bad.typeCheck.isEmptyArr = function(a) {
  * @param {*} a The value to check
  * @return {boolean}
  */
-bad.typeCheck.isString = function(a) {
-  return goog.typeOf(a) === 'string';
-};
 bad.typeCheck.arrLengthBetween = function(a, min, max) {
   return a.length >= min && a.length <= max;
 };

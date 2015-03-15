@@ -6,14 +6,10 @@ goog.provide('bad.MqttParse');
 goog.provide('bad.MqttParse.replyCode');
 
 goog.require('bad.typeCheck');
-goog.require('goog.array');
 //goog.require('goog.format.JsonPrettyPrinter');
-goog.require('goog.json');
-goog.require('goog.object');
-goog.require('goog.string');
 
 /**
- * Constructor of a basic Trinity MQTT payload parser.
+ * Constructor of a basic MQTT payload parser.
  * @constructor
  */
 bad.MqttParse = function() {};
@@ -206,7 +202,7 @@ bad.MqttParse.prototype.normalize_ = function(packet) {
   nlData.dir = tArr[3];
   nlData.msgId = packet.messageId;
   nlData.ts = nlData.ts.valueOf();
-  if (tct && goog.string.startsWith(tct, '>')) {
+  if (tct && this.startsWith(tct, '>')) {
     nlData.tckt = tct.substr(1);
   }
 
@@ -236,7 +232,7 @@ bad.MqttParse.prototype.parse = function(payload) {
 
   var normPayload;
   try {
-    var obj = goog.json.parse(payload.toString());
+    var obj = JSON.parse(payload.toString());
 
     // TODO: Debug OUTPUT...
     //var pp = new goog.format.JsonPrettyPrinter(
@@ -245,7 +241,7 @@ bad.MqttParse.prototype.parse = function(payload) {
     //console.log(pp.format(obj));
 
     // A valid payload only has one key. Either c, d, e, x or i
-    var type = goog.object.getAnyKey(obj);
+    var type = this.getAnyKey(obj);
     if (type) {
       normPayload = this.normalizePayload_(type, obj[type]);
     }
@@ -336,7 +332,7 @@ bad.MqttParse.prototype.parseTimeStamp_ = function(ts, reply) {
 bad.MqttParse.prototype.testPayloadType_ = function(msg, reply) {
   var passIsArray = bad.typeCheck.isArray(msg);
   var passNotEmpty = !bad.typeCheck.isEmptyArr(msg);
-  var passIsKnownType = goog.string.contains('cdex', reply.type);
+  var passIsKnownType = this.contains('cdex', reply.type);
 
   reply.code =
     !passIsArray ? bad.MqttParse.replyCode.PAYLOAD_NOT_ARRAY :
@@ -465,7 +461,7 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
     reply.broken = msg;
   } else {
     // Check each of the events. Must be an array between 2 and 3 elements.
-    goog.array.forEach(msg, function(event) {
+    msg.forEach(function(event) {
       errCode = 0;
       errCode =
         !bad.typeCheck.isArray(event) ?
@@ -520,12 +516,12 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
         }
       }
 
-      if (goog.object.getAnyKey(broken)) {
+      if (this.getAnyKey(broken)) {
         reply.broken = broken;
         reply.code = bad.MqttParse.replyCode.SOME_EVENTS_BROKEN;
       }
 
-      if (goog.object.getAnyKey(events)) {
+      if (this.getAnyKey(events)) {
         reply.events = events;
       } else {
         reply.code = bad.MqttParse.replyCode.ALL_EVENTS_BROKEN;
@@ -564,4 +560,38 @@ bad.MqttParse.prototype.parseReplyMsg_ = function(msg, reply) {
     reply.res = msg;
   }
   return reply;
+};
+
+/**
+ * Returns one key from the object map, if any exists.
+ * For map literals the returned key will be the first one in most of the
+ * browsers (a know exception is Konqueror).
+ *
+ * @param {Object} obj The object to pick a key from.
+ * @return {string|undefined} The key or undefined if the object is empty.
+ */
+bad.MqttParse.prototype.getAnyKey = function(obj) {
+  for (var key in obj) {
+    return key;
+  }
+};
+
+/**
+ * Fast prefix-checker.
+ * @param {string} str The string to check.
+ * @param {string} prefix A string to look for at the start of {@code str}.
+ * @return {boolean} True if {@code str} begins with {@code prefix}.
+ */
+bad.MqttParse.prototype.startsWith = function(str, prefix) {
+  return str.lastIndexOf(prefix, 0) == 0;
+};
+
+/**
+ * Determines whether a string contains a substring.
+ * @param {string} str The string to search.
+ * @param {string} subString The substring to search for.
+ * @return {boolean} Whether {@code str} contains {@code subString}.
+ */
+bad.MqttParse.prototype.contains = function(str, subString) {
+  return str.indexOf(subString) != -1;
 };
