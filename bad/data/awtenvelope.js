@@ -8,7 +8,7 @@ goog.require('goog.object');
 
 
 /**
- * Constructor of a basic Trinity MQTT payload parser.
+ * Constructor of a basic AWR Envelope.
  * @constructor
  */
 bad.AWTEnvelope = function() {};
