@@ -1,3 +1,4 @@
 /**
- * @fileoverview Bootstrap for the trin Library .
+ * @fileoverview Bootstrap for the Bad Library .
  */
+var goog = goog || {};
