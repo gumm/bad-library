@@ -42,6 +42,10 @@ goog.inherits(bad.ui.Panel, bad.ui.Component);
 
 bad.ui.Panel.prototype.initDom = goog.nullFunction;
 
+
+/**
+ * Expects HTML data from a call to the back.
+ */
 bad.ui.Panel.prototype.renderWithTemplate = function() {
   this.xMan.get(
     this.uri_,
@@ -81,6 +85,10 @@ bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
   this.render();
 };
 
+
+/**
+ * @inheritDoc
+ */
 bad.ui.Panel.prototype.createDom = function() {
   bad.ui.Panel.superClass_.createDom.call(this);
 
@@ -94,24 +102,13 @@ bad.ui.Panel.prototype.createDom = function() {
     classes,
     this.responseObject.html
   ));
-
-//  goog.array.forEach(this.elementClasses_, function(className) {
-//    goog.dom.classes.add(this.element_, className);
-//  }, this);
-
-
-
-
 };
 
-bad.ui.Panel.prototype.enterDocument = function() {
 
-//  console.debug('HERE IS THE PANEL ELEMENT:', this.element_);
-//
-//  goog.array.forEach(this.elementClasses_, function(className) {
-//    console.debug('CLASSNAME', className);
-//    goog.dom.classes.add(this.element_, className);
-//  }, this);
+/**
+ * @inheritDoc
+ */
+bad.ui.Panel.prototype.enterDocument = function() {
 
   this.dom_ = goog.dom.getDomHelper(this.getElement());
   this.initDom();
@@ -170,10 +167,6 @@ bad.ui.Panel.prototype.setUser = function(user) {
  */
 bad.ui.Panel.prototype.getUser = function() {
   return this.user_;
-};
-
-bad.ui.Panel.prototype.setMqtt = function(mqtt) {
-  this.mqtt = mqtt;
 };
 
 bad.ui.Panel.prototype.addElementClass = function(className) {

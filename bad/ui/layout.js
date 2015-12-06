@@ -313,7 +313,7 @@ bad.ui.Layout.prototype.createDom = function() {
           bad.ui.Layout.CssClassMap.DRAG_HAND_FRAGMENT +
           dragger.dragClass + ' ' + this.getOrientClassName_() +
           ' ' + this.getGrabberClass_(),
-        'style': this.flipWidth_() + ': ' +
+        'style': this.checkOrient_('width') + ': ' +
           this.draggerThickness_ + 'px'
       }
     );
@@ -478,18 +478,32 @@ bad.ui.Layout.prototype.disposeInternal = function() {
  * @private
  */
 bad.ui.Layout.prototype.checkOrient_ = function(value) {
-  if (this.orientation_ === bad.ui.Layout.Orientation.VERTICAL) {
-    return bad.ui.Layout.ORIENT[value];
-  }
-  return value;
+  return this.orientation_ === bad.ui.Layout.Orientation.VERTICAL ?
+    bad.ui.Layout.ORIENT[value] :
+    value
 };
 
 /**
- * @return {!string}
+ * @param {goog.math.Rect} rect
+ * @param {number} value
  * @private
  */
-bad.ui.Layout.prototype.flipWidth_ = function() {
-  return this.checkOrient_('width');
+bad.ui.Layout.prototype.setWidth_ = function(rect, value) {
+  this.orientation_ === bad.ui.Layout.Orientation.VERTICAL ?
+      rect.height = value :
+      rect.width = value
+};
+
+
+/**
+ * @param {goog.math.Rect|goog.math.Size} rect
+ * @return {number}
+ * @private
+ */
+bad.ui.Layout.prototype.getWidth_ = function(rect) {
+  return this.orientation_ === bad.ui.Layout.Orientation.VERTICAL ?
+      rect.height :
+      rect.width
 };
 
 /**
@@ -500,12 +514,50 @@ bad.ui.Layout.prototype.flipLeft_ = function() {
   return this.checkOrient_('left');
 };
 
+
 /**
- * @return {!string}
+ * @param {goog.math.Rect} rect
+ * @param {number} value
  * @private
  */
-bad.ui.Layout.prototype.flipHeight_ = function() {
-  return this.checkOrient_('height');
+bad.ui.Layout.prototype.setLeft_ = function(rect, value) {
+  this.orientation_ === bad.ui.Layout.Orientation.VERTICAL ?
+      rect.top = value :
+      rect.left = value
+};
+
+
+/**
+ * @param {goog.math.Rect|goog.math.Size} rect
+ * @return {number}
+ * @private
+ */
+bad.ui.Layout.prototype.getLeft_ = function(rect) {
+  return this.orientation_ === bad.ui.Layout.Orientation.VERTICAL ?
+      rect.top :
+      rect.left
+};
+
+/**
+ * @param {goog.math.Rect|goog.math.Size} rect
+ * @return {number}
+ * @private
+ */
+bad.ui.Layout.prototype.getHeight_ = function(rect) {
+  return this.orientation_ === bad.ui.Layout.Orientation.VERTICAL ?
+      rect.width :
+      rect.height
+};
+
+/**
+ * @param {goog.math.Rect} rect
+ * @param {number} value
+ * @private
+ */
+bad.ui.Layout.prototype.setHeight_ = function(rect, value) {
+  this.orientation_ === bad.ui.Layout.Orientation.VERTICAL ?
+      rect.width = value :
+      rect.height = value
 };
 
 //-------------------------------------------------------------------[ Nests ]--
@@ -727,9 +779,8 @@ bad.ui.Layout.prototype.getCellByName = function(value) {
 bad.ui.Layout.prototype.setDraggerABLimits_ = function(value) {
   var rect = this.getDraggerLimitsRect_(this.dragger_.AB);
 
-  rect[this.flipLeft_()] = this.getMinimumSize_(this.cell_.A);
-  rect[this.flipWidth_()] = value -
-    rect[this.flipLeft_()] - this.getDraggerThickness();
+  this.setLeft_(rect, this.getMinimumSize_(this.cell_.A));
+  this.setWidth_(rect, value - this.getLeft_(rect) - this.getDraggerThickness());
   this.dragger_.AB.dragger.setLimits(rect);
 };
 
@@ -741,15 +792,12 @@ bad.ui.Layout.prototype.setDraggerABLimits_ = function(value) {
  * @private
  */
 bad.ui.Layout.prototype.setDraggerBCLimits_ = function(max) {
-  var left = this.flipLeft_();
-  var width = this.flipWidth_();
   var draggerThickness = this.getDraggerThickness();
   var rect = this.getDraggerLimitsRect_(this.dragger_.BC);
   var min = this.getMinimumSize_(this.cell_.C);
 
-  rect[width] = this.componentBoxSize_[width] -
-    this.dragger_.AB.rect[left] - (draggerThickness * 2) - min;
-  rect[left] = max + draggerThickness;
+  this.setWidth_(rect, this.getWidth_(this.componentBoxSize_) - this.getLeft_(this.dragger_.AB.rect) - (draggerThickness * 2) - min);
+  this.setLeft_(rect, max + draggerThickness);
   this.dragger_.BC.dragger.setLimits(rect);
 };
 
@@ -886,19 +934,16 @@ bad.ui.Layout.prototype.setSize = function(givenWidth, givenHeight) {
   this.componentBoxSize_ = newSize;
 
   if (this.isInDocument()) {
-    var left = this.flipLeft_();
-    var width = this.flipWidth_();
-    var height = this.flipHeight_();
 
     // Update the size and position of the layout root element.
     this.updatePositionAndSize_(this.getElement(), newRect);
 
     var bCRect = this.dragger_.BC.rect;
-    var cRectWidth = this.cell_.C.rect[width] + this.getDraggerThickness();
-    bCRect[left] = newSize[width] - cRectWidth;
+    var cRectWidth = this.getWidth_(this.cell_.C.rect) + this.getDraggerThickness();
+    this.setLeft_(bCRect, this.getWidth_(newSize) - cRectWidth);
 
     // Update the common size of the elements.
-    this.updateStaticSizes_(this.componentBoxSize_[height]);
+    this.updateStaticSizes_(this.getHeight_(this.componentBoxSize_));
 
     // Update the variable sizes of the cells.
     this.updateVariableSizes_();
@@ -995,8 +1040,8 @@ bad.ui.Layout.prototype.createRects_ = function() {
   var iniA = this.cell_.A.initSize;
   var iniC = this.cell_.C.initSize;
 
-  var rootHeight = this.componentBoxSize_[this.flipHeight_()];
-  var rootWidth = this.componentBoxSize_[this.flipWidth_()];
+  var rootHeight = this.getHeight_(this.componentBoxSize_);
+  var rootWidth = this.getWidth_(this.componentBoxSize_);
   var thickness = this.draggerThickness_;
 
   if (!this.dragger_.AB.rect) {
@@ -1126,28 +1171,26 @@ bad.ui.Layout.prototype.updatePositionAndSize_ =
  * @private
  */
 bad.ui.Layout.prototype.updateVariableSizes_ = function() {
-  var left = this.flipLeft_();
-  var width = this.flipWidth_();
 
   // The following variables are named for the edge they represent
   // aEdgeAB represents the edge between cell A and dragger AB
   // aBEdgeB represents the edge between dragger AB and cell B
   // and so on.
-  var aEdgeAB = this.dragger_.AB.rect[left];
+  var aEdgeAB = this.getLeft_(this.dragger_.AB.rect);
   var aBEdgeB = aEdgeAB + this.draggerThickness_;
-  var bEdgeBC = this.dragger_.BC.rect[left];
+  var bEdgeBC = this.getLeft_(this.dragger_.BC.rect);
   var bCEdgeC = bEdgeBC + this.draggerThickness_;
 
   // Size the A cell.
-  this.cell_.A.rect[width] = aEdgeAB;
+  this.setWidth_(this.cell_.A.rect, aEdgeAB);
 
   // Size the B cell.
-  this.cell_.B.rect[left] = aBEdgeB;
-  this.cell_.B.rect[width] = bEdgeBC - aBEdgeB;
+  this.setLeft_(this.cell_.B.rect, aBEdgeB);
+  this.setWidth_(this.cell_.B.rect,  bEdgeBC - aBEdgeB);
 
   // Size the C cell.
-  this.cell_.C.rect[left] = bCEdgeC;
-  this.cell_.C.rect[width] = this.componentBoxSize_[width] - bCEdgeC;
+  this.setLeft_(this.cell_.C.rect, bCEdgeC);
+  this.setWidth_(this.cell_.C.rect, this.getWidth_(this.componentBoxSize_) - bCEdgeC);
 
   // Set the maximum size the AB drag handle can be dragged to.
   this.setDraggerABLimits_(bEdgeBC);
@@ -1179,11 +1222,11 @@ bad.ui.Layout.prototype.updateVariableSizes_ = function() {
  * @private
  */
 bad.ui.Layout.prototype.updateStaticSizes_ = function(value) {
-  this.dragger_.AB.rect[this.flipHeight_()] = value;
-  this.dragger_.BC.rect[this.flipHeight_()] = value;
-  this.cell_.A.rect[this.flipHeight_()] = value;
-  this.cell_.B.rect[this.flipHeight_()] = value;
-  this.cell_.C.rect[this.flipHeight_()] = value;
+  this.setHeight_(this.dragger_.AB.rect, value);
+  this.setHeight_(this.dragger_.BC.rect, value);
+  this.setHeight_(this.cell_.A.rect, value);
+  this.setHeight_(this.cell_.B.rect, value);
+  this.setHeight_(this.cell_.C.rect, value);
 };
 
 //---------------------------------------------------------[ Events Handlers ]--
@@ -1218,7 +1261,7 @@ bad.ui.Layout.prototype.onDragStart_ = function() {
  */
 bad.ui.Layout.prototype.onDrag_ = function(dragger, e) {
   var left = this.flipLeft_();
-  dragger.rect[left] = this.getRelativeLeft_(e[left]);
+  this.setLeft_(dragger.rect, this.getRelativeLeft_(e[left]));
   this.updateVariableSizes_();
 };
 
@@ -1237,7 +1280,7 @@ bad.ui.Layout.prototype.onABDragEnd_ = function() {
    * memory from being set on a double click - such as when you want to open
    * the panel.
    */
-  var result = this.dragger_.AB.rect[this.flipLeft_()];
+  var result = this.getLeft_(this.dragger_.AB.rect);
   var minimum = this.getMinimumSize_(this.cell_.A);
   if (result > Math.max(minimum, 5)) {
     this.memoryAB_ = result;
@@ -1258,10 +1301,10 @@ bad.ui.Layout.prototype.onBCDragEnd_ = function() {
    * the the minimum allowed size (plus dragger thickness compensation),
    * then set the memory.
    */
-  var result = this.dragger_.BC.rect[this.flipLeft_()],
-    minimum = this.getMinimumSize_(this.cell_.C),
-    fullSize = this.componentBoxSize_[this.flipWidth_()],
-    draggerThickness = this.getDraggerThickness();
+  var result = this.getLeft_(this.dragger_.BC.rect);
+  var minimum = this.getMinimumSize_(this.cell_.C);
+  var fullSize = this.getWidth_(this.componentBoxSize_)
+  var draggerThickness = this.getDraggerThickness();
 
   if (fullSize - result > minimum + draggerThickness) {
     this.memoryBC_ = fullSize - result;
@@ -1318,8 +1361,7 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
    * @type {function():boolean}
    */
   compA.hide = goog.bind(function(opt_callback) {
-    dragAB.rect[this.flipLeft_()] =
-      0 - this.getDraggerThickness();
+    this.setLeft_(dragAB.rect, 0 - this.getDraggerThickness());
     this.updateVariableSizes_();
     if (opt_callback) {
       opt_callback();
@@ -1333,14 +1375,14 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
    */
   compA.close = goog.bind(function(opt_callback) {
     this.memoryAB_ = Math.max(
-      dragAB.rect[this.flipLeft_()],
-      this.getMinimumSize_(this.cell_.A)
+        this.getLeft_(dragAB.rect),
+        this.getMinimumSize_(this.cell_.A)
     );
     if (this.animate_) {
       this.animate_ = false;
       this.doAnimate_(dragAB, 0, opt_callback);
     } else {
-      dragAB.rect[this.flipLeft_()] = 0;
+      this.setLeft_(dragAB.rect, 0);
       this.updateVariableSizes_();
       if (opt_callback) {
         opt_callback();
@@ -1354,15 +1396,13 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
    * @type {function(number=, number=, Function=)}
    */
   compA.show = goog.bind(function(opt_percentage, opt_pixels, opt_callback) {
-    var fullSize = this.componentBoxSize_[this.flipWidth_()],
-      initSize = this.getInitialSize_(this.cell_.A),
-      minSize = this.getMinimumSize_(this.cell_.A),
-      fallbackSize = initSize || minSize || 50,
-      availableSize = fullSize -
-        compC.rect[this.flipWidth_()] -
-        (this.getDraggerThickness() * 2),
-      lastOpenSize = this.memoryAB_ ? this.memoryAB_ : fallbackSize,
-      openTo = goog.isDefAndNotNull(opt_percentage) ?
+    var fullSize = this.getWidth_(this.componentBoxSize_);
+    var initSize = this.getInitialSize_(this.cell_.A);
+    var minSize = this.getMinimumSize_(this.cell_.A);
+    var fallbackSize = initSize || minSize || 50;
+    var availableSize = fullSize - this.getWidth_(compC.rect) - (this.getDraggerThickness() * 2);
+    var lastOpenSize = this.memoryAB_ ? this.memoryAB_ : fallbackSize;
+    var openTo = goog.isDefAndNotNull(opt_percentage) ?
         (availableSize / 100) * opt_percentage :
         goog.isDefAndNotNull(opt_pixels) ? opt_pixels : lastOpenSize;
 
@@ -1370,7 +1410,7 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
       this.animate_ = false;
       this.doAnimate_(dragAB, openTo, opt_callback);
     } else {
-      dragAB.rect[this.flipLeft_()] = openTo;
+      this.setLeft_(dragAB.rect, openTo);
       this.updateVariableSizes_();
       if (opt_callback) {
         opt_callback();
@@ -1385,7 +1425,7 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
    */
   compA.slideOpen = goog.bind(
     function(opt_percentage, opt_pixels, opt_callback) {
-      var size = compA.rect[this.flipWidth_()];
+      var size = this.getWidth_(compA.rect);
       if (size <= 0) {
         this.animate_ = true;
         compA.show(opt_percentage, opt_pixels, opt_callback);
@@ -1397,7 +1437,7 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
    * @type {function(Function=)}
    */
   compA.slideClosed = goog.bind(function(opt_callback) {
-    var size = compA.rect[this.flipWidth_()];
+    var size = this.getWidth_(compA.rect);
     if (size > 0) {
       this.animate_ = true;
       compA.close(opt_callback);
@@ -1420,7 +1460,7 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
    * @type {function()}
    */
   compA.toggle = goog.bind(function(opt_callback) {
-    var size = compA.rect[this.flipWidth_()];
+    var size = this.getWidth_(compA.rect);
     if (size <= 0) {
       this.animate_ = true;
       compA.show(undefined, undefined, opt_callback);
@@ -1460,8 +1500,7 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
    * @type {function():boolean}
    */
   compC.hide = goog.bind(function(opt_callback) {
-    dragBC.rect[this.flipLeft_()] =
-      this.componentBoxSize_[this.flipWidth_()];
+    this.setLeft_(dragBC.rect, this.getWidth_(this.componentBoxSize_));
     this.updateVariableSizes_();
     if (opt_callback) {
       opt_callback();
@@ -1474,9 +1513,9 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
    * @type {function(Function=):boolean}
    */
   compC.close = goog.bind(function(opt_callback) {
-    var result = dragBC.rect[this.flipLeft_()],
-      fullSize = this.componentBoxSize_[this.flipWidth_()],
-      draggerThickness = this.getDraggerThickness();
+    var result = this.getLeft_(dragBC.rect);
+    var fullSize = this.getWidth_(this.componentBoxSize_);
+    var draggerThickness = this.getDraggerThickness();
     this.memoryBC_ = fullSize - result;
     var closeTo = fullSize - draggerThickness;
 
@@ -1484,7 +1523,7 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
       this.animate_ = false;
       this.doAnimate_(dragBC, closeTo, opt_callback);
     } else {
-      dragBC.rect[this.flipLeft_()] = closeTo;
+      this.setLeft_(dragBC.rect, closeTo);
       this.updateVariableSizes_();
       if (opt_callback) {
         opt_callback();
@@ -1498,15 +1537,15 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
    * @type {function(number=, number=, Function=)}
    */
   compC.show = goog.bind(function(opt_percentage, opt_pixels, opt_callback) {
-    var fullSize = this.componentBoxSize_[this.flipWidth_()],
-      compASize = compA.rect[this.flipWidth_()],
-      initSize = this.getInitialSize_(this.cell_.C),
-      minSize = this.getMinimumSize_(this.cell_.C),
-      fallbackSize = initSize || minSize || 50,
-      availableSize = fullSize - compASize,
-      lastOpenSize = this.memoryBC_ ? fullSize - this.memoryBC_ :
-        fullSize - fallbackSize,
-      openTo = goog.isDefAndNotNull(opt_percentage) ?
+    var fullSize = this.getWidth_(this.componentBoxSize_);
+    var compASize = this.getWidth_(compA.rect);
+    var initSize = this.getInitialSize_(this.cell_.C);
+    var minSize = this.getMinimumSize_(this.cell_.C);
+    var fallbackSize = initSize || minSize || 50;
+    var availableSize = fullSize - compASize;
+    var lastOpenSize = this.memoryBC_ ? fullSize - this.memoryBC_ :
+        fullSize - fallbackSize;
+    var openTo = goog.isDefAndNotNull(opt_percentage) ?
         (compASize + this.getDraggerThickness() +
           (availableSize / 100) * (100 - opt_percentage)) :
         goog.isDefAndNotNull(opt_pixels) ?
@@ -1517,7 +1556,7 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
       this.animate_ = false;
       this.doAnimate_(dragBC, openTo, opt_callback);
     } else {
-      dragBC.rect[this.flipLeft_()] = openTo;
+      this.setLeft_(dragBC.rect, openTo);
       this.updateVariableSizes_();
       if (opt_callback) {
         opt_callback();
@@ -1532,7 +1571,7 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
    */
   compC.slideOpen = goog.bind(
     function(opt_percentage, opt_pixels, opt_callback) {
-      var size = compC.rect[this.flipWidth_()];
+      var size = this.getWidth_(compC.rect);
       if (size <= 0) {
         this.animate_ = true;
         compC.show(opt_percentage, opt_pixels, opt_callback);
@@ -1555,7 +1594,7 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
    * @type {function(Function=)}
    */
   compC.slideClosed = goog.bind(function(opt_callback) {
-    var size = compC.rect[this.flipWidth_()];
+    var size = this.getWidth_(compC.rect);
     if (size > 0) {
       this.animate_ = true;
       compC.close(opt_callback);
@@ -1569,7 +1608,7 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
    * @type {function()}
    */
   compC.toggle = goog.bind(function(opt_callback) {
-    var size = compC.rect[this.flipWidth_()];
+    var size = this.getWidth_(compC.rect);
     if (size <= 0) {
       this.animate_ = true;
       compC.show(undefined, undefined, opt_callback);
@@ -1604,7 +1643,7 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
  * @private
  */
 bad.ui.Layout.prototype.doAnimate_ = function(dragger, end, opt_callback) {
-  var start = dragger.rect[this.flipLeft_()];
+  var start = this.getLeft_(dragger.rect);
 
   /**
    * @type {goog.fx.Animation}
@@ -1615,7 +1654,7 @@ bad.ui.Layout.prototype.doAnimate_ = function(dragger, end, opt_callback) {
    * @type {function(goog.fx.Animation.EventType)}
    */
   var onAnimate = goog.bind(function(e) {
-    dragger.rect[this.flipLeft_()] = e.coords[0];
+    this.setLeft_(dragger.rect, e.coords[0]);
     this.updateVariableSizes_();
   }, this);
 
@@ -1623,7 +1662,7 @@ bad.ui.Layout.prototype.doAnimate_ = function(dragger, end, opt_callback) {
    * @type {function(goog.fx.Transition.EventType)}
    */
   var onEnd = goog.bind(function() {
-    dragger.rect[this.flipLeft_()] = end;
+    this.setLeft_(dragger.rect, end);
     this.updateVariableSizes_();
     anim.dispose();
     anim = null;
