@@ -1,9 +1,11 @@
 goog.provide('bad.ui.View');
+goog.provide('bad.ui.ViewEvent');
 
 goog.require('bad.ui.EventType');
 goog.require('goog.events.EventHandler');
 goog.require('goog.events.EventTarget');
 goog.require('goog.object');
+goog.require('goog.events.Event');
 
 /**
  * @constructor
@@ -174,10 +176,19 @@ bad.ui.View.prototype.getUser = function() {
   return this.user_;
 };
 
-/***
- * @param {bad.MqttWsIo} mqtt
+
+/**
+ * Object representing trin.fx.DragDropGroup event.
+ *
+ * @param {string} type Event type.
+ * @param {bad.ui.View} target The view that dispatched the event.
+ * @param {Object} opt_data Optional data to include in the event.
+ * @extends {goog.events.Event}
+ * @constructor
  */
-bad.ui.View.prototype.setMqtt = function(mqtt) {
-  this.mqtt = mqtt;
+bad.ui.ViewEvent = function(type, target, opt_data) {
+  goog.events.Event.call(this, type, target);
+  this.data = opt_data;
 };
+goog.inherits(bad.ui.ViewEvent, goog.events.Event);
 
