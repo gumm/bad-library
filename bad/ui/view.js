@@ -182,7 +182,7 @@ bad.ui.View.prototype.getUser = function() {
  *
  * @param {string} type Event type.
  * @param {bad.ui.View} target The view that dispatched the event.
- * @param {Object} opt_data Optional data to include in the event.
+ * @param {Object=} opt_data Optional data to include in the event.
  * @extends {goog.events.Event}
  * @constructor
  */
