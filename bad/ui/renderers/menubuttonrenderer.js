@@ -16,7 +16,7 @@ goog.addSingletonGetter(bad.ui.MenuButtonRenderer);
  * CSS class name the renderer applies to menu item elements.
  * @type {string}
  */
-bad.ui.MenuButtonRenderer.CSS_CLASS = goog.getCssName('flat-menu-button');
+bad.ui.MenuButtonRenderer.CSS_CLASS = goog.getCssName('flat-button');
 
 /** @override */
 bad.ui.MenuButtonRenderer.prototype.getCssClass = function() {
