@@ -9,7 +9,7 @@
 /* Author: eae@google.com (Emil A Eklund) */
 
 /* Imageless button styles. */
-.goog-css3-button {
+.flat-button {
   display: inline-block;
   min-width: 46px;
   text-align: center;
@@ -42,18 +42,18 @@
   outline: none !important;
 }
 
-.goog-css3-button:active {
+.flat-button:active {
 }
 
-.goog-css3-button:hover {
+.flat-button:hover {
 }
 
-.goog-css3-button:visited {
+.flat-button:visited {
   color: rgb(102, 102, 102);
 }
 
 /* Styles for different states (hover, active, focused, open, checked). */
-.goog-css3-button-hover {
+.flat-button-hover {
   border: 1px solid rgb(198, 198, 198);
   color: rgb(51, 51, 51);
   text-decoration: none;
@@ -74,11 +74,11 @@
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
-.goog-css3-button-focused {
+.flat-button-focused {
   /*border-color: #444;*/
 }
 
-.goog-css3-button-active, .goog-css3-button-open, .goog-css3-button-checked {
+.flat-button-active, .flat-button-open, .flat-button-checked {
   background-color: rgb(246, 246, 246);
   background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(246, 246, 246)), to(rgb(241, 241, 241)));
   background-image: -webkit-linear-gradient(top, rgb(246, 246, 246), rgb(241, 241, 241));
@@ -91,18 +91,18 @@
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.goog-css3-button-disabled {
+.flat-button-disabled {
   color: #888;
 }
 
-.goog-css3-button-primary {
+.flat-button-primary {
   font-weight: bold;
 }
 
 /*
  * Pill (collapsed border) styles.
  */
-.goog-css3-button-collapse-right {
+.flat-button-collapse-right {
   margin-right: 0 !important;
   border-right: 1px solid #bbb;
   -webkit-border-top-right-radius: 0px;
@@ -111,7 +111,7 @@
   -moz-border-radius-bottomright: 0px;
 }
 
-.goog-css3-button-collapse-left {
+.flat-button-collapse-left {
   border-left: 1px solid #f9f9f9;
   margin-left: 0 !important;
   -webkit-border-top-left-radius: 0px;
@@ -120,7 +120,7 @@
   -moz-border-radius-bottomleft: 0px;
 }
 
-.goog-css3-button-checked {
+.flat-button-checked {
   background-color: rgb(200, 200, 200);
   background-image: -webkit-gradient(linear, left top, left bottom, from(rgb(246, 246, 246)), to(rgb(200, 200, 200)));
   background-image: -webkit-linear-gradient(top, rgb(246, 246, 246), rgb(200, 200, 200));
@@ -216,9 +216,9 @@
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.g-button-submit.goog-css3-button-focused,
-.g-button-share.goog-css3-button-focused,
-.g-button-red.goog-css3-button-focused {
+.g-button-submit.flat-button-focused,
+.g-button-share.flat-button-focused,
+.g-button-red.flat-button-focused {
   -webkit-box-shadow: inset 0 0 0 1px rgb(255, 255, 255);
   -moz-box-shadow: inset 0 0 0 1px #fff;
   box-shadow: inset 0 0 0 1px rgb(255, 255, 255);

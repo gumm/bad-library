@@ -7,7 +7,7 @@ goog.require('goog.ui.Css3ButtonRenderer');
  * @extends {goog.ui.Css3ButtonRenderer}
  */
 bad.ui.FlatButtonRenderer = function() {
-  goog.ui.Css3MenuButtonRenderer.call(this);
+  goog.ui.Css3ButtonRenderer.call(this);
 };
 goog.inherits(bad.ui.FlatButtonRenderer, goog.ui.Css3ButtonRenderer);
 goog.addSingletonGetter(bad.ui.FlatButtonRenderer);

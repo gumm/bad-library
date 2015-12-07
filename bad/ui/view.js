@@ -67,7 +67,6 @@ bad.ui.View.prototype.dispose = function() {
   }
 
   goog.object.forEach(this.panelMap, function(panel, uid) {
-//    console.debug('Dispose panel: ', uid, '-->', panel);
     panel.dispose();
   }, this);
 };
@@ -96,25 +95,6 @@ bad.ui.View.prototype.initListenersForPanel_ = function(panel) {
     panel,
     bad.ui.EventType.ACTION,
     goog.bind(this.onPanelAction, this)
-  );
-};
-
-/**
- * This dispatches a special event that the controlling app listens for.
- * The data of the event is an object with two k:v pairs, being a method, and
- * optionally a single parameter object. This allows the view to ask the
- * app to do something without having direct access to the app object.
- *
- * @param {!string} view The target view that the site should change to.
- * @param {?(Object|string)=} opt_data An optional payload to include in the
- *      event.
- */
-bad.ui.View.prototype.appDo = function(view, opt_data) {
-  var data = {method: view, param: opt_data || null};
-  this.dispatchEvent({
-      type: bad.ui.EventType.APP_DO,
-      data: data
-    }
   );
 };
 
@@ -174,6 +154,79 @@ bad.ui.View.prototype.setUser = function(user) {
  */
 bad.ui.View.prototype.getUser = function() {
   return this.user_;
+};
+
+
+//--------------------------------------------------------[ Panel Animations ]--
+/**
+ * Slide a given panel in. Only reacts if the panel knows about its slidable
+ * nest. Set this up with @code<panel.setSlideNest>
+ * @param {bad.ui.Panel} panel
+ * @param {Function=} opt_cb
+ * @param {number=} opt_size
+ */
+bad.ui.View.prototype.slidePanelIn = function(panel, opt_cb, opt_size) {
+  var cb = opt_cb ? opt_cb : goog.bind(panel.show, panel);
+  var size = opt_size ? opt_size : 350;
+  var nest = panel.getSlideNest();
+  if (nest) {
+    nest.slideOpen(null, size, cb);
+  }
+};
+
+
+/**
+ * @param {bad.ui.Panel} panel
+ * @param {Function=} opt_cb
+ */
+bad.ui.View.prototype.slidePanelClosed = function(panel, opt_cb) {
+  var cb = opt_cb ? opt_cb : goog.bind(panel.hide, panel);
+  var nest = panel.getSlideNest();
+  if (nest) {
+    nest.slideClosed(cb);
+  }
+};
+
+/**
+ * Slides all the slidable panels closed, and once all panels in the view
+ * have been visited, it fires the given callback.
+ * @param {Function=} opt_cb
+ */
+bad.ui.View.prototype.slideAllClosed = function(opt_cb) {
+
+  /**
+   * @type {Function}
+   */
+  var cb = opt_cb ? opt_cb : goog.nullFunction;
+
+  /**
+   * @type {!Array.<string>}
+   */
+  var panelIds = goog.object.getKeys(this.panelMap);
+
+  /**
+   * Ca callback function called either immediately, if the panel cant slide
+   * closed, or after the slide is done.
+   * @param {string} uid
+   */
+  var callback = function(uid) {
+    goog.array.remove(panelIds, uid);
+    if (panelIds.length > 0) {
+      console.debug('Wait for it...');
+    } else {
+      console.debug('Fire now!');
+      cb();
+    }
+  };
+
+  goog.object.forEach(this.panelMap, function(panel, uid) {
+    var nest = panel.getSlideNest();
+    if (nest) {
+      nest.slideClosed(goog.partial(callback, uid));
+    } else {
+      callback(uid)
+    }
+  }, this);
 };
 
 

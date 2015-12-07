@@ -127,6 +127,17 @@ bad.ui.Panel.prototype.setNestAsTarget = function(nest) {
   this.setTarget(this.nest_.element);
 };
 
+bad.ui.Panel.prototype.setSlideNest = function(nest) {
+  this.slideNest_ = nest;
+};
+
+/**
+ * @return {Object}
+ */
+bad.ui.Panel.prototype.getSlideNest = function() {
+  return this.slideNest_;
+};
+
 /**
  * @param {bad.Net} xMan
  */

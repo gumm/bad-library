@@ -4,7 +4,7 @@ goog.require('goog.dom');
 goog.require('goog.object');
 goog.require('goog.string');
 goog.require('goog.ui.Component');
-goog.require('goog.ui.Css3ButtonRenderer');
+goog.require('bad.ui.FlatButtonRenderer');
 goog.require('goog.ui.CustomButton');
 goog.require('goog.ui.Menu');
 goog.require('goog.ui.MenuItem');
@@ -113,7 +113,7 @@ bad.utils.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
   var button = null;
   if (el) {
     button = new goog.ui.CustomButton('',
-      goog.ui.Css3ButtonRenderer.getInstance(), opt_domHelper);
+      bad.ui.FlatButtonRenderer.getInstance(), opt_domHelper);
     button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
     button.decorateInternal(goog.dom.getElement(elId));
     if (parent) {
@@ -147,7 +147,7 @@ bad.utils.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
 bad.utils.makeToggleButton =
   function(elId, parent, opt_callback, opt_domHelper) {
     var button = new goog.ui.ToggleButton('',
-      goog.ui.Css3ButtonRenderer.getInstance(), opt_domHelper);
+      bad.ui.FlatButtonRenderer.getInstance(), opt_domHelper);
     button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
     button.decorateInternal(goog.dom.getElement(elId));
     parent.addChild(button);
