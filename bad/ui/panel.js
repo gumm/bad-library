@@ -27,6 +27,12 @@ bad.ui.Panel = function(opt_domHelper) {
   this.nest_ = null;
 
   /**
+   * @type {!number}
+   * @private
+   */
+  this.defaultSlideSize_ = 350;
+
+  /**
    * An array of classes to be added to the panel element when it is created.
    * @type {Array}
    * @private
@@ -136,6 +142,22 @@ bad.ui.Panel.prototype.setSlideNest = function(nest) {
  */
 bad.ui.Panel.prototype.getSlideNest = function() {
   return this.slideNest_;
+};
+
+/**
+ * The size to which the panel opens by default.
+ * Given in pixels.
+ * @param {!number} size
+ */
+bad.ui.Panel.prototype.setSlideSize = function(size) {
+  this.defaultSlideSize_ = size;
+};
+
+/**
+ * @returns {!number}
+ */
+bad.ui.Panel.prototype.getSlideSize = function() {
+  return this.defaultSlideSize_;
 };
 
 /**

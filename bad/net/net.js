@@ -24,11 +24,14 @@ bad.Net.prototype.getXhrMan = function() {
  * @param {ArrayBuffer|Blob|Document|FormData|null|string|undefined} content
  * @param {Function=} opt_callback
  * @param {goog.net.XhrIo.ResponseType.<string>=} opt_responseType
+ * @param {Object|goog.structs.Map=} opt_headers Map of headers to add to the
+ *     request.
  * @return {goog.net.XhrManager.Request}
  */
 bad.Net.prototype.post =
-  function(url, content, opt_callback, opt_responseType) {
+  function(url, content, opt_callback, opt_responseType, opt_headers) {
 
+    var headers = opt_headers || null;
     var uriString = url.toString();
     var id = this.makeId_(uriString);
     var responseType = opt_responseType || goog.net.XhrIo.ResponseType.TEXT;
@@ -38,7 +41,36 @@ bad.Net.prototype.post =
       uriString,
       'POST',
       content,
-      null,
+      headers,
+      10,
+      opt_callback,
+      0,
+      responseType);
+  };
+
+/**
+ * @param {goog.Uri} url
+ * @param {ArrayBuffer|Blob|Document|FormData|null|string|undefined} content
+ * @param {Function=} opt_callback
+ * @param {goog.net.XhrIo.ResponseType.<string>=} opt_responseType
+ * @param {Object|goog.structs.Map=} opt_headers Map of headers to add to the
+ *     request.
+ * @return {goog.net.XhrManager.Request}
+ */
+bad.Net.prototype.delete =
+  function(url, content, opt_callback, opt_responseType, opt_headers) {
+
+    var headers = opt_headers || null;
+    var uriString = url.toString();
+    var id = this.makeId_(uriString);
+    var responseType = opt_responseType || goog.net.XhrIo.ResponseType.TEXT;
+
+    return this.xhrMan_.send(
+      id,
+      uriString,
+      'DELETE',
+      content,
+      headers,
       10,
       opt_callback,
       0,

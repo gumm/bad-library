@@ -164,13 +164,19 @@ bad.ui.View.prototype.getUser = function() {
  * @param {bad.ui.Panel} panel
  * @param {Function=} opt_cb
  * @param {number=} opt_size
+ * @param {boolean=} opt_ps If true, treat the size as a percentage.
  */
-bad.ui.View.prototype.slidePanelIn = function(panel, opt_cb, opt_size) {
+bad.ui.View.prototype.slidePanelIn = function(panel, opt_cb, opt_size, opt_ps) {
   var cb = opt_cb ? opt_cb : goog.bind(panel.show, panel);
-  var size = opt_size ? opt_size : 350;
+  var pix = opt_size ? opt_size : panel.getSlideSize();
+  var pers = null;
+  if (opt_ps) {
+    pers = pix;
+    pix = null;
+  }
   var nest = panel.getSlideNest();
   if (nest) {
-    nest.slideOpen(null, size, cb);
+    nest.slideOpen(pers, pix, cb);
   }
 };
 
@@ -185,6 +191,24 @@ bad.ui.View.prototype.slidePanelClosed = function(panel, opt_cb) {
   if (nest) {
     nest.slideClosed(cb);
   }
+  else cb();
+};
+
+/**
+ * @param {bad.ui.Panel} panel
+ * @param {Function=} opt_cb
+ * @param opt_perc
+ * @param opt_pix
+ */
+bad.ui.View.prototype.slidePanelToggle = function(panel, opt_cb,
+                                                  opt_perc, opt_pix) {
+  var cb = opt_cb ? opt_cb : function(e){console.debug('Why am I here.', e)};
+  var pix = opt_pix || panel.getSlideSize();
+  var nest = panel.getSlideNest();
+  if (nest) {
+    nest.toggle(cb, opt_perc, pix);
+  }
+  else cb();
 };
 
 /**

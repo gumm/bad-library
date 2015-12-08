@@ -1465,11 +1465,11 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
    * Helper function to toggle the A cell.
    * @param {Function=} opt_callback
    */
-  compA.toggle = goog.bind(function(opt_callback) {
+  compA.toggle = goog.bind(function(opt_callback, opt_perc, opt_pix) {
     var size = this.getWidth_(compA.rect);
     var animate = true;
     if (size <= 0) {
-      compA.show(undefined, undefined, opt_callback, animate);
+      compA.show(opt_perc, opt_pix, opt_callback, animate);
     } else {
       compA.close(opt_callback, animate);
     }
@@ -1618,11 +1618,11 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
    * Helper function to toggle the C cell.
    * @param {Function=} opt_callback
    */
-  compC.toggle = goog.bind(function(opt_callback) {
+  compC.toggle = goog.bind(function(opt_callback, opt_perc, opt_pix) {
     var size = this.getWidth_(compC.rect);
     var animate = true;
     if (size <= 0) {
-      compC.show(undefined, undefined, opt_callback, animate);
+      compC.show(opt_perc, opt_pix, opt_callback, animate);
     } else {
       compC.close(opt_callback, animate);
     }
