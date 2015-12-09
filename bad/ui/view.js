@@ -186,7 +186,7 @@ bad.ui.View.prototype.slidePanelIn = function(panel, opt_cb, opt_size, opt_ps) {
  * @param {Function=} opt_cb
  */
 bad.ui.View.prototype.slidePanelClosed = function(panel, opt_cb) {
-  var cb = opt_cb ? opt_cb : goog.bind(panel.hide, panel);
+  var cb = opt_cb ? opt_cb : goog.nullFunction;
   var nest = panel.getSlideNest();
   if (nest) {
     nest.slideClosed(cb);
