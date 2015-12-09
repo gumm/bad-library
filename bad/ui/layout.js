@@ -1733,7 +1733,6 @@ bad.ui.Layout.EventType = {
 
 /**
  * Object representing a layout event.
- *
  * @param {string} type Event type.
  * @param {Object} target Object initiating event.
  * @param {Object} data The data that was submitted.
