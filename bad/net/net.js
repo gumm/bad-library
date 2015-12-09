@@ -57,8 +57,8 @@ bad.Net.prototype.post =
  *     request.
  * @return {goog.net.XhrManager.Request}
  */
-bad.Net.prototype.delete =
-  function(url, content, opt_callback, opt_responseType, opt_headers) {
+bad.Net.prototype.del = function(url, content, opt_callback,
+                                    opt_responseType, opt_headers) {
 
     var headers = opt_headers || null;
     var uriString = url.toString();

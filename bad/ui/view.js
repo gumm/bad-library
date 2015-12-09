@@ -197,12 +197,12 @@ bad.ui.View.prototype.slidePanelClosed = function(panel, opt_cb) {
 /**
  * @param {bad.ui.Panel} panel
  * @param {Function=} opt_cb
- * @param opt_perc
- * @param opt_pix
+ * @param {number=} opt_perc
+ * @param {number=} opt_pix
  */
 bad.ui.View.prototype.slidePanelToggle = function(panel, opt_cb,
                                                   opt_perc, opt_pix) {
-  var cb = opt_cb ? opt_cb : function(e){console.debug('Why am I here.', e)};
+  var cb = opt_cb ? opt_cb : goog.nullFunction;
   var pix = opt_pix || panel.getSlideSize();
   var nest = panel.getSlideNest();
   if (nest) {
