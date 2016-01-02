@@ -156,7 +156,7 @@ bad.utils.makeToggleButton =
         button,
         goog.ui.Component.EventType.ACTION,
         function() {
-          opt_callback();
+          opt_callback(button.isChecked());
         }, undefined, button
       );
     }

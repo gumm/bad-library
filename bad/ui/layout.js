@@ -1490,6 +1490,15 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
   compA.unlock = goog.bind(function() {
     dragAB.dragger.setEnabled(true);
   }, this);
+
+
+  /**
+   * Helper function to check if the cell is open.
+   * @type {function()}
+   */
+  compA.isOpen = goog.bind(function() {
+    return this.getWidth_(compA.rect) > 0;
+  }, this);
 };
 
 /**
@@ -1642,6 +1651,14 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
    */
   compC.unlock = goog.bind(function() {
     dragBC.dragger.setEnabled(true);
+  }, this);
+
+  /**
+   * Helper function to check if the cell is open.
+   * @type {function()}
+   */
+  compC.isOpen = goog.bind(function() {
+    return this.getWidth_(compC.rect) > 0;
   }, this);
 };
 

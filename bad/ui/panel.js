@@ -207,6 +207,11 @@ bad.ui.Panel.prototype.addElementClass = function(className) {
 };
 
 
+bad.ui.Panel.prototype.isOpen = function() {
+  return this.slideNest_.isOpen();
+};
+
+
 //------------------------------------------------------------[ Ajax Control ]--
 
 /**
