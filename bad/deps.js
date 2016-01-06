@@ -4,8 +4,6 @@ goog.addDependency('../../../../bad/constants/constants.js', ['bad.CssClassMap',
 goog.addDependency('../../../../bad/crypto/aes-cmac.js', ['bad.AesCmac'], ['bad.CryptUtils'], false);
 goog.addDependency('../../../../bad/crypto/crypto.js', ['bad.Crypto'], ['bad.AesCmac', 'bad.CryptUtils', 'bad.utils', 'goog.crypt', 'goog.crypt.Aes', 'goog.crypt.Sha1', 'goog.crypt.base64'], false);
 goog.addDependency('../../../../bad/crypto/cryptutils.js', ['bad.CryptUtils'], ['goog.crypt.Aes'], false);
-goog.addDependency('../../../../bad/data/awtenvelope.js', ['bad.AWTEnvelope'], ['goog.object'], false);
-goog.addDependency('../../../../bad/data/mqttparse.js', ['bad.MqttParse', 'bad.MqttParse.replyCode'], ['bad.typeCheck'], false);
 goog.addDependency('../../../../bad/math/bit.js', ['bad.math.bit', 'bad.math.buff'], [], false);
 goog.addDependency('../../../../bad/net/mqttwsio.js', ['bad.MqttEvent', 'bad.MqttEventType', 'bad.MqttWsIo'], ['bad.MqttParse', 'bad.utils', 'goog.dom', 'goog.events.Event', 'goog.events.EventHandler', 'goog.events.EventTarget', 'goog.format.JsonPrettyPrinter', 'goog.json', 'goog.net.WebSocket'], false);
 goog.addDependency('../../../../bad/net/net.js', ['bad.Net'], ['goog.Uri', 'goog.net.XhrIo'], false);
@@ -22,5 +20,4 @@ goog.addDependency('../../../../bad/ui/renderers/menuitemrenderer.js', ['bad.ui.
 goog.addDependency('../../../../bad/ui/uieventtype.js', ['bad.ui.EventType', 'bad.ui.Resizable.EventType'], ['bad.utils'], false);
 goog.addDependency('../../../../bad/ui/view.js', ['bad.ui.View', 'bad.ui.ViewEvent'], ['bad.ui.EventType', 'goog.events.Event', 'goog.events.EventHandler', 'goog.events.EventTarget', 'goog.object'], false);
 goog.addDependency('../../../../bad/user/usermanager.js', ['bad.UserManager'], [], false);
-goog.addDependency('../../../../bad/util/typecheck.js', ['bad.typeCheck'], [], false);
 goog.addDependency('../../../../bad/util/utils.js', ['bad.utils'], ['bad.ui.FlatButtonRenderer', 'goog.array', 'goog.dom', 'goog.object', 'goog.string', 'goog.ui.Component', 'goog.ui.CustomButton', 'goog.ui.Menu', 'goog.ui.MenuItem', 'goog.ui.MenuSeparator', 'goog.ui.ToggleButton'], false);
