@@ -3,9 +3,10 @@
  *  payloads
  */
 goog.provide('bad.MqttParse');
-goog.provide('bad.MqttParse.replyCode');
+goog.provide('bad.bad.MqttParse.replyCode');
 
 goog.require('bad.typeCheck');
+var typeCheck = bad.typeCheck;
 //goog.require('goog.format.JsonPrettyPrinter');
 
 /**
@@ -148,6 +149,7 @@ bad.MqttParse.replyCode = {
  *       rpc: !number,
  *       iah: !boolean,
  *       ts: !number,
+ *       xCode: (string|undefined),
  *       msg: !Array,
  *       data: *,
  *       events: !Array,
@@ -196,14 +198,16 @@ bad.MqttParse.prototype.normalize_ = function(packet) {
   /**
    * @type {bad.MqttParse.NormData}
    */
-  var nlData = this.parse(pl);
+  var nlData = this.parse_(pl);
   nlData.hid = tArr[1];
   nlData.pid = tArr[2];
   nlData.dir = tArr[3];
   nlData.msgId = packet.messageId;
   nlData.ts = nlData.ts.valueOf();
-  if (tct && this.startsWith(tct, '>')) {
-    nlData.tckt = tct.substr(1);
+  if (tct && this.startsWith_(tct, '>')) {
+    var tctArr = tct.split('>');
+    nlData.tckt = tctArr[2];
+    nlData.xCode = tctArr[1];
   }
 
   nlData.qos = goog.isDefAndNotNull(packet.qos) ? packet.qos : null;
@@ -221,8 +225,9 @@ bad.MqttParse.prototype.normalize_ = function(packet) {
  * Parse a string into a JSON object.
  * @param {ArrayBuffer} payload A JSON parsable string.
  * @return {bad.MqttParse.NormData}
+ * @private
  */
-bad.MqttParse.prototype.parse = function(payload) {
+bad.MqttParse.prototype.parse_ = function(payload) {
 
   // There is an assumption here that the payload is a JSON string, but coming
   // in form C, this string may have a null terminator. The google JSON parser
@@ -241,7 +246,7 @@ bad.MqttParse.prototype.parse = function(payload) {
     //console.log(pp.format(obj));
 
     // A valid payload only has one key. Either c, d, e, x or i
-    var type = this.getAnyKey(obj);
+    var type = Object.keys(obj)[0];
     if (type) {
       normPayload = this.normalizePayload_(type, obj[type]);
     }
@@ -306,7 +311,7 @@ bad.MqttParse.prototype.parseTimeStamp_ = function(ts, reply) {
   reply.code = bad.MqttParse.replyCode.BAD_TIMESTAMP;
   var date = new Date();
 
-  if (bad.typeCheck.isSignedInt(ts)) {
+  if (typeCheck.isSignedInt(ts)) {
     ts = /** @type {!number} */ (ts);
     reply.code = bad.MqttParse.replyCode.ALL_OK;
 
@@ -330,9 +335,10 @@ bad.MqttParse.prototype.parseTimeStamp_ = function(ts, reply) {
  * @private
  */
 bad.MqttParse.prototype.testPayloadType_ = function(msg, reply) {
-  var passIsArray = bad.typeCheck.isArray(msg);
-  var passNotEmpty = !bad.typeCheck.isEmptyArr(msg);
-  var passIsKnownType = this.contains('cdex', reply.type);
+  var passIsArray = typeCheck.isArray(msg);
+  var passNotEmpty = !typeCheck.isEmptyArr(msg);
+
+  var passIsKnownType = 'cdex'.indexOf(reply.type) != -1;
 
   reply.code =
     !passIsArray ? bad.MqttParse.replyCode.PAYLOAD_NOT_ARRAY :
@@ -414,7 +420,7 @@ bad.MqttParse.prototype.parseMessage_ = function(type, msg, reply) {
     // message[0] must be signed int.
     // message[1] is optional. Can be anything
     if (type === 'x') {
-      reply.rpc = bad.typeCheck.isSignedInt(msg[0]) ? msg[0] :
+      reply.rpc = typeCheck.isSignedInt(msg[0]) ? msg[0] :
         bad.MqttParse.replyCode.RESULT_CODE_NOT_INT;
       reply = parseMap_[type](msg[1], reply);
     } else {
@@ -426,7 +432,7 @@ bad.MqttParse.prototype.parseMessage_ = function(type, msg, reply) {
       if (len === 1) {
         reply = parseMap_[type](msg.shift(), reply);
       } else if (len === 2) {
-        if (bad.typeCheck.isString(msg[0])) {
+        if (typeCheck.isString(msg[0])) {
           reply.tct = msg.shift();
           reply = parseMap_[type](msg.shift(), reply);
         } else {
@@ -438,6 +444,9 @@ bad.MqttParse.prototype.parseMessage_ = function(type, msg, reply) {
   return reply;
 };
 
+/**
+ * @private
+ */
 bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
 
   /**
@@ -450,9 +459,9 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
   var errCode = 0;
 
   // Check if the given message is an array.
-  errCode = !bad.typeCheck.isArray(msg) ?
+  errCode = !typeCheck.isArray(msg) ?
     bad.MqttParse.replyCode.EVENTS_NOT_ARRAY :
-      bad.typeCheck.isEmptyArr(msg) ?
+      typeCheck.isEmptyArr(msg) ?
         bad.MqttParse.replyCode.EVENTS_ARR_EMPTY :
          errCode;
 
@@ -464,9 +473,9 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
     msg.forEach(function(event) {
       errCode = 0;
       errCode =
-        !bad.typeCheck.isArray(event) ?
+        !typeCheck.isArray(event) ?
           bad.MqttParse.replyCode.EVENT_NOT_ARRAY :
-          !bad.typeCheck.arrLengthBetween(event, 2, 3) ?
+          !typeCheck.arrLengthBetween(event, 2, 3) ?
             bad.MqttParse.replyCode.EVENT_ARR_WRONG_LENGTH :
             errCode;
 
@@ -481,7 +490,7 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
         var extra = event[2];
 
         // Check timestamp.
-        errCode = bad.typeCheck.isSignedInt(timestamp) ? errCode :
+        errCode = typeCheck.isSignedInt(timestamp) ? errCode :
           bad.MqttParse.replyCode.BAD_TIMESTAMP;
         if (errCode) {
           broken[errCode.toString()] = broken[errCode.toString()] ?
@@ -489,7 +498,7 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
         } else {
           // So the timestamp is OK.
           // Lets check the event code.
-          errCode = bad.typeCheck.isInt(eventCode) ? errCode :
+          errCode = typeCheck.isInt(eventCode) ? errCode :
             bad.MqttParse.replyCode.EVENT_CODE_NOT_INT;
           if (errCode) {
             broken[errCode.toString()] = broken[errCode.toString()] ?
@@ -516,12 +525,12 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
         }
       }
 
-      if (this.getAnyKey(broken)) {
+      if (Object.keys(broken)[0]) {
         reply.broken = broken;
         reply.code = bad.MqttParse.replyCode.SOME_EVENTS_BROKEN;
       }
 
-      if (this.getAnyKey(events)) {
+      if (Object.keys(events)[0]) {
         reply.events = events;
       } else {
         reply.code = bad.MqttParse.replyCode.ALL_EVENTS_BROKEN;
@@ -532,11 +541,14 @@ bad.MqttParse.prototype.parseEventMsg_ = function(msg, reply) {
   return reply;
 };
 
+/**
+ * @private
+ */
 bad.MqttParse.prototype.parseCommandMsg_ = function(msg, reply) {
   reply.code =
-    !bad.typeCheck.isArray(msg) ? bad.MqttParse.replyCode.COMMAND_NOT_ARRAY :
-    bad.typeCheck.isEmptyArr(msg) ? bad.MqttParse.replyCode.COMMAND_ARR_EMPTY :
-    !bad.typeCheck.isString(msg[0]) ? bad.MqttParse.replyCode.COMMAND_STRING :
+    !typeCheck.isArray(msg) ? bad.MqttParse.replyCode.COMMAND_NOT_ARRAY :
+    typeCheck.isEmptyArr(msg) ? bad.MqttParse.replyCode.COMMAND_ARR_EMPTY :
+    !typeCheck.isString(msg[0]) ? bad.MqttParse.replyCode.COMMAND_STRING :
     reply.code;
 
   if (!reply.code) {
@@ -550,11 +562,17 @@ bad.MqttParse.prototype.parseCommandMsg_ = function(msg, reply) {
   return reply;
 };
 
+/**
+ * @private
+ */
 bad.MqttParse.prototype.parseDataMsg_ = function(msg, reply) {
   reply.data = msg;
   return reply;
 };
 
+/**
+ * @private
+ */
 bad.MqttParse.prototype.parseReplyMsg_ = function(msg, reply) {
   if (goog.isDef(msg)) {
     reply.res = msg;
@@ -563,35 +581,12 @@ bad.MqttParse.prototype.parseReplyMsg_ = function(msg, reply) {
 };
 
 /**
- * Returns one key from the object map, if any exists.
- * For map literals the returned key will be the first one in most of the
- * browsers (a know exception is Konqueror).
- *
- * @param {Object} obj The object to pick a key from.
- * @return {string|undefined} The key or undefined if the object is empty.
- */
-bad.MqttParse.prototype.getAnyKey = function(obj) {
-  for (var key in obj) {
-    return key;
-  }
-};
-
-/**
  * Fast prefix-checker.
  * @param {string} str The string to check.
  * @param {string} prefix A string to look for at the start of {@code str}.
  * @return {boolean} True if {@code str} begins with {@code prefix}.
+ * @private
  */
-bad.MqttParse.prototype.startsWith = function(str, prefix) {
+bad.MqttParse.prototype.startsWith_ = function(str, prefix) {
   return str.lastIndexOf(prefix, 0) == 0;
-};
-
-/**
- * Determines whether a string contains a substring.
- * @param {string} str The string to search.
- * @param {string} subString The substring to search for.
- * @return {boolean} Whether {@code str} contains {@code subString}.
- */
-bad.MqttParse.prototype.contains = function(str, subString) {
-  return str.indexOf(subString) != -1;
 };

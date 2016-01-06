@@ -1,4 +1,4 @@
-require('../../../closure-library/closure/goog/bootstrap/nodejs');
+require('../../node_modules/google-closure-library/closure/goog/bootstrap/nodejs');
 require('../deps.js');
 
 goog.require('bad.math.bit');

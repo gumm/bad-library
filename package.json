@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Companion utilities to the Google Closure Library",
   "main": "base.js",
-  "scripts": {},
+  "scripts": {
+    "deps": "scripts/deps_app.sh `pwd`"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gumm/bad-library.git"
@@ -16,5 +18,13 @@
   "bugs": {
     "url": "https://github.com/gumm/bad-library/issues"
   },
-  "homepage": "https://github.com/gumm/bad-library#readme"
+  "homepage": "https://github.com/gumm/bad-library#readme",
+  "dependencies": {
+    "be-sert": "^1.0.0",
+    "google-closure-compiler": "^20151216.1.0",
+    "google-closure-library": "^20151216.0.0"
+  },
+  "devDependencies": {
+    "mocha": "*"
+  }
 }
