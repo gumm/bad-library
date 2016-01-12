@@ -1,6 +1,6 @@
 {
   "name": "bad-library",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Companion utilities to the Google Closure Library",
   "main": "",
   "scripts": {

@@ -14,7 +14,10 @@
 }
 
 .layout-drag-handle.grabber {
-  background: transparent url(data:image/gif;base64,R0lGODlhAgAIAIABADMzM/Hx8SH5BAEAAAEALAAAAAACAAgAAAIFhBFxqFcAOw==) center center no-repeat;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url(data:image/gif;base64,R0lGODlhAgAIAIABADMzM/Hx8SH5BAEAAAEALAAAAAACAAgAAAIFhBFxqFcAOw==);
+  background-color: transparent;
 }
 
 /* Layout Nests */
