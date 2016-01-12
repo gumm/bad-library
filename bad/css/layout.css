@@ -10,11 +10,11 @@
   overflow: hidden;
   border: 0;
   cursor: col-resize;
-  background: #ddd;
+  background-color: #FFA726;
 }
 
 .layout-drag-handle.grabber {
-  background: #ddd url(data:image/gif;base64,R0lGODlhAgAIAIABADMzM/Hx8SH5BAEAAAEALAAAAAACAAgAAAIFhBFxqFcAOw==) center center no-repeat;
+  background: transparent url(data:image/gif;base64,R0lGODlhAgAIAIABADMzM/Hx8SH5BAEAAAEALAAAAAACAAgAAAIFhBFxqFcAOw==) center center no-repeat;
 }
 
 /* Layout Nests */
