@@ -30,5 +30,7 @@
 }
 
 .layout-drag-handle-vert.grabber {
-  background: #ddd url(data:image/gif;base64,R0lGODlhCAACAIABAGRkZP///yH5BAEAAAEALAAAAAAIAAIAAAIFBGJol1YAOw==) center center no-repeat;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url(data:image/gif;base64,R0lGODlhCAACAIABAGRkZP///yH5BAEAAAEALAAAAAAIAAIAAAIFBGJol1YAOw==);
 }
