@@ -268,6 +268,7 @@ bad.ui.Layout.CssClassMap = {
 
 /**
  * Create the DOM node & text node needed for the layout.
+ * @override
  */
 bad.ui.Layout.prototype.createDom = function() {
   var dom = this.getDomHelper();
@@ -300,7 +301,7 @@ bad.ui.Layout.prototype.createDom = function() {
      */
     this.cell_[key].element =
       dom.createDom(goog.dom.TagName.DIV, className);
-    dom.appendChild(this.element_, this.cell_[key].element);
+    dom.appendChild(this.getElement(), this.cell_[key].element);
   }, this);
 
   // Create the draggers.
@@ -317,7 +318,7 @@ bad.ui.Layout.prototype.createDom = function() {
           this.draggerThickness_ + 'px'
       }
     );
-    dom.appendChild(this.element_, this.dragger_[key].element);
+    dom.appendChild(this.getElement(), this.dragger_[key].element);
   }, this);
 
   this.createDraggers_();
@@ -459,6 +460,10 @@ bad.ui.Layout.prototype.exitDocument = function() {
   }
 };
 
+
+/**
+ * @override
+ */
 bad.ui.Layout.prototype.disposeInternal = function() {
   bad.ui.Layout.superClass_.disposeInternal.call(this);
 
@@ -466,8 +471,8 @@ bad.ui.Layout.prototype.disposeInternal = function() {
     layout.disposeInternal();
   }, this);
 
-  goog.dom.removeNode(this.element_);
-  delete this.element_;
+  goog.dom.removeNode(this.getElement());
+  this.element_ = null;
 };
 
 //-------------------------------------------------------------[ Orientation ]--
