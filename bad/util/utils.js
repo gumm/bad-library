@@ -1,20 +1,24 @@
 goog.provide('bad.utils');
+
+goog.require('bad.ui.flatButtons');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.object');
 goog.require('goog.string');
 goog.require('goog.ui.Component');
-goog.require('bad.ui.FlatButtonRenderer');
 goog.require('goog.ui.CustomButton');
 goog.require('goog.ui.Menu');
 goog.require('goog.ui.MenuItem');
 goog.require('goog.ui.MenuSeparator');
 goog.require('goog.ui.ToggleButton');
 
+goog.forwardDeclare('bad.ui.Panel');
+
+
 /**
  * Given a string this returns an array of bytes
  * @param {!string} s
- * @return {Array}
+ * @return {!Array}
  */
 bad.utils.stringToBytes = function(s) {
   var bytes = new Array(s.length);
@@ -23,21 +27,23 @@ bad.utils.stringToBytes = function(s) {
   return bytes;
 };
 
+
 /**
  * This returns now in seconds.
  * The value returned by the Date.now() method is the number of milliseconds
  * since 1 January 1970 00:00:00 UTC. Always UTC.
- * @return {number} The current Epoch timestamp in seconds. Rounding down.
+ * @return {!number} The current Epoch timestamp in seconds. Rounding down.
  */
 bad.utils.getNowSeconds = function() {
   return Math.floor(Date.now() / 1000);
 };
 
+
 /**
- * Private function that will return an incremeted counter value each time it
+ * Private function that will return an incremented counter value each time it
  * is called.
- * @param {number=} opt_start
- * @return {function(): number}
+ * @param {?number=} opt_start
+ * @return {!function(): number}
  */
 bad.utils.privateCounter = function(opt_start) {
   var c = opt_start ? opt_start : 0;
@@ -47,10 +53,11 @@ bad.utils.privateCounter = function(opt_start) {
   };
 };
 
+
 /**
  * Private function that will always return the same random string each time
  * it is called.
- * @return {string}
+ * @return {!string}
  */
 bad.utils.privateRandom = function() {
   var c = bad.utils.makeId();
@@ -59,11 +66,12 @@ bad.utils.privateRandom = function() {
   })();
 };
 
+
 /**
  * Returns a pseudo random string. Good for ids.
- * @param {number=} opt_length An optional length for the string. Note this
+ * @param {?number=} opt_length An optional length for the string. Note this
  *    clearly reduces the randomness, and increases the chances of a collision.
- * @return {string}
+ * @return {!string}
  */
 bad.utils.makeId = function(opt_length) {
   var s = goog.string.getRandomString();
@@ -72,38 +80,42 @@ bad.utils.makeId = function(opt_length) {
 
 
 /**
- * @param {string} string
- * @param {string} icon
+ * @param {!string} string
+ * @param {!string} icon
  * @return {!Element}
  */
 bad.utils.getIconString = function(string, icon) {
   return goog.dom.createDom('span', {},
-    goog.dom.createDom('i', icon), string);
+      goog.dom.createDom('i', icon), string);
 };
+
 
 /**
  * Get a list of the raw form elements. That is all the elements in the form
  * with a type.
- * @param {Element} form
- * @return {Array}
+ * @param {!HTMLFormElement} form
+ * @return {!Array<!Element>}
  */
 bad.utils.getRawFormElements = function(form) {
-    var formElements = [];
+  var formElements = [];
+  if (form) {
     goog.array.forEach(form.elements, function(el) {
-        if (el.type && el.type !== 'fieldset') {
-            formElements.push(el);
-        }
+      if (el.type && el.type !== 'fieldset') {
+        formElements.push(el);
+      }
     });
-    return formElements;
+  }
+  return formElements;
 };
+
 
 /**
  * Make a default button.
- * @param {!(string|Element)} elId The element id that will be decorated.
- * @param {goog.ui.Component|undefined} parent The buttons parent.
- * @param {Function=} opt_callback The callback function to execute on
+ * @param {string} elId The element id that will be decorated.
+ * @param {!goog.ui.Component|undefined} parent The buttons parent.
+ * @param {?Function=} opt_callback The callback function to execute on
  *      button action.
- * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
+ * @param {?goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  * @return {?goog.ui.CustomButton}
  */
 bad.utils.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
@@ -112,10 +124,13 @@ bad.utils.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
   var parentEl = goog.dom.getParentElement(el);
   var button = null;
   if (el) {
-    button = new goog.ui.CustomButton('',
-      bad.ui.FlatButtonRenderer.getInstance(), opt_domHelper);
+
+    button = new goog.ui.CustomButton(
+        '',
+        bad.ui.flatButtons.getBasicButton(),
+        opt_domHelper);
     button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
-    button.decorateInternal(goog.dom.getElement(elId));
+    button.decorate(goog.dom.getElement(elId));
     if (parent) {
       parent.addChild(button);
     } else {
@@ -123,108 +138,111 @@ bad.utils.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
     }
 
     if (opt_callback) {
+      var cb = /** {!Function} */ (opt_callback);
       button.getHandler().listenWithScope(
-        button,
-        goog.ui.Component.EventType.ACTION,
-        function() {
-          opt_callback();
-        }, undefined, button
+          button,
+          goog.ui.Component.EventType.ACTION,
+          function() {
+            cb();
+          }, undefined, button
       );
     }
   }
   return button;
 };
 
+
 /**
  * Make a toggle button.
  * @param {!string} elId The element id that will be decorated.
- * @param {goog.ui.Component} parent The buttons parent.
- * @param {Function=} opt_callback The callback function to execute on
+ * @param {!goog.ui.Component} parent The buttons parent.
+ * @param {?Function=} opt_callback The callback function to execute on
  *      button action.
- * @param {goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
- * @return {goog.ui.ToggleButton}
+ * @param {?goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
+ * @return {!goog.ui.ToggleButton}
  */
-bad.utils.makeToggleButton =
-  function(elId, parent, opt_callback, opt_domHelper) {
-    var button = new goog.ui.ToggleButton('',
-      bad.ui.FlatButtonRenderer.getInstance(), opt_domHelper);
-    button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
-    button.decorateInternal(goog.dom.getElement(elId));
-    parent.addChild(button);
-    if (opt_callback) {
-      button.getHandler().listenWithScope(
+bad.utils.makeToggleButton = function(elId, parent, opt_callback,
+                                      opt_domHelper) {
+  var button = new goog.ui.ToggleButton(
+      '',
+      bad.ui.flatButtons.getBasicButton(),
+      opt_domHelper);
+  button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
+  button.decorate(goog.dom.getElement(elId));
+  parent.addChild(button);
+  if (opt_callback) {
+    var cb = /** {!Function} */ (opt_callback);
+    button.getHandler().listenWithScope(
         button,
         goog.ui.Component.EventType.ACTION,
         function() {
-          opt_callback(button.isChecked());
+          cb(button.isChecked());
         }, undefined, button
-      );
-    }
-    return button;
-  };
+    );
+  }
+  return button;
+};
+
 
 /**
  * Given an array of items, return a menu
- * @param {Array} menuItems An array of arrays.
- * @param {goog.dom.DomHelper} domHelper DOM helper.domHelper.
+ * @param {!Array} menuItems An array of arrays.
+ * @param {!goog.dom.DomHelper} domHelper DOM helper.domHelper.
  * @param {!goog.events.EventHandler} handler The event handler for the panel.
- * @param {bad.ui.Panel} scope The panel scope that the events will fire in.
- * @param {goog.ui.MenuRenderer=} opt_rend
- * @param {goog.ui.MenuItemRenderer=} opt_itemRend
+ * @param {!bad.ui.Panel} scope The panel scope that the events will fire in.
+ * @param {?goog.ui.MenuRenderer=} opt_rend
+ * @param {?goog.ui.MenuItemRenderer=} opt_itemRend
  * @param {boolean=} opt_sticky
- * @return {goog.ui.Menu}
+ * @return {!goog.ui.Menu}
  */
 bad.utils.makeMenu = function(menuItems, domHelper, handler, scope, opt_rend,
-    opt_itemRend, opt_sticky) {
+                              opt_itemRend, opt_sticky) {
 
+  var menu = new goog.ui.Menu(domHelper, opt_rend);
+  menu.addListItem = function(arr) {
+    var item;
+    if (arr[0]) {
       /**
-       * @type {goog.ui.Menu}
+       * @type {!Element}
        */
-      var menu = new goog.ui.Menu(domHelper, opt_rend);
-      menu.addListItem = function(arr) {
-        var item;
-        if (arr[0]) {
-          /**
-           * @type {!Element}
-           */
-          var name = bad.utils.getIconString(arr[0], arr[1]);
-          item = new goog.ui.MenuItem(name, arr[2], domHelper, opt_itemRend);
-        } else {
-          item = new goog.ui.MenuSeparator(domHelper);
+      var name = bad.utils.getIconString(arr[0], arr[1]);
+      item = new goog.ui.MenuItem(name, arr[2], domHelper, opt_itemRend);
+    } else {
+      item = new goog.ui.MenuSeparator(domHelper);
+    }
+    menu.addChild(item, true);
+  };
+
+  goog.array.forEach(menuItems, function(arr) {
+    menu.addListItem(arr);
+  }, scope);
+
+  menu.unStickAll = function() {
+    menu.forEachChild(function(child) {
+      child.removeClassName('flat-menuitem-stickey-select');
+    });
+  };
+
+  handler.listen(
+      menu,
+      goog.ui.Component.EventType.ACTION,
+      function(e) {
+        var activeMenuItem = e.target;
+        e.stopPropagation();
+        activeMenuItem.getModel()();
+        if (opt_sticky) {
+          menu.unStickAll();
+          activeMenuItem.addClassName('flat-menuitem-stickey-select');
         }
-        menu.addChild(item, true);
-      };
-
-      goog.array.forEach(menuItems, function(arr) {
-        menu.addListItem(arr);
-      }, scope);
-
-      menu.unStickAll = function() {
-        menu.forEachChild(function(child) {
-          child.removeClassName('flat-menuitem-stickey-select');
-        });
-      };
-
-      handler.listen(
-        menu,
-        goog.ui.Component.EventType.ACTION,
-        function(e) {
-          var activeMenuItem = e.target;
-          e.stopPropagation();
-          activeMenuItem.getModel()();
-          if (opt_sticky) {
-            menu.unStickAll();
-            activeMenuItem.addClassName('flat-menuitem-stickey-select');
-          }
-        }
-      );
-      return menu;
-    };
+      }
+  );
+  return menu;
+};
 
 
 /**
- * @param {number} number
- * @param {string} type
+ * @param {!number} number
+ * @param {!string} type
  * @return {boolean}
  */
 bad.utils.creditCardValidator = function(number, type) {
@@ -307,6 +325,10 @@ bad.utils.creditCardValidator = function(number, type) {
   //mc: 5100000000000040
 };
 
+
+/**
+ * @param {!Function} callback
+ */
 bad.utils.loadGoogleMaps = function(callback) {
 
   // the 'google.maps' namespace may already be in the document.
@@ -324,12 +346,13 @@ bad.utils.loadGoogleMaps = function(callback) {
     // immediately inside the callback;
     goog.global[randName] = goog.partial(callback, randName);
 
-    var script = document.createElement('script');
+    var dom = goog.dom.getDocument();
+    var script = dom.createElement('script');
     script.type = 'text/javascript';
     script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp' +
-      '&sensor=false' +
-      '&callback=' + randName;
-    document.body.appendChild(script);
+        '&sensor=false' +
+        '&callback=' + randName;
+    goog.dom.appendChild(dom, script);
   }
 };
 

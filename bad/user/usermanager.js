@@ -1,17 +1,18 @@
-/**
- * Created by gumm on 2015/12/06.
- */
-
+goog.provide('bad.UserLike');
 goog.provide('bad.UserManager');
 
+
 /** @typedef {{
-*     name: (null|string),
-*     surname: (null|string),
-*     email: (null|string),
-*     user: (null|string)
+*     name: (string|undefined),
+*     surname: (string|undefined),
+*     email: (string|undefined),
+*     user: (string|undefined),
+*     _id: (string|undefined)
 *     }}
  */
 bad.UserLike;
+
+
 
 /**
  * A class to manage the setting and getting of permissions.
@@ -19,41 +20,64 @@ bad.UserLike;
  */
 bad.UserManager = function() {
   /**
-   * @type {bad.UserLike}
+   * @type {!bad.UserLike}
    * @private
    */
-  this.user_ =  {
-        name: null,
-        surname: null,
-        email: null,
-        user: null
-    }
+  this.user_ = {};
 };
 
+
+/**
+ * @param {bad.UserLike} data
+ */
 bad.UserManager.prototype.updateProfile = function(data) {
   this.user_ = data;
 };
 
+
+/**
+ * @return {string|undefined}
+ */
 bad.UserManager.prototype.getId = function() {
   return this.user_['_id'];
 };
 
+
+/**
+ * @param {string} id
+ */
 bad.UserManager.prototype.setId = function(id) {
   this.user_['_id'] = id;
 };
 
+
+/**
+ * @return {!bad.UserLike}
+ */
 bad.UserManager.prototype.getProfile = function() {
   return this.user_;
 };
 
+
+/**
+ * @return {string|undefined}
+ */
 bad.UserManager.prototype.getName = function() {
   return this.getProfile()['name'];
 };
 
+
+/**
+ * @return {string|undefined}
+ */
 bad.UserManager.prototype.getSurname = function() {
   return this.getProfile()['surname'];
 };
 
+
+/**
+ * @return {string|undefined}
+ */
 bad.UserManager.prototype.getSalutation = function() {
   var salutation = this.getName();
   var surname = this.getSurname();

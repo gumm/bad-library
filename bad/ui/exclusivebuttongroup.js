@@ -5,6 +5,9 @@
 goog.provide('bad.ui.ExButtonGroup');
 
 goog.require('goog.events.EventHandler');
+goog.require('goog.ui.Component');
+
+
 
 /**
  * Manages a set of toggle buttons to be exclusive. That is make them
@@ -17,7 +20,7 @@ bad.ui.ExButtonGroup = function() {
   goog.events.EventHandler.call(this);
 
   /**
-   * @type {Array<(goog.ui.ToggleButton|bad.ui.ExButtonGroup)>}
+   * @type {!Array<!(!goog.ui.ToggleButton|!bad.ui.ExButtonGroup)>}
    * @private
    */
   this.buttonSet_ = [];
@@ -26,7 +29,7 @@ goog.inherits(bad.ui.ExButtonGroup, goog.events.EventHandler);
 
 
 /**
- * @param {goog.ui.ToggleButton} button
+ * @param {!goog.ui.ToggleButton} button
  */
 bad.ui.ExButtonGroup.prototype.addToggleButton = function(button) {
   this.listen(
@@ -37,35 +40,37 @@ bad.ui.ExButtonGroup.prototype.addToggleButton = function(button) {
   this.buttonSet_.push(button);
 };
 
+
 /**
- * @param {bad.ui.ExButtonGroup} group
+ * @param {!bad.ui.ExButtonGroup} group
  */
 bad.ui.ExButtonGroup.prototype.addExGroup = function(group) {
   this.buttonSet_.push(group);
 };
 
+
+/**
+ * @param {!goog.events.Event} e
+ */
 bad.ui.ExButtonGroup.prototype.onAction = function(e) {
   var activeButton = e.target;
   this.buttonSet_.forEach(
-      /**
-       * @param {(goog.ui.ToggleButton|bad.ui.ExButtonGroup)} button
-       */
       function(button) {
         if (button !== activeButton) {
-        button.setChecked(false)
-      }
-    })
+          button.setChecked(false);
+        }
+      });
 };
 
+
+/**
+ * @param {!boolean} bool
+ */
 bad.ui.ExButtonGroup.prototype.setChecked = function(bool) {
   this.buttonSet_.forEach(
-      /**
-       * @param {(goog.ui.ToggleButton|bad.ui.ExButtonGroup)} button
-       */
       function(button) {
-        button.setChecked(false)
-      }
-    )
+        button.setChecked(false);
+      });
 };
 
 

@@ -21,11 +21,11 @@
   },
   "homepage": "https://github.com/gumm/bad-library#readme",
   "dependencies": {
-    "be-sert": "^1.0.0",
-    "google-closure-compiler": "^20151216.1.0",
-    "google-closure-library": "^20151216.0.0"
   },
   "devDependencies": {
+    "be-sert": "^1.0.0",
+    "google-closure-compiler": "20151216",
+    "google-closure-library": "*",
     "mocha": "*"
   }
 }

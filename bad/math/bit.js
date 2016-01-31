@@ -1,16 +1,12 @@
 /**
- * User: Jan
- * Date: 2012-09-27
- * Time: 10:17 AM
  * http://graphics.stanford.edu/~seander/bithacks.html
  */
-
 goog.provide('bad.math.bit');
 goog.provide('bad.math.buff');
 
 /**
  * Convert a decimal number to a binary string.
- * @param {number} n
+ * @param {!number} n
  * @return {string} A string representing a binary ie. "1011".
  */
 bad.math.bit.convertNumberToBinaryString = function(n) {
@@ -19,7 +15,7 @@ bad.math.bit.convertNumberToBinaryString = function(n) {
 
 /**
  * Convert a binary string to a decimal number.
- * @param {string} s A string representing a binary ie. "1011".
+ * @param {!string} s A string representing a binary ie. "1011".
  * @return {number}
  */
 bad.math.bit.convertBinaryStringToNumber = function(s) {
@@ -38,8 +34,8 @@ bad.math.bit.convertBinaryStringToNumber = function(s) {
  *
  * To print the result: result.toString(2)
  *
- * @param {number} b
- * @param {number} n
+ * @param {!number} b
+ * @param {!number} n
  * @return {number}
  */
 bad.math.bit.getBitAt = function(b, n) {
@@ -55,8 +51,8 @@ bad.math.bit.getBitAt = function(b, n) {
  * c = setBit(b,2));  // 14 // 1110
  * d = setBit(b,0));  // 11 // 1011
  *
- * @param {number} b
- * @param {number} n
+ * @param {!number} b
+ * @param {!number} n
  * @return {number}
  */
 bad.math.bit.setBitAt = function(b, n) {
@@ -66,8 +62,8 @@ bad.math.bit.setBitAt = function(b, n) {
 /**
  * Remove the bit at the position n of the number b. The bit is set to 0.
  * Bit count starts at 0.
- * @param {number} b
- * @param {number} n
+ * @param {!number} b
+ * @param {!number} n
  * @return {number}
  */
 bad.math.bit.clearBitAt = function(b, n) {
@@ -77,8 +73,8 @@ bad.math.bit.clearBitAt = function(b, n) {
 /**
  * Invert the bit at the position n of the number b.
  * Bit count starts at 0.
- * @param {number} b
- * @param {number} n
+ * @param {!number} b
+ * @param {!number} n
  * @return {number}
  */
 bad.math.bit.invBitAt = function(b, n) {
@@ -88,8 +84,8 @@ bad.math.bit.invBitAt = function(b, n) {
 /**
  * Return true if the bit at the given position is 1.
  * Bit count starts at 0.
- * @param {number} b
- * @param {number} n
+ * @param {!number} b
+ * @param {!number} n
  * @return {boolean}
  */
 bad.math.bit.hasBitAt = function(b, n) {
@@ -99,8 +95,8 @@ bad.math.bit.hasBitAt = function(b, n) {
 
 /**
  * Given an Uint8Array view into a buffer, flip the bit at the given bit number.
- * @param {Uint8Array} buff
- * @param {number} bitNum
+ * @param {!Uint8Array} buff
+ * @param {!number} bitNum
  */
 bad.math.buff.invBitAt8 = function(buff, bitNum) {
   buff[Math.floor(bitNum / 8)] ^= 1 << (bitNum % 8);
