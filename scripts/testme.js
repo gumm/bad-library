@@ -14,15 +14,14 @@ goog.require('bad.ui.Form');
 goog.require('bad.ui.Layout');
 goog.require('bad.ui.Layout.CssClassMap');
 goog.require('bad.ui.Layout.IdFragment');
-goog.require('bad.ui.MenuFlatRenderer');
-goog.require('bad.ui.MenuFloatRenderer');
-goog.require('bad.ui.MenuItemRenderer');
 goog.require('bad.ui.Panel');
 goog.require('bad.ui.Resizable.EventType');
 goog.require('bad.ui.View');
 goog.require('bad.ui.ViewEvent');
-goog.require('bad.ui.flatButtons');
+goog.require('bad.ui.button');
 goog.require('bad.utils');
+
+
 
 /**
  * @constructor
@@ -35,10 +34,7 @@ Fuckit = function() {
     bad.math.bit,
     bad.math.buff,
     bad.Net,
-    bad.ui.flatButtons,
-    bad.ui.MenuFlatRenderer,
-    bad.ui.MenuFloatRenderer,
-    bad.ui.MenuItemRenderer,
+    bad.ui.button,
     bad.ActionEvent,
     bad.ui.Component,
     bad.ui.ExButtonGroup,

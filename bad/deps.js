@@ -3,7 +3,7 @@
 goog.addDependency('../../../../bad/constants/constants.js', ['bad.CssClassMap', 'bad.CssPrefix'], [], false);
 goog.addDependency('../../../../bad/math/bit.js', ['bad.math.bit', 'bad.math.buff'], [], false);
 goog.addDependency('../../../../bad/net/net.js', ['bad.Net'], ['goog.net.XhrIo'], false);
-goog.addDependency('../../../../bad/ui/buttons.js', ['bad.ui.flatButtons'], ['goog.ui.Css3ButtonRenderer', 'goog.ui.Css3MenuButtonRenderer'], false);
+goog.addDependency('../../../../bad/ui/button.js', ['bad.ui.button'], ['bad.utils', 'goog.array', 'goog.dom', 'goog.ui.Component', 'goog.ui.Css3ButtonRenderer', 'goog.ui.Css3MenuButtonRenderer', 'goog.ui.CustomButton', 'goog.ui.Menu', 'goog.ui.MenuButton', 'goog.ui.MenuItem', 'goog.ui.MenuItemRenderer', 'goog.ui.MenuRenderer', 'goog.ui.MenuSeparator', 'goog.ui.ToggleButton'], false);
 goog.addDependency('../../../../bad/ui/component.js', ['bad.ActionEvent', 'bad.ui.Component'], ['bad.ui.EventType', 'goog.events.Event', 'goog.style', 'goog.ui.Component'], false);
 goog.addDependency('../../../../bad/ui/exclusivebuttongroup.js', ['bad.ui.ExButtonGroup'], ['goog.events.EventHandler', 'goog.ui.Component'], false);
 goog.addDependency('../../../../bad/ui/form.js', ['bad.ui.Form'], ['bad.ui.Panel', 'goog.dom', 'goog.dom.TagName', 'goog.dom.classlist', 'goog.dom.forms', 'goog.events.EventType', 'goog.object', 'goog.uri.utils'], false);
@@ -15,4 +15,4 @@ goog.addDependency('../../../../bad/ui/renderers/menuitemrenderer.js', ['bad.ui.
 goog.addDependency('../../../../bad/ui/uieventtype.js', ['bad.ui.EventType', 'bad.ui.Resizable.EventType'], ['bad.utils'], false);
 goog.addDependency('../../../../bad/ui/view.js', ['bad.ui.View', 'bad.ui.ViewEvent'], ['bad.ui.EventType', 'goog.array', 'goog.events.Event', 'goog.events.EventHandler', 'goog.events.EventTarget', 'goog.object'], false);
 goog.addDependency('../../../../bad/user/usermanager.js', ['bad.UserLike', 'bad.UserManager'], [], false);
-goog.addDependency('../../../../bad/util/utils.js', ['bad.utils'], ['bad.ui.flatButtons', 'goog.array', 'goog.dom', 'goog.object', 'goog.string', 'goog.ui.Component', 'goog.ui.CustomButton', 'goog.ui.Menu', 'goog.ui.MenuItem', 'goog.ui.MenuSeparator', 'goog.ui.ToggleButton'], false);
+goog.addDependency('../../../../bad/util/utils.js', ['bad.utils'], ['goog.array', 'goog.dom', 'goog.object', 'goog.string'], false);

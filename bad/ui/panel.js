@@ -6,10 +6,6 @@ goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 
-goog.forwardDeclare('bad.UserManager');
-goog.forwardDeclare('goog.Uri');
-goog.forwardDeclare('bad.Net');
-
 
 
 /**

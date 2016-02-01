@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Button UI Tests - bad.ui.button</title>
+    <script src="../../node_modules/google-closure-library/closure/goog/base.js"></script>
+    <script src="../deps.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/css3button.css">
+    <link rel="stylesheet" type="text/css" href="../css/css3menubutton.css">
+    <link rel="stylesheet" type="text/css" href="../css/menu.css">
+    <link rel="stylesheet" type="text/css" href="../css/menuitem.css">
+    <link rel="stylesheet" type="text/css" href="../css/menuseparator.css">
+    <script type="text/javascript">
+        goog.require('bad.ui.button');
+        goog.require('goog.ui.Css3ButtonRenderer');
+        goog.require('goog.debug.Console');
+        goog.require('goog.debug.LogManager');
+        goog.require('goog.testing.jsunit');
+    </script>
+</head>
+<body>
+<div id="basic"><span style="font-weight: bold">ICON</span>This gets lost</div>
+<div id="submit" class="g-button-action">Submit</div>
+<div id="warning" class="g-button-warn">Warning</div>
+<div id="toggle">Toggle</div>
+<div id="smenu">Sticky Menu</div>
+<div id="menu">Floating Menu</div>
+<script type="text/javascript">
+function setUp() {
+  goog.debug.LogManager.getRoot().setLevel(goog.debug.Logger.Level.WARNING);
+
+  var debugConsole = new goog.debug.Console();
+  debugConsole.setCapturing(true);
+}
+
+function tearDown() {
+    // layout.dispose();
+}
+
+function test_realWorld() {
+  var func = function(a) {
+    console.log(a)
+  };
+
+  // Basic Buttons
+  bad.ui.button.makeButton('basic', undefined, goog.partial(func, 'Basic'));
+  bad.ui.button.makeButton('submit', undefined, goog.partial(func,'Submit'));
+  bad.ui.button.makeButton('warning', undefined, goog.partial(func, 'Warn'));
+  bad.ui.button.makeToggleButton('toggle', undefined, func);
+
+  /**
+   * @type {Array}
+   */
+  var mItems = [
+    ['Item1', 'icon-user', goog.partial(func, 'Item1')],
+    [/* menu separator */],
+    ['Item2', 'icon-signout', goog.partial(func, 'Item2')]
+  ];
+  var handler = new goog.events.EventHandler(this);
+
+  bad.ui.button.makeMenuButton('smenu', mItems, undefined, handler,
+      this, true);
+  bad.ui.button.makeMenuButton('menu', mItems, undefined, handler,
+      this, false, 'floating-menu');
+}
+
+</script>
+</body>
+</html>
