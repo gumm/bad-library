@@ -203,7 +203,7 @@ goog.inherits(bad.ui.Layout, bad.ui.Component);
 
 /**
  * @typedef {{
- *     cellClass: !String,
+ *     cellClass: string,
  *     close: !Function,
  *     element: !Element,
  *     hide: !Function,
@@ -211,7 +211,7 @@ goog.inherits(bad.ui.Layout, bad.ui.Component);
  *     minSize: !number,
  *     isOpen: !function(): !boolean,
  *     lock: !Function,
- *     name: !String,
+ *     name: string,
  *     rect: !goog.math.Rect,
  *     show: !Function,
  *     slideClosed: !Function,
@@ -226,9 +226,9 @@ bad.ui.Layout.CellType;
 
 /**
  * @typedef {{
- *    cellClass: !String,
+ *    cellClass: string,
  *    element: !Element,
- *    name: !String,
+ *    name: string,
  *    rect: !goog.math.Rect
  * }}
  */
@@ -237,7 +237,7 @@ bad.ui.Layout.NestType;
 
 /**
  * @typedef {{
- *    dragClass: !String,
+ *    dragClass: string,
  *    dragger: !goog.fx.Dragger,
  *    element: !Element,
  *    limitsRect: !goog.math.Rect,

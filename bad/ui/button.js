@@ -146,10 +146,10 @@ bad.ui.button.makeMenuButton = function(elId, menuItems, domHelper, handler,
 
   if (el) {
 
-    goog.ui.MenuRenderer.CSS_CLASS = goog.getCssName(cssClassName);
+    goog.ui.MenuRenderer.CSS_CLASS = cssClassName;
     var menuRenderer = goog.ui.MenuRenderer.getInstance();
 
-    goog.ui.MenuItemRenderer.CSS_CLASS = goog.getCssName('flat-menuitem');
+    goog.ui.MenuItemRenderer.CSS_CLASS = 'flat-menuitem';
     var itemRenderer = goog.ui.MenuItemRenderer.getInstance();
 
     var menu = bad.ui.button.makeMenu(menuItems, domHelper, handler, scope,
