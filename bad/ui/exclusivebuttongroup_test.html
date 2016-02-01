@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exclusive Button Tests - bad.ui.ExButtonGroup</title>
+    <script src="../../node_modules/google-closure-library/closure/goog/base.js"></script>
+    <script src="../deps.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/css3button.css">
+    <link rel="stylesheet" type="text/css" href="../css/css3menubutton.css">
+    <link rel="stylesheet" type="text/css" href="../css/menu.css">
+    <link rel="stylesheet" type="text/css" href="../css/menuitem.css">
+    <link rel="stylesheet" type="text/css" href="../css/menuseparator.css">
+    <script type="text/javascript">
+        goog.require('bad.ui.ExButtonGroup');
+        goog.require('bad.ui.button');
+        goog.require('goog.debug.Console');
+        goog.require('goog.debug.LogManager');
+        goog.require('goog.testing.jsunit');
+    </script>
+</head>
+<body>
+<div id="t1">Group 1 - T1</div>
+<div id="t2">Group 1 - T2</div>
+<div id="t3">Group 1 - T3</div>
+<div id="t4">Group 1 - T4</div>
+<div id="t5">Group 2 - T5</div>
+<div id="t6">Group 2 - T6</div>
+<div id="t7">Group 2 - T7</div>
+<div id="t8">Group 3 - T8</div>
+<div id="t9">Group 4 - T9</div>
+<script type="text/javascript">
+function setUp() {
+  goog.debug.LogManager.getRoot().setLevel(goog.debug.Logger.Level.WARNING);
+
+  var debugConsole = new goog.debug.Console();
+  debugConsole.setCapturing(true);
+}
+
+function tearDown() {
+    // layout.dispose();
+}
+
+function test_realWorld() {
+
+  var f = function(id, isChecked) {
+    console.log(id, isChecked)
+  };
+
+  var g1 = new bad.ui.ExButtonGroup();
+  var g2 = new bad.ui.ExButtonGroup();
+  var g3 = new bad.ui.ExButtonGroup();
+
+  var g1Ids = ['t1', 't2', 't3', 't4'];
+  var g2Ids = ['t5', 't6', 't7'];
+  var g3Ids = ['t8', 't9'];
+
+  g1.addExGroup(g3);
+  g2.addExGroup(g3);
+  g3.addExGroup(g1);
+  g3.addExGroup(g2);
+
+  g1Ids.forEach(function(id) {
+    var b1 = bad.ui.button.makeToggleButton(id, undefined, goog.partial(f, id));
+    g1.addToggleButton(b1);
+  });
+
+  g2Ids.forEach(function(id) {
+    var b2 = bad.ui.button.makeToggleButton(id, undefined, goog.partial(f, id));
+    g2.addToggleButton(b2);
+  });
+
+  g3Ids.forEach(function(id) {
+    var b3 = bad.ui.button.makeToggleButton(id, undefined, goog.partial(f, id));
+    g3.addToggleButton(b3);
+  });
+
+}
+
+</script>
+</body>
+</html>
+
+
+

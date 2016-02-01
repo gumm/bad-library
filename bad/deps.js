@@ -9,9 +9,6 @@ goog.addDependency('../../../../bad/ui/exclusivebuttongroup.js', ['bad.ui.ExButt
 goog.addDependency('../../../../bad/ui/form.js', ['bad.ui.Form'], ['bad.ui.Panel', 'goog.dom', 'goog.dom.TagName', 'goog.dom.classlist', 'goog.dom.forms', 'goog.events.EventType', 'goog.object', 'goog.uri.utils'], false);
 goog.addDependency('../../../../bad/ui/layout.js', ['bad.ui.Layout', 'bad.ui.Layout.CssClassMap', 'bad.ui.Layout.IdFragment'], ['bad.CssPrefix', 'bad.ui.Component', 'bad.ui.EventType', 'goog.array', 'goog.dom', 'goog.dom.TagName', 'goog.dom.ViewportSizeMonitor', 'goog.events.Event', 'goog.events.EventType', 'goog.fx.Animation', 'goog.fx.Dragger', 'goog.fx.Transition', 'goog.math.Box', 'goog.math.Rect', 'goog.math.Size', 'goog.object', 'goog.style', 'goog.ui.Component'], false);
 goog.addDependency('../../../../bad/ui/panel.js', ['bad.ui.Panel'], ['bad.CssClassMap', 'bad.ui.Component', 'goog.array', 'goog.dom', 'goog.dom.TagName'], false);
-goog.addDependency('../../../../bad/ui/renderers/menuflatrenderer.js', ['bad.ui.MenuFlatRenderer'], ['goog.ui.MenuRenderer'], false);
-goog.addDependency('../../../../bad/ui/renderers/menufloatingrenderer.js', ['bad.ui.MenuFloatRenderer'], ['goog.ui.MenuRenderer'], false);
-goog.addDependency('../../../../bad/ui/renderers/menuitemrenderer.js', ['bad.ui.MenuItemRenderer'], ['goog.ui.MenuItemRenderer'], false);
 goog.addDependency('../../../../bad/ui/uieventtype.js', ['bad.ui.EventType', 'bad.ui.Resizable.EventType'], ['bad.utils'], false);
 goog.addDependency('../../../../bad/ui/view.js', ['bad.ui.View', 'bad.ui.ViewEvent'], ['bad.ui.EventType', 'goog.array', 'goog.events.Event', 'goog.events.EventHandler', 'goog.events.EventTarget', 'goog.object'], false);
 goog.addDependency('../../../../bad/user/usermanager.js', ['bad.UserLike', 'bad.UserManager'], [], false);

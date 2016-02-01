@@ -341,12 +341,10 @@ java -server -XX:+TieredCompilation -jar ${CLOSURE_COMPILER_PATH}/compiler.jar \
     --new_type_inf                                          \
     --use_types_for_optimization                            \
     --process_closure_primitives                            \
-    --manage_closure_dependencies                           \
-    --only_closure_dependencies                             \
     --jscomp_warning=*                                      \
     --charset                       UTF-8                   \
     --language_in                   ECMASCRIPT6             \
-    --language_out                  ECMASCRIPT5             \
+    --language_out                  ECMASCRIPT5_STRICT      \
     --summary_detail_level          3                       \
     --warning_level                 VERBOSE                 \
     --compilation_level             ADVANCED                \
@@ -364,7 +362,8 @@ java -server -XX:+TieredCompilation -jar ${CLOSURE_COMPILER_PATH}/compiler.jar \
     --create_source_map             %outname%.map           \
     --output_manifest               ${OUT}/manifest.MF      \
     --js_output_file                ${OUT}/compile.min.js   \
-    --closure_entry_point           Fuckit
+    --dependency_mode=STRICT                                \
+    --entry_point=goog:CompilerEntry
 
 
 echo "Done"

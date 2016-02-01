@@ -1,6 +1,6 @@
 {
   "name": "bad-library",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "Companion utilities to the Google Closure Library",
   "main": "",
   "scripts": {
@@ -23,8 +23,8 @@
   "dependencies": {
   },
   "devDependencies": {
-    "be-sert": "^1.0.0",
-    "google-closure-compiler": "20151216",
+    "be-sert": "*",
+    "google-closure-compiler": "*",
     "google-closure-library": "*",
     "mocha": "*"
   }

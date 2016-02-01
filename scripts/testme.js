@@ -1,4 +1,4 @@
-goog.provide('Fuckit');
+goog.provide('CompilerEntry');
 
 goog.require('bad.ActionEvent');
 goog.require('bad.CssClassMap');
@@ -26,7 +26,7 @@ goog.require('bad.utils');
 /**
  * @constructor
  */
-Fuckit = function() {
+CompilerEntry = function() {
 
   this.allMods = [
     bad.CssClassMap,

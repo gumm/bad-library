@@ -2,6 +2,9 @@ goog.provide('bad.Net');
 
 goog.require('goog.net.XhrIo');
 
+goog.forwardDeclare('goog.net.XhrManager');
+goog.forwardDeclare('goog.net.XhrManager.Request');
+
 
 
 /**

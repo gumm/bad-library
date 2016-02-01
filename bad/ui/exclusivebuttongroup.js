@@ -69,7 +69,9 @@ bad.ui.ExButtonGroup.prototype.onAction = function(e) {
 bad.ui.ExButtonGroup.prototype.setChecked = function(bool) {
   this.buttonSet_.forEach(
       function(button) {
-        button.setChecked(false);
+        if (button instanceof goog.ui.ToggleButton) {
+          button.setChecked(false);
+        }
       });
 };
 

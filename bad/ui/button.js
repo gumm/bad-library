@@ -99,7 +99,6 @@ bad.ui.button.makeButton_ = function(constructor, el, parent, opt_callback,
 
   button = new constructor('', renderer, opt_domHelper);
   button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
-  button.decorate(el);
 
   if (parent) {
     parent.addChild(button, false);
