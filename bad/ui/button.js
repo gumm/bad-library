@@ -103,6 +103,9 @@ bad.ui.button.makeButton_ = function(constructor, el, parent, opt_callback,
 
   if (parent) {
     parent.addChild(button, false);
+    button.decorate(el);
+  } else {
+    button.decorate(el);
   }
 
   if (opt_callback) {
