@@ -87,13 +87,12 @@ bad.ui.Form.prototype.getSterileFormFromId = function(string) {
 
 
 /**
- * Given a form, get the post content string.
- * @param {!HTMLFormElement} form The form to get the post content from.
+ * Get the post content of this form as a content string.
  * @return {string}
  */
-bad.ui.Form.prototype.getPostContentFromForm = function(form) {
+bad.ui.Form.prototype.getPostContentFromForm = function() {
   return goog.uri.utils.buildQueryDataFromMap(
-      goog.dom.forms.getFormDataMap(form).toObject()
+      goog.dom.forms.getFormDataMap(this.form_).toObject()
   );
 };
 
