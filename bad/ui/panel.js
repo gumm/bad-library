@@ -135,19 +135,23 @@ bad.ui.Panel.prototype.enterDocument = function() {
 
 
 /**
- * @param {!bad.ui.Layout.CellType} nest
+ * @param {!bad.ui.Layout.NestType|undefined} nest
  */
 bad.ui.Panel.prototype.setNestAsTarget = function(nest) {
-  this.nest_ = nest;
-  this.setTarget(this.nest_.element);
+  if (nest) {
+    this.nest_ = nest;
+    this.setTarget(this.nest_.element);
+  }
 };
 
 
 /**
- * @param {!bad.ui.Layout.CellType} nest
+ * @param {!bad.ui.Layout.NestType|undefined} nest
  */
 bad.ui.Panel.prototype.setSlideNest = function(nest) {
-  this.slideNest_ = nest;
+  if (nest) {
+    this.slideNest_ = nest;
+  }
 };
 
 

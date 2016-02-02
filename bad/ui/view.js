@@ -140,7 +140,7 @@ bad.ui.View.prototype.displayPanels = goog.nullFunction;
 
 
 /**
- * @param {!goog.events.Event} e
+ * @param {!bad.ActionEvent} e
  */
 bad.ui.View.prototype.onPanelAction = function(e) {
   e.stopPropagation();
