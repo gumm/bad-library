@@ -2,6 +2,7 @@ goog.provide('bad.ui.Panel');
 
 goog.require('bad.CssClassMap');
 goog.require('bad.ui.Component');
+goog.require('goog.Uri');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
@@ -17,10 +18,10 @@ bad.ui.Panel = function(opt_domHelper) {
   bad.ui.Component.call(this, opt_domHelper);
 
   /**
-   * @type {?goog.Uri}
+   * @type {!goog.Uri}
    * @private
    */
-  this.uri_ = null;
+  this.uri_ = new goog.Uri();
 
   /**
    * @type {?Object}
@@ -206,7 +207,7 @@ bad.ui.Panel.prototype.setUri = function(uri) {
 
 
 /**
- * @return {goog.Uri}
+ * @return {!goog.Uri}
  */
 bad.ui.Panel.prototype.getUri = function() {
   return this.uri_;
