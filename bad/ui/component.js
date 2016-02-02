@@ -93,7 +93,7 @@ bad.ui.Component.prototype.setBeforeReadyCallback = function(func) {
 
 /**
  * Set the target element where the component will render to.
- * @param {!Element} element A valid dom element.
+ * @param {!Element|!HTMLElement} element A valid dom element.
  */
 bad.ui.Component.prototype.setTarget = function(element) {
   this.target_ = element;
@@ -102,7 +102,7 @@ bad.ui.Component.prototype.setTarget = function(element) {
 
 /**
  * Get the target element where the component was rendered to.
- * @return {?Element} A valid dom element.
+ * @return {?Element|?HTMLElement} A valid dom element.
  */
 bad.ui.Component.prototype.getTarget = function() {
   return this.target_;
