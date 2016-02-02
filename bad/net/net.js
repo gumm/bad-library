@@ -62,7 +62,7 @@ bad.Net.prototype.post = function(url, content, opt_callback, opt_responseType,
  * @param {?goog.net.XhrIo.ResponseType.<string>=} opt_responseType
  * @param {?(Object|goog.structs.Map)=} opt_headers Map of headers to add to the
  *     request.
- * @return {goog.net.XhrManager.Request}
+ * @return {!goog.net.XhrManager.Request}
  */
 bad.Net.prototype.put = function(url, content, opt_callback, opt_responseType,
                                  opt_headers) {
@@ -92,7 +92,7 @@ bad.Net.prototype.put = function(url, content, opt_callback, opt_responseType,
  * @param {?goog.net.XhrIo.ResponseType.<string>=} opt_responseType
  * @param {?(Object|goog.structs.Map)=} opt_headers Map of headers to add to the
  *     request.
- * @return {goog.net.XhrManager.Request}
+ * @return {!goog.net.XhrManager.Request}
  */
 bad.Net.prototype.del = function(url, content, opt_callback, opt_responseType,
                                  opt_headers) {
@@ -119,7 +119,7 @@ bad.Net.prototype.del = function(url, content, opt_callback, opt_responseType,
  * @param {!goog.Uri} url
  * @param {?Function=} opt_callback
  * @param {?goog.net.XhrIo.ResponseType.<string>=} opt_responseType
- * @return {goog.net.XhrManager.Request}
+ * @return {!goog.net.XhrManager.Request}
  */
 bad.Net.prototype.get = function(url, opt_callback, opt_responseType) {
 
