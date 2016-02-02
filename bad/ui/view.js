@@ -24,10 +24,10 @@ bad.ui.View = function() {
   this.xMan_ = null;
 
   /**
-   * @type {?bad.ui.Layout}
+   * @type {!bad.ui.Layout|undefined}
    * @private
    */
-  this.layout_ = null;
+  this.layout_ = undefined;
 
   /**
    * @enum {!bad.ui.Panel}
@@ -156,7 +156,7 @@ bad.ui.View.prototype.setLayout = function(layout) {
 
 
 /**
- * @return {?bad.ui.Layout}
+ * @return {!bad.ui.Layout|undefined}
  */
 bad.ui.View.prototype.getLayout = function() {
   return this.layout_;
