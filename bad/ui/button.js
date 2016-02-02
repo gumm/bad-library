@@ -4,6 +4,7 @@ goog.require('bad.utils');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.ui.Component');
+goog.require('goog.ui.ControlRenderer');
 goog.require('goog.ui.Css3ButtonRenderer');
 goog.require('goog.ui.Css3MenuButtonRenderer');
 goog.require('goog.ui.CustomButton');
@@ -17,11 +18,12 @@ goog.require('goog.ui.ToggleButton');
 
 
 /**
- * @return {!goog.ui.ButtonRenderer}
+ * @return {!goog.ui.Css3ButtonRenderer}
  */
 bad.ui.button.getBasicButtonRenderer = function() {
-  goog.ui.Css3ButtonRenderer.CSS_CLASS = 'flat-button';
-  return goog.ui.Css3ButtonRenderer.getInstance();
+  return /**@type {!goog.ui.Css3ButtonRenderer} */ (
+      goog.ui.ControlRenderer.getCustomRenderer(
+      goog.ui.Css3ButtonRenderer, 'flat-button'));
 };
 
 
@@ -29,8 +31,9 @@ bad.ui.button.getBasicButtonRenderer = function() {
  * @return {!goog.ui.Css3MenuButtonRenderer}
  */
 bad.ui.button.getMenuButtonRenderer = function() {
-  goog.ui.Css3MenuButtonRenderer.CSS_CLASS = 'flat-button';
-  return goog.ui.Css3MenuButtonRenderer.getInstance();
+  return /**@type {!goog.ui.Css3MenuButtonRenderer} */ (
+      goog.ui.ControlRenderer.getCustomRenderer(
+      goog.ui.Css3MenuButtonRenderer, 'flat-button'));
 };
 
 
@@ -148,11 +151,13 @@ bad.ui.button.makeMenuButton = function(elId, menuItems, domHelper, handler,
 
   if (el) {
 
-    goog.ui.MenuRenderer.CSS_CLASS = cssClassName;
-    var menuRenderer = goog.ui.MenuRenderer.getInstance();
+    var menuRenderer = /** @type {!goog.ui.MenuRenderer} */ (
+        goog.ui.ContainerRenderer.getCustomRenderer(
+            goog.ui.MenuRenderer, cssClassName));
 
-    goog.ui.MenuItemRenderer.CSS_CLASS = 'flat-menuitem';
-    var itemRenderer = goog.ui.MenuItemRenderer.getInstance();
+    var itemRenderer = /** @type {!goog.ui.MenuItemRenderer} */ (
+        goog.ui.ControlRenderer.getCustomRenderer(
+            goog.ui.MenuItemRenderer, 'flat-menuitem'));
 
     var menu = bad.ui.button.makeMenu(menuItems, domHelper, handler, scope,
         menuRenderer, itemRenderer, opt_sticky);
@@ -173,8 +178,8 @@ bad.ui.button.makeMenuButton = function(elId, menuItems, domHelper, handler,
  * @param {!goog.events.EventHandler} handler The event handler for the panel.
  * @param {!goog.ui.Component} scope The component scope that the
  *    events will fire in.
- * @param {?goog.ui.MenuRenderer=} opt_menuRend
- * @param {?goog.ui.MenuItemRenderer=} opt_itemRend
+ * @param {!goog.ui.MenuRenderer=} opt_menuRend
+ * @param {!goog.ui.MenuItemRenderer=} opt_itemRend
  * @param {boolean=} opt_sticky
  * @return {!goog.ui.Menu}
  */
