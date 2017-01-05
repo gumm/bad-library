@@ -5,7 +5,7 @@
   "main": "",
   "scripts": {
     "test": "mocha -R spec ./bad/test",
-    "deps": "scripts/deps_app.sh `pwd`"
+    "deps": "scripts/deps.sh `pwd`"
   },
   "repository": {
     "type": "git",
