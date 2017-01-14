@@ -190,13 +190,19 @@ const gridMeta = s => {
 
 /**
  * Given a cell grid index, return the row, column and box indexes.
+ * @param {!number} g The number of cells in the grid
  * @param {!number} n The n-value of the grid. 3 for a 9x9 sudoku.
+ * @param {!number} t The number of unique tokens in the grid.
  * @return {!function(!number): !Array<!number>}
  */
-const indexesN = n => i => {
-    let c = Math.floor(i / (n * n));
-    i %= n * n;
-    return [c, i, Math.floor(c / n) * n + Math.floor(i / n)];
+const indexesN = (g, n, t) => i => {
+  let c = Math.floor(i / (n * n));
+  i %= n * n;
+  return [
+    g + c * t,
+    2 * g + i * t,
+    3 * g + (Math.floor(c / n) * n + Math.floor(i / n)) * t
+  ];
 };
 
 /**
@@ -216,7 +222,7 @@ const reduceGrid = puzString => {
                 // single element arrays.
   ] = gridMeta(puzString);
 
-  const getIndex = indexesN(N);
+  const getIndex = indexesN(numCells, N, U);
 
   /**
    * The DLX Header row.
@@ -245,15 +251,15 @@ const reduceGrid = puzString => {
    */
   for (let i = 0; i < numCells; i++) {
     const [ri, ci, bi] = getIndex(i);
-    g2D[i].forEach(num => {
-      let id = `${i}:${num}`;
-      let candIdx = num - 1;
+    g2D[i].forEach(token => {
+      let id = `${i}:${token}`;
+      let tIdx = token - 1;
 
       // The 4 columns that we will populate.
       const A = headRow[i];
-      const B = headRow[numCells + candIdx + (ri * U)];
-      const C = headRow[(numCells * 2) + candIdx + (ci * U)];
-      const D = headRow[(numCells * 3) + candIdx + (bi * U)];
+      const B = headRow[ri + tIdx];
+      const C = headRow[ci + tIdx];
+      const D = headRow[bi + tIdx];
 
       // The Row-Column Constraint
       let rcc = addBelow(A.U, new DoX(id, A));
@@ -293,6 +299,6 @@ const reduceGrid = puzString => {
 
 // Or of you want to create all the grids of a particular n-size.
 // I run out of stack space at n = 9
-let n = 4;
+let n = 8;
 let s = new Array(Math.pow(n, 4)).fill('.').join('');
-reduceGrid(s);
+//reduceGrid(s);
