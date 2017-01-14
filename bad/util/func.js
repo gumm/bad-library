@@ -26,6 +26,9 @@ const partial = function(fn, var_args) {
 };
 
 
+const identity = e => e;
+
+
 /**
  * @type {function(!string): !string}
  */
@@ -43,6 +46,23 @@ const whatType = x => typeof x;
  * @return {boolean}
  */
 const isNumber = n => whatType(n) === 'number' && !Number.isNaN(n);
+
+
+/**
+ * A strict even test that does not coerce values, and results in false if the
+ * given element is not a number.
+ * @param t
+ */
+const isEven = t => isNumber(t) && !(t % 2);
+[
+  Number.POSITIVE_INFINITY,
+  Number.NEGATIVE_INFINITY,
+  -0, 0, 1,'1',2,'2',-1,
+  'oddball',
+  NaN, {}, [],
+  true, false
+].forEach(e => console.log(isEven(e)));
+
 
 
 /**
@@ -119,6 +139,9 @@ const reverse = x => {
 };
 
 
+const flatten = arr => arr.reduce(
+  (a, b) => a.concat(Array.isArray(b) ? flatten(b) : b), []);
+
 /**
  * @type {function(function(*, !number, !Array) : *) : function(!Array<*>): ?}
  */
@@ -150,28 +173,9 @@ const interleave = j => s => s.split('').map(v => `${j}${v}`).join('');
 
 
 /**
- * /**
- * @type {function(!string): !string}
- */
-const shout = compose(partial(append, '!'), toUpperCase);
-
-
-/**
  * @type {function(!Array<*>): *}
  */
 const tail = compose(head, reverse);
-
-
-/**
- * @type {function(!Array<!string>): !string}
- */
-const lastUpper = compose(toUpperCase, tail);
-
-
-/**
- * @type {function(!Array<!string>): !string}
- */
-const loudLastUpper = compose(shout, lastUpper);
 
 
 /**
@@ -186,49 +190,78 @@ const snakeCase = compose(replace(/\s+/ig, '_'), toLowerCase);
 const anyToLowerCase = compose(toLowerCase, toString);
 
 /**
- * create a generator function returning an
- * iterator to a specified range of numbers
+ * A generator function that returns an iterator over the specified range of
+ * numbers. By default the step size is 1, but this can optionally be passed
+ * in as well. A negative step size is silently converted to a positive number.
+ * The generator will always yield the first value, and from there step
+ * towards the second value.
+ * It does not matter which of the 2 values are larger, the generator will
+ * always step from the first towards the second.
  * @param {!number} b Begin here - First element in array
  * @param {!number} e End here - Last element in array
  * @param {!number} s Step this size
  */
 function* rangeGen(b, e, s=1) {
-  for (let i = b; i <= e; i += s) {
-    yield i;
+  if (!isNumber(s) || s === 0) {
+    throw `Invalid step size: ${s}`;
   }
+  let up = e >= b;
+  for (let i = b;
+       up ? i <= e : i >= e;
+       up ? i += Math.abs(s) : i -= Math.abs(s))
+  { yield i; }
 }
 const rangeArr = (b, e, s) => [...(rangeGen(b, e, s))];
-console.log(rangeArr(0,9));
+console.log(rangeArr(1, -1));
+
+
+const stringReverse = compose(join(''), reverse);
+const numReverse = compose(toNumber, join(''), reverse, toString);
 
 
 /**
- * @type {function(!string): !string}
+ * Counts the occurrence of an element in an array.
+ * @param t
  */
-const initials = compose(join('. '), map(compose(toUpperCase, head)),
-  split(' '));
+const countOck = t => arr => arr.filter(
+  e => Number.isNaN(t) ? Number.isNaN(e) : e === t).length;
+let countZeros = countOck(0);
+let countNaNs = countOck(NaN);
+console.log(`Number of zeros: ${countZeros([0,1,0,1,0,0,0,1])}`);
+console.log(`Number of NaNs: ${countNaNs([NaN,1,NaN,1,NaN,0,NaN,1])}`);
+
+const countByFunc = f => arr => arr.filter(f).length;
+let countArr = countByFunc(e => Array.isArray(e));
+console.log(`Number of Arrays: ${countArr([[],[], NaN, {}, 1, {length:1}])}`);
+
+/**
+ * A strict same elements in same order comparison.
+ * @param a
+ * @param b
+ */
+const sameArr = (a, b) => a.length == b.length && a.every((c, i) => b[i] === c);
+console.log('Same Arrays:', sameArr([1,2], [1,2]));
+console.log('Same Arrays:', sameArr([2,1], [1,2]));
 
 
-console.log(loudLastUpper(['jumpkick', 'roundhouse', 'uppercut']));
-console.log(loudLastUpper('uppercut'));
-console.log(snakeCase('snake Case'));
-console.log(initials("hunter stockton thompson"));
-console.log(toLowerCase('BLAH'));
-console.log(anyToLowerCase(null));
-console.log(head('HEllo'));
-console.log(tail('HEllo'));
-console.log(repeat(NaN, 10));
+/**
+ * A loose same elements comparison.
+ * @param a
+ * @param b
+ */
+const sameEls = (a, b) => a.length == b.length &&
+  a.every((c, i) => b.includes(c)) &&
+  b.every((c, i) => a.includes(c));
+console.log('Same Elements:', sameEls([1,2], [1,2]));
+console.log('Same Elements:', sameEls([2,1], [1,2]));
+console.log('Same Elements:', sameEls([2,2], [1,2]));
 
-const stringReverse = compose(join(''), reverse);
-const numReverse = compose(toNumber, join(''), trace('---->>>>'), reverse,
-  toString);
 
-console.log(numReverse(123.34));
+
 
 
 // -----------------------------------------------------------------------------
-// Rosetta code: Luhn_test_of_credit_card_numbers
-// http://rosettacode.org/wiki/Luhn_test_of_credit_card_numbers
-// FizzBuzz - 1
+// FizzBuzz
 const dividesBy3 = isDivisibleBy(3);
 const dividesBy5 = isDivisibleBy(5);
 const dividesBy15 = isDivisibleBy(15);
@@ -329,7 +362,7 @@ const findC = (...args) => {
 
 const topoSort = input => {
   // A map of the input data, with the keys as the packages, and the values as
-  // and array of packages on which it depends.
+  // an array of packages on which it depends.
   const D = input
     .split('\n')
     .map(e => e.split(' ').filter(e => e != ''))
@@ -384,286 +417,3 @@ console.log('Solution:', topoSort(
   ramlib           std ieee
   std_cell_lib     ieee std_cell_lib
   synopsys`));
-
-
-// -----------------------------------------------------------------------------
-// Rosetta code: Sudoku
-// http://rosettacode.org/wiki/Sudoku
-
-
-// sudoku puzzle representation is an 81 character string
-let puzzle = `
-394  267 
-   3  4  
-5  69  2 
- 45   9  
-6       7
-  7   58 
- 1  67  8
-  9  8   
- 264  735`;
-
-let input = `
-3 9 4 |     2 | 6 7  
-      | 3     | 4    
-5     | 6 9   |   2  
-------+-------+------
-  4 5 |       | 9    
-6     |       |     7
-    7 |       | 5 8  
-------+-------+------
-  1   |   6 7 |     8
-    9 |     8 |      
-  2 6 | 4     | 7 3 5
-`;
-
-
-
-// print grid (with title) from 81 character string
-const printGrid = function(title, puzzle) {
-  console.log(title);
-  let arr = rangeArr(0, 8);
-  let s = puzzle.split('\n').join('');
-  arr.forEach(r => {
-    const i = r * 9;
-    console.log(arr.reduce(
-      (p, c) => `${p}${[3,6].includes(c) ? '| ' : ''}${s[i + c]} `, ''));
-    [2,5].includes(r) ? console.log('------+-------+------') : '';
-  });
-
-};
-
-printGrid('Testme:', puzzle);
-
-
-class DLLNode {
-  constructor(value, prev=null, next=null) {
-    this.value_ = value;
-    this.next_ = null;
-    this.prev_ = null;
-    this.disconnected_ = false;
-
-    if (prev) {
-      this.prev = prev;
-    }
-
-    if (next) {
-      this.next = next;
-    }
-  }
-
-  set value(v) {
-    this.value_ = v;
-  }
-
-  get value() {
-    return this.value_;
-  }
-
-  set next(next) {
-    this.next_ = next;
-    const oldPrev = next.prev;
-    if (next.prev !== this) {
-      next.prev_ = this;
-    }
-    if (oldPrev) {
-      oldPrev.next_ = this;
-    }
-  }
-
-  get next() {
-    return this.disconnected_ ? null : this.next_;
-  }
-
-  set prev(prev) {
-    this.prev_ = prev;
-    const oldNext = prev.next;
-    if (prev.next !== this) {
-      prev.next_ = this;
-    }
-    if (oldNext) {
-      oldNext.prev_ = this;
-    }
-  }
-
-  get prev() {
-    return this.disconnected_ ? null : this.prev_;
-  }
-
-  get disconnected() {
-    return this.disconnected_;
-  }
-
-  set disconnected(bool) {
-    bool ? this.disconnect() : this.reconnect();
-  }
-
-  disconnect() {
-    if (!this.disconnected_) {
-      this.disconnected_ = true;
-      this.prev_.next_ = this.next_;
-      this.next_.prev_ = this.prev_;
-    }
-  }
-
-  reconnect() {
-    if (this.disconnected_) {
-      this.disconnected_ = false;
-      this.prev.next_ = this;
-      this.next.prev_ = this;
-    }
-  }
-
-  get first() {
-    let r = this;
-    let circular = false;
-    while (!circular && r.prev) {
-      [circular, r] = [r.prev === this, r.prev];
-    }
-    return r;
-  }
-
-  get last() {
-    let r = this;
-    let circular = false;
-    while (!circular && r.next) {
-      [circular, r] = [r.next === this, r.next];
-    }
-    return r;
-  }
-
-  _nodes() {
-    let l = [this.first];
-    let circular = false;
-
-    let n = this.first.next;
-    while (!circular && n) {
-      l.push(n);
-      [circular, n] = [n.next === this, n.next];
-    }
-    return [circular, l];
-  }
-
-  get circular() {
-    return this._nodes()[0];
-  }
-
-  get nodes() {
-    return this._nodes()[1];
-  }
-
-  get values() {
-    return this.nodes.map(e => e.value_);
-  }
-
-  get length() {
-    return this.nodes.length;
-  }
-}
-
-const makeDLL = (...a) => a.reduce((p, c) => new DLLNode(c, p), null).nodes;
-
-const nl = makeDLL(11,22,33,44,55,66,77);
-
-var n1 = new DLLNode(value=1);
-console.log(n1.values(), n1.length());
-
-
-var n2 =  new DLLNode(value=2, prev=n1);
-console.log(n1.values(), n1.length());
-
-var n3 =  new DLLNode(value=3, prev=n2);
-console.log(n1.values(), n1.length());
-
-var n4 =  new DLLNode(value=4, prev=n3);
-console.log(n1.values(), n1.length());
-
-var n5 = new DLLNode(value=5, prev=n4, next=n1);
-console.log(n1.values(), n1.length());
-
-n3.disconnect();
-console.log(n1.values(), n1.length());
-
-console.log('------------>>>', n3.values(), n3.length());
-
-n3.reconnect();
-console.log(n1.values(), n1.length());
-
-console.log('------------>>>', n3.values(), n3.length());
-
-n3.disconnected = true;
-console.log('------------>>>', n3.values(), n3.length());
-
-n3.disconnected = false;
-console.log('------------>>>', n3.values(), n3.length());
-
-n3.disconnected = false;
-console.log('------------>>>', n3.values(), n3.length());
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//const irPersToUnitPerYear = i => i / 100 / 12;
-//
-//function CalculateLoanAmt(
-//  cashPrice=243047,
-//  extras=5253,
-//  deposit=50000,
-//  initFee=0,
-//  interestPerc=11.25,
-//  term=71,
-//  balloonPerc=30) {
-//
-//  // Principal Debt:
-//  const princeDebt = (cashPrice + extras) - (deposit + initFee);
-//  console.log('\n\nPRINCIPLE DEBT: ', princeDebt);
-//  console.log('TOTAL FINANCE CHARGES: ', 98117.84, '   <<-- How is this calculated?');
-//
-//
-//
-//  // INTEREST RATE
-//  let intPerUnitPerMonth = irPersToUnitPerYear(interestPerc); // Intrest per unit per month.
-//  let pow = rangeArr(0, term - 1).reduce(p => p * (1 + intPerUnitPerMonth), 1);
-//
-//  // TOTAL LOAN
-//  let amountLoaned = deposit < cashPrice ? cashPrice - deposit + initFee : cashPrice + initFee;
-//
-//  // BALLOON
-//  let balloonAmt = balloonPerc / 100 * cashPrice;
-//
-//  //REPAYMENT AMOUNT
-//  let baloonSubtract = balloonAmt / pow;
-//  let finalLoan = amountLoaned - baloonSubtract;
-//  let payments = (finalLoan * pow * intPerUnitPerMonth) / (pow - 1);
-//  let totalRepayments = payments * term;
-//  let totalCostToCustomer = totalRepayments + balloonAmt;
-//
-//  console.log('cashPrice --------------->', cashPrice);
-//  console.log('deposit ------------->', deposit);
-//  console.log('amountLoaned -------->', amountLoaned);
-//  console.log('balloonAmt ---------->', balloonAmt, `${balloonPerc}% of price (${cashPrice})`);
-//
-//  console.log('intPerUnitPerMonth---------------->', intPerUnitPerMonth);
-//  console.log('pow------------------>', pow);
-//  console.log('baloonSubtract------->', baloonSubtract);
-//
-//  console.log('finalLoan ----------->', finalLoan);
-//  console.log('payments ------------>', payments);
-//  console.log('totalRepayments ----->', totalRepayments);
-//  console.log('totalCostToCustomer ->', totalCostToCustomer);
-//
-//}
-//
-//CalculateLoanAmt();
