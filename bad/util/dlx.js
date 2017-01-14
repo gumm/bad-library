@@ -16,10 +16,9 @@ class DoX {
     this.D = this;
     this.S = 1;
     this.H = H || this;
-    if (H) { H.S += 1; }
+    H && (H.S += 1);
   }
 }
-
 
 /**
  * Helper function to help build a horizontal doubly linked list.
@@ -31,10 +30,8 @@ const addRight = (e, n) => {
   n.R = e.R;
   n.L = e;
   e.R.L = n;
-  e.R = n;
-  return n;
+  return e.R = n;
 };
-
 
 /**
  * Helper function to help build a vertical doubly linked list.
@@ -45,8 +42,7 @@ const addBelow = (e, n) => {
   n.D = e.D;
   n.U = e;
   e.D.U = n;
-  e.D = n;
-  return n;
+  return e.D = n;
 };
 
 /**
@@ -75,10 +71,9 @@ const search = function(h, s) {
   }
 };
 
-
 /**
  * Verbatim copy of DK's algorithm for choosing the next column object.
- * @param h
+ * @param {!DoX} h
  * @return {!DoX}
  */
 const chooseColumn = h => {
@@ -92,7 +87,6 @@ const chooseColumn = h => {
   }
   return c;
 };
-
 
 /**
  * Verbatim copy of DK's cover algorithm
@@ -110,7 +104,6 @@ const cover = c => {
   }
 };
 
-
 /**
  * Verbatim copy of DK's cover algorithm
  * @param {!DoX} c
@@ -127,49 +120,56 @@ const uncover = c => {
   c.R.L = c;
 };
 
-
 //-----------------------------------------------------------[ Print Helpers ]--
 /**
  * Given the standard string format of a grid, print a formatted view of it.
- * @param {!string} gString
+ * @param {!string|!Array} a
  */
-const printGrid = function(gString) {
-  let gArr = (typeof gString == 'string') ? gString.split('') : gString;
+const printGrid = function(a) {
 
-  let U = Math.sqrt(gArr.length);
+  const getChar = c => {
+    let r = Number(c);
+    if (isNaN(r)) { return c }
+
+    let o = 48;
+    if (r > 9 && r < 36) { o = 55 }
+    if (r >= 36) { o = 61 }
+    return String.fromCharCode(r + o)
+  };
+
+  a = 'string' == typeof a ? a.split('') : a;
+
+  let U = Math.sqrt(a.length);
   let N = Math.sqrt(U);
-  let div = new Array(N).fill('+').reduce((p, c) => {
+  let line = new Array(N).fill('+').reduce((p, c) => {
     p.push(... Array.from(new Array(1 + N*2).fill('-')));
     p.push(c);
     return p;
   }, ['\n+']).join('') + '\n';
 
-  let g = gArr.reduce((p, c, i) => {
-    let nl = i && !(i % U);
-    let vD = i && !(i % N);
-    let hD = !(i % (U * N));
-    if (nl && !hD) { p = `${p}|\n| ` }
-    if (nl && hD) { p = `${p}|` }
-    if (hD) { p = `${p}${div}| `}
-    p = `${p}${vD && !nl ? '| ' : ''}${c} `;
-    return p;
-  }, '') + '|' + div;
-  console.log(g);
-};
+  a = a.reduce(function(p, c, i) {
+      let d = i && !(i % U), G = i && !(i % N);
+      i = !(i % (U * N));
+      d && !i && (p += '|\n| ');
+      d && i && (p += '|');
+      i && (p = '' + p + line + '| ');
+      return '' + p + (G && !d ? '| ' : '') + getChar(c) + ' ';
+    }, '') + '|' + line;
+  console.log(a);
 
+};
 
 /**
  * Given a search solution, print the resultant grid.
  * @param {!Array<!DoX>} a An array of data objects
  */
 const printSol = a => {
-  printGrid(a.reduce((p,c) => {
+  printGrid(a.reduce((p, c) => {
     let [i, v] = c.V.split(':');
     p[i * 1] = v;
     return p;
   }, new Array(a.length).fill('.')));
 };
-
 
 //----------------------------------------------[ Grid to Exact cover Matrix ]--
 /**
@@ -179,13 +179,13 @@ const printSol = a => {
  */
 const gridMeta = s => {
   const g = s.split('');
-  const numCells = g.length;
-  const nCandid = Math.sqrt(numCells);
-  const N = Math.sqrt(nCandid);
+  const cellCount = g.length;
+  const tokenCount = Math.sqrt(cellCount);
+  const N = Math.sqrt(tokenCount);
   const g2D = g.map(e => isNaN(e * 1) ?
-    new Array(nCandid).fill(1).map((_, i) => i + 1) :
+    new Array(tokenCount).fill(1).map((_, i) => i + 1) :
     [e * 1]);
-  return [numCells, N, nCandid, g2D];
+  return [cellCount, N, tokenCount, g2D];
 };
 
 /**
@@ -194,14 +194,10 @@ const gridMeta = s => {
  * @return {!function(!number): !Array<!number>}
  */
 const indexesN = n => i => {
-  const ri = i => Math.floor(i / (n * n));
-  const ci = i => i % (n * n);
-  const r = ri(i);
-  const c = ci(i);
-  const b = Math.floor(r / n) * n + Math.floor(c / n);
-  return [r, c, b];
+    let c = Math.floor(i / (n * n));
+    i %= n * n;
+    return [c, i, Math.floor(c / n) * n + Math.floor(i / n)];
 };
-
 
 /**
  * Given a puzzle string, reduce it to an exact-cover matrix and use
@@ -241,15 +237,12 @@ const reduceGrid = puzString => {
    * @type {!DoX}
    */
   let H = new DoX('ROOT');
-  headRow.reduce((p,c) => addRight(p, c), H);
+  headRow.reduce((p, c) => addRight(p, c), H);
 
-  // Populate the matrix. By the end of this step, we transposed the
-  // sudoku puzzle into a exact cover matrix, and we can use the DLX algorithm
-  // to solve it.
-  // For cells that we know what the value is, we only create one candidate row.
-  // For rows where we have a reduced set of potential values, we only create
-  // candidate rows that describe that reduced set of values.
-  // For cells where we do not know any values, we create all the candidates.
+  /**
+   * Transposed the sudoku puzzle into a exact cover matrix, so it can be passed
+   * to the DLX algorithm to solve.
+   */
   for (let i = 0; i < numCells; i++) {
     const [ri, ci, bi] = getIndex(i);
     g2D[i].forEach(num => {
@@ -275,7 +268,6 @@ const reduceGrid = puzString => {
       addBelow(D.U, addRight(cnc, new DoX(id, D)));
     });
   }
-
   search(H, []);
 };
 
@@ -299,6 +291,8 @@ const reduceGrid = puzString => {
   '..3......4...8..36..8...1...4..6..73...9..........2..5..4.7..686........7..6..5..'
 ].forEach(reduceGrid);
 
-//let n = 2;
-//let s = new Array(Math.pow(n, 4)).fill('.').join('');
-//reduceGrid(s);
+// Or of you want to create all the grids of a particular n-size.
+// I run out of stack space at n = 9
+let n = 4;
+let s = new Array(Math.pow(n, 4)).fill('.').join('');
+reduceGrid(s);
