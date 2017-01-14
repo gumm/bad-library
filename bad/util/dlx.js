@@ -6,7 +6,7 @@
 class DoX {
   /**
    * @param {string} V
-   * @param {!DoX?} H
+   * @param {!DoX=} H
    */
   constructor(V, H) {
     this.V = V;
@@ -139,7 +139,7 @@ const printGrid = function(gString) {
   let U = Math.sqrt(gArr.length);
   let N = Math.sqrt(U);
   let div = new Array(N).fill('+').reduce((p, c) => {
-    p.push(...new Array(1 + N*2).fill('-'));
+    p.push(... Array.from(new Array(1 + N*2).fill('-')));
     p.push(c);
     return p;
   }, ['\n+']).join('') + '\n';
@@ -154,7 +154,7 @@ const printGrid = function(gString) {
     p = `${p}${vD && !nl ? '| ' : ''}${c} `;
     return p;
   }, '') + '|' + div;
-  process.stdout.write(g);
+  console.log(g);
 };
 
 
@@ -175,7 +175,7 @@ const printSol = a => {
 /**
  * Helper to get some meta about the grid.
  * @param {!string} s The standard string representation of a grid.
- * @return {[!Number,!Number,!Number,!Array<!Array>]}
+ * @return {!Array}
  */
 const gridMeta = s => {
   const g = s.split('');
