@@ -33,8 +33,7 @@ bad.ui.button.getBasicButtonRenderer = function() {
  */
 bad.ui.button.getMenuButtonRenderer = function() {
   return /**@type {!goog.ui.Css3MenuButtonRenderer} */ (
-      goog.ui.ControlRenderer.getCustomRenderer(
-          goog.ui.Css3MenuButtonRenderer, 'flat-button'));
+      goog.ui.ControlRenderer.getCustomRenderer(goog.ui.Css3MenuButtonRenderer, 'flat-button'));
 };
 
 
