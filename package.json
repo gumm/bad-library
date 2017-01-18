@@ -1,9 +1,11 @@
 {
   "name": "bad-library",
-  "version": "2.1.11",
+  "version": "2.2.0",
   "description": "Companion utilities to the Google Closure Library",
   "main": "",
   "scripts": {
+    "compile": "scripts/compile.sh `pwd`",
+    "lint": "scripts/lint.sh `pwd`/bad",
     "test": "mocha -R spec ./bad/test",
     "deps": "scripts/deps.sh `pwd`"
   },

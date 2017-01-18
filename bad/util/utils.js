@@ -102,9 +102,12 @@ bad.utils.getRawFormElements = function(form) {
  * @return {boolean}
  */
 bad.utils.creditCardValidator = function(number, type) {
-  var isValid = false;
+  let isValid = false;
 
-  var cards = {
+  /**
+   * @type {!Object}
+   */
+  let cards = {
     'mc': '5[1-5][0-9]{14}',
     'ec': '5[1-5][0-9]{14}',
     'vi': '4(?:[0-9]{12}|[0-9]{15})',
@@ -116,19 +119,19 @@ bad.utils.creditCardValidator = function(number, type) {
     'er': '2(?:014|149)[0-9]{11}'
   };
 
-  var validateStructure = function(value, ccType) {
+  const validateStructure = function(value, ccType) {
     // ignore dashes and whitespaces
     // We could even ignore all non-numeric chars (/[^0-9]/g)
     value = String(value).replace(/[^0-9]/g, '');
 
-    var results = [];
+    const results = [];
     if (ccType) {
-      var expr = '^' + cards[ccType.toLowerCase()] + '$';
+      const expr = '^' + cards[ccType.toLowerCase()] + '$';
       return expr ? !!value.match(expr) : false;  // boolean
     }
 
     goog.object.forEach(cards, function(pattern, name) {
-      var matchpat = '^' + pattern + '$';
+      const matchpat = '^' + pattern + '$';
       if (value.match(matchpat)) {
         results.push(name);
       }
@@ -140,16 +143,16 @@ bad.utils.creditCardValidator = function(number, type) {
 
   // Add the Luhn validator
   // http://en.wikipedia.org/wiki/Luhn_algorithm
-  var validateChecksum = function(value) {
+  const validateChecksum = function(value) {
     // ignore dashes and whitespaces - We could even ignore
     // all non-numeric chars (/[^0-9]/g)
     value = String(value).replace(/[^0-9]/g, '');
 
-    var sum = 0;
-    var parity = value.length % 2;
+    let sum = 0;
+    const parity = value.length % 2;
 
-    for (var i = 0; i <= (value.length - 1); i++) {
-      var digit = parseInt(value[i], 10);
+    for (let i = 0; i <= (value.length - 1); i++) {
+      let digit = parseInt(value[i], 10);
 
       if (i % 2 === parity) {
         digit = digit * 2;
@@ -167,7 +170,7 @@ bad.utils.creditCardValidator = function(number, type) {
   };
 
   // Apply both validations
-  var validate = function(value, ccType) {
+  const validate = function(value, ccType) {
     if (validateChecksum(value)) {
       isValid = validateStructure(value, ccType);
     }
@@ -208,5 +211,100 @@ bad.utils.loadGoogleMaps = function(callback) {
         '&sensor=false' +
         '&callback=' + randName;
     goog.dom.appendChild(dom, script);
+  }
+};
+
+
+/**
+ * As goog.math.Size object is a struct, we are not allowed to access the with
+ * the '[]' notation, which means that if we have a string in hand, we need this
+ * utility to be able to set the size property.
+ * @param {!goog.math.Size} size
+ * @param {!string} prop Only 'width' and 'height' are valid strings
+ * @param {!number} value
+ */
+bad.utils.setGoogSizeProp = (size, prop, value) => {
+  switch (prop) {
+    case 'width':
+      size.width = value;
+      break;
+    case 'height':
+      size.height = value;
+      break;
+    default:
+      throw 'Error: ' + prop + ' is not a valid goog.math.Size property.';
+  }
+};
+
+
+/**
+ * As goog.math.Size object is a struct, we are not allowed to access the with
+ * the '[]' notation, which means that if we have a string in hand, we need this
+ * utility to be able to get the size property.
+ * @param {!goog.math.Size} size
+ * @param {!string} prop Only 'width' and 'height' are valid strings
+ * @return {!number}
+ */
+bad.utils.getGoogSizeProp = (size, prop) => {
+  switch (prop) {
+    case 'width':
+      return size.width;
+    case 'height':
+      return size.height;
+    default:
+      throw 'Error: ' + prop + ' is not a valid goog.math.Size property.';
+  }
+};
+
+
+/**
+ * As goog.math.Rect object is a struct, we are not allowed to access the with
+ * the '[]' notation, which means that if we have a string in hand, we need this
+ * utility to be able to set the size property.
+ * @param {!goog.math.Rect} rect
+ * @param {string} prop Only 'left', 'top', 'width' and 'height'
+ *  are valid strings.
+ * @param {number} value
+ */
+bad.utils.setGoogRectProp = (rect, prop, value) => {
+  switch (prop) {
+    case 'left':
+      rect.left = value;
+      break;
+    case 'top':
+      rect.top = value;
+      break;
+    case 'width':
+      rect.width = value;
+      break;
+    case 'height':
+      rect.height = value;
+      break;
+    default:
+      throw 'Error: ' + prop + ' is not a valid goog.math.Rect property.';
+  }
+};
+
+
+/**
+ * As goog.math.Size object is a struct, we are not allowed to access the with
+ * the '[]' notation, which means that if we have a string in hand, we need this
+ * utility to be able to get the size property.
+ * @param {!goog.math.Rect} rect
+ * @param {string} prop Only 'width' and 'height' are valid strings
+ * @return {number}
+ */
+bad.utils.getGoogRectProp = (rect, prop) => {
+  switch (prop) {
+    case 'left':
+      return rect.left;
+    case 'top':
+      return rect.top;
+    case 'width':
+      return rect.width;
+    case 'height':
+      return rect.height;
+    default:
+      throw 'Error: ' + prop + ' is not a valid goog.math.Rect property.';
   }
 };

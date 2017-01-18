@@ -51,7 +51,7 @@ const isNumber = n => whatType(n) === 'number' && !Number.isNaN(n);
 /**
  * A strict even test that does not coerce values, and results in false if the
  * given element is not a number.
- * @param t
+ * @param {*} t
  */
 const isEven = t => isNumber(t) && !(t % 2);
 [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, -0, 0, 1, '1', 2, '2', -1,
@@ -119,14 +119,14 @@ const append = (x, y) => y + x;
 
 
 /**
- * @type {function(!Array<*>|!string): *}
+ * @type {function((!Array.<*>|!string)): *}
  */
 const head = x => x[0];
 
 
 /**
  * Reverse either an array or a string
- * @type {function(!Array<*>|!string): !Array<*>}
+ * @type {function((!Array.<*>|!string)): !Array.<*>}
  */
 const reverse = x => {
   let y = x.split ? x.split('') : x;
@@ -216,7 +216,7 @@ const numReverse = compose(toNumber, join(''), reverse, toString);
 
 /**
  * Counts the occurrence of an element in an array.
- * @param t
+ * @param {*} t
  */
 const countOck = t => arr =>
     arr.filter(e => Number.isNaN(t) ? Number.isNaN(e) : e === t).length;
@@ -231,8 +231,8 @@ console.log(`Number of Arrays: ${countArr([[],[], NaN, {}, 1, {length:1}])}`);
 
 /**
  * A strict same elements in same order comparison.
- * @param a
- * @param b
+ * @param {!Array.<*>} a
+ * @param {!Array.<*>} b
  */
 const sameArr = (a, b) => a.length == b.length && a.every((c, i) => b[i] === c);
 console.log('Same Arrays:', sameArr([1, 2], [1, 2]));
@@ -241,8 +241,8 @@ console.log('Same Arrays:', sameArr([2, 1], [1, 2]));
 
 /**
  * A loose same elements comparison.
- * @param a
- * @param b
+ * @param {!Array.<*>} a
+ * @param {!Array.<*>} b
  */
 const sameEls = (a, b) => a.length == b.length &&
     a.every((c, i) => b.includes(c)) && b.every((c, i) => a.includes(c));
@@ -285,7 +285,7 @@ const luhn = n => {
 
 /**
  * @param {!number|!string} n The number to calc and check
- * @return {[!boolean,!number]} Valid and Luhn number
+ * @return {!Array.<!boolean|!number>} Valid and Luhn number
  */
 const luhn2 = n => {
   let result = n.toString().split('').reverse().reduce((p, e, i) => {

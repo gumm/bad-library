@@ -1,8 +1,6 @@
 #!/bin/bash
 
 LINT_TARGET=$1
-BASE_NAME=$(basename "${LINT_TARGET}")
-
 
 echo "-----------------------------------------------------"
 

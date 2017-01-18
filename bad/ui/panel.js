@@ -6,6 +6,7 @@ goog.require('goog.Uri');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
+goog.require('goog.html.legacyconversions');
 
 
 
@@ -66,7 +67,7 @@ bad.ui.Panel.prototype.renderWithTemplate = function() {
  * @private
  */
 bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(e) {
-  var xhrIo = /** @type {!goog.net.XhrIo} */ (e.target);
+  const xhrIo = /** @type {!goog.net.XhrIo} */ (e.target);
   this.responseObject = this.splitScripts(xhrIo.getResponseText());
   this.render();
 };
@@ -101,7 +102,7 @@ bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
 bad.ui.Panel.prototype.createDom = function() {
   bad.ui.Panel.superClass_.createDom.call(this);
 
-  var classes = bad.CssClassMap.PANEL_WRAPPER;
+  let classes = bad.CssClassMap.PANEL_WRAPPER;
   goog.array.forEach(this.elementClasses_, function(className) {
     classes = classes + ' ' + className;
   }, this);
@@ -249,10 +250,12 @@ bad.ui.Panel.prototype.isOpen = function() {
  */
 bad.ui.Panel.prototype.splitScripts = function(data) {
 
-  var sourceHtml = goog.dom.htmlToDocumentFragment(data);
-  var response = {scripts: [], html: this.splitScripts_(sourceHtml)};
+  const sourceHtml = goog.dom.safeHtmlToNode(
+      goog.html.legacyconversions.safeHtmlFromString(data));
 
-  var scriptNodes = goog.dom.findNodes(
+  const response = {scripts: [], html: this.splitScripts_(sourceHtml)};
+
+  const scriptNodes = goog.dom.findNodes(
       sourceHtml,
       /**
        * @param {?Node} node
@@ -280,16 +283,18 @@ bad.ui.Panel.prototype.splitScripts = function(data) {
  * @return {!Node} The same document fragment but with scripts removed.
  */
 bad.ui.Panel.prototype.splitScripts_ = function(documentFragment) {
-  var temp = goog.dom.getDocument().createElement(goog.dom.TagName.DIV);
+  const temp =
+      goog.dom.getDocument().createElement(goog.dom.TagName.DIV.toString());
 
   while (documentFragment.firstChild) {
     temp.appendChild(documentFragment.firstChild);
   }
-  var scripts = temp.getElementsByTagName(goog.dom.TagName.SCRIPT);
+  const scripts = temp.getElementsByTagName(goog.dom.TagName.SCRIPT.toString());
 
-  var length = scripts.length;
+  let length = scripts.length;
   while (length--) {
-    scripts[length].parentNode.removeChild(scripts[length]);
+    let p = scripts[length].parentNode;
+    p && p.removeChild(scripts[length]);
   }
   // Add elements back to fragment:
   while (temp.firstChild) {

@@ -219,7 +219,7 @@ const indexesN = (g, n, t) => i => {
 /**
  * Given a puzzle string, reduce it to an exact-cover matrix and use
  * Donald Knuth's DLX algorithm to solve it.
- * @param puzString
+ * @param {!string} puzString
  */
 const reduceGrid = puzString => {
 
