@@ -75,12 +75,9 @@ bad.ui.Form.prototype.getSterileFormFromId = function(string) {
   var el = goog.dom.getElement(string);
   if (el && el.tagName == goog.dom.TagName.FORM) {
     form = /** @type {!HTMLFormElement} */ (el);
-    this.getHandler().listen(
-        form,
-        goog.events.EventType.SUBMIT,
-        function(e) {
-          e.preventDefault();
-        });
+    this.getHandler().listen(form, goog.events.EventType.SUBMIT, function(e) {
+      e.preventDefault();
+    });
   }
   return form;
 };
@@ -92,8 +89,7 @@ bad.ui.Form.prototype.getSterileFormFromId = function(string) {
  */
 bad.ui.Form.prototype.getPostContentFromForm = function() {
   return goog.uri.utils.buildQueryDataFromMap(
-      goog.dom.forms.getFormDataMap(this.form_).toObject()
-  );
+      goog.dom.forms.getFormDataMap(this.form_).toObject());
 };
 
 
@@ -117,11 +113,9 @@ bad.ui.Form.prototype.checkValidation = function() {
  */
 bad.ui.Form.prototype.clearAlerts = function() {
   var fields = this.form_ ? this.form_.elements : {};
-  goog.object.forEach(
-      fields,
-      function(field) {
-        goog.dom.classlist.remove(field, 'error');
-      }, this);
+  goog.object.forEach(fields, function(field) {
+    goog.dom.classlist.remove(field, 'error');
+  }, this);
   while (this.fieldAlerts_.length > 0) {
     goog.dom.removeNode(this.fieldAlerts_.pop());
   }
@@ -165,8 +159,7 @@ bad.ui.Form.prototype.displayErrors = function(data) {
  */
 bad.ui.Form.prototype.displayError = function(field, message) {
   goog.dom.classlist.add(field, 'error');
-  this.displayAlert(field, message,
-    'alert-error', null, 'icon-remove-sign');
+  this.displayAlert(field, message, 'alert-error', null, 'icon-remove-sign');
 };
 
 
@@ -176,8 +169,7 @@ bad.ui.Form.prototype.displayError = function(field, message) {
  * @param {!string} message
  */
 bad.ui.Form.prototype.displaySuccess = function(field, message) {
-  this.displayAlert(field, message,
-      'alert-success', null, 'icon-ok-sign');
+  this.displayAlert(field, message, 'alert-success', null, 'icon-ok-sign');
 };
 
 
@@ -187,8 +179,7 @@ bad.ui.Form.prototype.displaySuccess = function(field, message) {
  * @param {!string} message
  */
 bad.ui.Form.prototype.displayInfo = function(field, message) {
-  this.displayAlert(field, message,
-      'alert-info', null, 'icon-info-sign');
+  this.displayAlert(field, message, 'alert-info', null, 'icon-info-sign');
 };
 
 
@@ -201,8 +192,8 @@ bad.ui.Form.prototype.displayInfo = function(field, message) {
  *      This will be formatted bold.
  * @param {?string=} opt_icon An optional icon to add to the alert.
  */
-bad.ui.Form.prototype.displayAlert = function(field, msg, css, opt_itr,
-                                              opt_icon) {
+bad.ui.Form.prototype.displayAlert = function(
+    field, msg, css, opt_itr, opt_icon) {
   var icon = opt_icon ? goog.dom.createDom('i', opt_icon, ' ') : '';
   var intro = opt_itr ? goog.dom.createDom('strong', {}, opt_itr + ' ') : '';
   var alertDom = goog.dom.createDom('div', 'alert ' + css, icon, intro, msg);

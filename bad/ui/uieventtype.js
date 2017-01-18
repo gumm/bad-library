@@ -20,7 +20,7 @@ bad.ui.Resizable.EventType = {
  * Constants for panel event.
  * @enum {string}
  */
-//noinspection JSUnusedGlobalSymbols
+// noinspection JSUnusedGlobalSymbols
 bad.ui.EventType = {
   /**
    * Dispatched after the content from the template is in the DOM

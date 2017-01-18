@@ -42,10 +42,7 @@ bad.ui.Panel = function(opt_domHelper) {
    */
   this.elementClasses_ = [];
 
-  this.responseObject = {
-    html: '',
-    scripts: ''
-  };
+  this.responseObject = {html: '', scripts: ''};
 };
 goog.inherits(bad.ui.Panel, bad.ui.Component);
 
@@ -60,9 +57,7 @@ bad.ui.Panel.prototype.initDom = goog.nullFunction;
  * Expects HTML data from a call to the back.
  */
 bad.ui.Panel.prototype.renderWithTemplate = function() {
-  this.xMan.get(
-      this.uri_,
-      goog.bind(this.onRenderWithTemplateReply_, this));
+  this.xMan.get(this.uri_, goog.bind(this.onRenderWithTemplateReply_, this));
 };
 
 
@@ -84,9 +79,7 @@ bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(e) {
  *      that will receive the reply event.
  */
 bad.ui.Panel.prototype.renderWithJSON = function(callback) {
-  this.xMan.get(
-      this.uri_,
-      goog.bind(this.onRenderWithJSON, this, callback));
+  this.xMan.get(this.uri_, goog.bind(this.onRenderWithJSON, this, callback));
 };
 
 
@@ -114,9 +107,7 @@ bad.ui.Panel.prototype.createDom = function() {
   }, this);
 
   this.setElementInternal(goog.dom.createDom(
-      goog.dom.TagName.DIV,
-      classes,
-      this.responseObject.html));
+      goog.dom.TagName.DIV, classes, this.responseObject.html));
 };
 
 
@@ -259,10 +250,7 @@ bad.ui.Panel.prototype.isOpen = function() {
 bad.ui.Panel.prototype.splitScripts = function(data) {
 
   var sourceHtml = goog.dom.htmlToDocumentFragment(data);
-  var response = {
-    scripts: [],
-    html: this.splitScripts_(sourceHtml)
-  };
+  var response = {scripts: [], html: this.splitScripts_(sourceHtml)};
 
   var scriptNodes = goog.dom.findNodes(
       sourceHtml,
@@ -272,16 +260,15 @@ bad.ui.Panel.prototype.splitScripts = function(data) {
        */
       function(node) {
         if (goog.dom.isElement(node)) {
-          node = /** @type {!Element} */(node);
+          node = /** @type {!Element} */ (node);
           return (node.tagName === 'SCRIPT');
         } else {
           return false;
         }
       });
 
-  goog.array.forEach(scriptNodes, function(script) {
-    response.scripts.push(script);
-  }, this);
+  goog.array.forEach(
+      scriptNodes, function(script) { response.scripts.push(script); }, this);
 
   return response;
 };
@@ -317,8 +304,6 @@ bad.ui.Panel.prototype.splitScripts_ = function(documentFragment) {
  */
 bad.ui.Panel.prototype.evalScripts_ = function() {
   goog.array.forEach(this.responseObject.scripts, function(script) {
-    goog.bind(function() {
-      eval(script.text);
-    }, this)();
+    goog.bind(function() { eval(script.text); }, this)();
   }, this);
 };

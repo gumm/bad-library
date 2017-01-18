@@ -13,8 +13,7 @@ goog.require('goog.string');
  */
 bad.utils.stringToBytes = function(s) {
   var bytes = new Array(s.length);
-  for (var i = 0; i < s.length; ++i)
-    bytes[i] = s.charCodeAt(i) & 255;
+  for (var i = 0; i < s.length; ++i) bytes[i] = s.charCodeAt(i) & 255;
   return bytes;
 };
 
@@ -52,9 +51,7 @@ bad.utils.privateCounter = function(opt_start) {
  */
 bad.utils.privateRandom = function() {
   var c = bad.utils.makeId();
-  return (function() {
-    return c;
-  })();
+  return (function() { return c; })();
 };
 
 
@@ -76,8 +73,7 @@ bad.utils.makeId = function(opt_length) {
  * @return {!Element}
  */
 bad.utils.getIconString = function(string, icon) {
-  return goog.dom.createDom('span', {},
-      goog.dom.createDom('i', icon), string);
+  return goog.dom.createDom('span', {}, goog.dom.createDom('i', icon), string);
 };
 
 
@@ -128,7 +124,7 @@ bad.utils.creditCardValidator = function(number, type) {
     var results = [];
     if (ccType) {
       var expr = '^' + cards[ccType.toLowerCase()] + '$';
-      return expr ? !!value.match(expr) : false; // boolean
+      return expr ? !!value.match(expr) : false;  // boolean
     }
 
     goog.object.forEach(cards, function(pattern, name) {
@@ -182,7 +178,7 @@ bad.utils.creditCardValidator = function(number, type) {
   return isValid;
 
   //---------------------------------------------------------------[ Example ]--
-  //mc: 5100000000000040
+  // mc: 5100000000000040
 };
 
 
@@ -197,7 +193,6 @@ bad.utils.loadGoogleMaps = function(callback) {
     goog.isDefAndNotNull(google.maps);
     callback();
   } catch (e) {
-
     // Makes a random name for the callback in the global scope
     var randName = bad.utils.makeId();
 
@@ -215,7 +210,3 @@ bad.utils.loadGoogleMaps = function(callback) {
     goog.dom.appendChild(dom, script);
   }
 };
-
-
-
-

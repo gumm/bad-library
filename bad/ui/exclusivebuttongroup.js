@@ -32,11 +32,7 @@ goog.inherits(bad.ui.ExButtonGroup, goog.events.EventHandler);
  * @param {!goog.ui.ToggleButton} button
  */
 bad.ui.ExButtonGroup.prototype.addToggleButton = function(button) {
-  this.listen(
-      button,
-      goog.ui.Component.EventType.ACTION,
-      this.onAction
-  );
+  this.listen(button, goog.ui.Component.EventType.ACTION, this.onAction);
   this.buttonSet_.push(button);
 };
 
@@ -54,12 +50,11 @@ bad.ui.ExButtonGroup.prototype.addExGroup = function(group) {
  */
 bad.ui.ExButtonGroup.prototype.onAction = function(e) {
   var activeButton = e.target;
-  this.buttonSet_.forEach(
-      function(button) {
-        if (button !== activeButton) {
-          button.setChecked(false);
-        }
-      });
+  this.buttonSet_.forEach(function(button) {
+    if (button !== activeButton) {
+      button.setChecked(false);
+    }
+  });
 };
 
 
@@ -67,12 +62,9 @@ bad.ui.ExButtonGroup.prototype.onAction = function(e) {
  * @param {!boolean} bool
  */
 bad.ui.ExButtonGroup.prototype.setChecked = function(bool) {
-  this.buttonSet_.forEach(
-      function(button) {
-        if (button instanceof goog.ui.ToggleButton) {
-          button.setChecked(false);
-        }
-      });
+  this.buttonSet_.forEach(function(button) {
+    if (button instanceof goog.ui.ToggleButton) {
+      button.setChecked(false);
+    }
+  });
 };
-
-

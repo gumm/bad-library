@@ -84,9 +84,8 @@ bad.ui.View.prototype.dispose = function() {
     delete this.googUiComponentHandler_;
   }
 
-  goog.object.forEach(this.panelMap, function(panel, uid) {
-    panel.dispose();
-  }, this);
+  goog.object.forEach(
+      this.panelMap, function(panel, uid) { panel.dispose(); }, this);
 };
 
 
@@ -100,7 +99,7 @@ bad.ui.View.prototype.addPanelToView = function(name, panel) {
     this.panelMap[name].dispose();
   }
   if (this.getXMan()) {
-    panel.setXMan(/** @type {!bad.Net} */(this.getXMan()));
+    panel.setXMan(/** @type {!bad.Net} */ (this.getXMan()));
   }
   this.panelMap[name] = panel;
   this.initListenersForPanel_(panel);
@@ -114,10 +113,7 @@ bad.ui.View.prototype.addPanelToView = function(name, panel) {
  */
 bad.ui.View.prototype.initListenersForPanel_ = function(panel) {
   this.getHandler().listen(
-      panel,
-      bad.ui.EventType.ACTION,
-      goog.bind(this.onPanelAction, this)
-  );
+      panel, bad.ui.EventType.ACTION, goog.bind(this.onPanelAction, this));
 };
 
 
@@ -187,9 +183,8 @@ bad.ui.View.prototype.setUser = function(user) {
 
   // Steps through each of the panels and makes sure their user is set
   // to the same.
-  goog.object.forEach(this.panelMap, function(panel) {
-    panel.setUser(user);
-  }, this);
+  goog.object.forEach(
+      this.panelMap, function(panel) { panel.setUser(user); }, this);
 };
 
 
@@ -234,8 +229,8 @@ bad.ui.View.prototype.slidePanelClosed = function(panel, opt_cb) {
   var nest = panel.getSlideNest();
   if (nest) {
     nest.slideClosed(cb);
-  }
-  else cb();
+  } else
+    cb();
 };
 
 
@@ -245,15 +240,15 @@ bad.ui.View.prototype.slidePanelClosed = function(panel, opt_cb) {
  * @param {number=} opt_perc
  * @param {number=} opt_pix
  */
-bad.ui.View.prototype.slidePanelToggle = function(panel, opt_cb,
-                                                  opt_perc, opt_pix) {
+bad.ui.View.prototype.slidePanelToggle = function(
+    panel, opt_cb, opt_perc, opt_pix) {
   var cb = opt_cb ? opt_cb : goog.nullFunction;
   var pix = opt_pix || panel.getSlideSize();
   var nest = panel.getSlideNest();
   if (nest) {
     nest.toggle(cb, opt_perc, pix);
-  }
-  else cb();
+  } else
+    cb();
 };
 
 
@@ -315,4 +310,3 @@ bad.ui.ViewEvent = function(type, target, opt_data) {
   this.data = opt_data;
 };
 goog.inherits(bad.ui.ViewEvent, goog.events.Event);
-

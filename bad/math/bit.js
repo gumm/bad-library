@@ -10,7 +10,7 @@ goog.provide('bad.math.buff');
  * @return {string} A string representing a binary ie. "1011".
  */
 bad.math.bit.convertNumberToBinaryString = function(n) {
-    return n.toString(2);
+  return n.toString(2);
 };
 
 /**
@@ -19,7 +19,7 @@ bad.math.bit.convertNumberToBinaryString = function(n) {
  * @return {number}
  */
 bad.math.bit.convertBinaryStringToNumber = function(s) {
-    return parseInt(s, 2);
+  return parseInt(s, 2);
 };
 
 /**
@@ -39,7 +39,7 @@ bad.math.bit.convertBinaryStringToNumber = function(s) {
  * @return {number}
  */
 bad.math.bit.getBitAt = function(b, n) {
-    return ((b >> n) & 1);
+  return ((b >> n) & 1);
 };
 
 /**
@@ -56,7 +56,7 @@ bad.math.bit.getBitAt = function(b, n) {
  * @return {number}
  */
 bad.math.bit.setBitAt = function(b, n) {
-    return b | (1 << n);
+  return b | (1 << n);
 };
 
 /**
@@ -67,7 +67,7 @@ bad.math.bit.setBitAt = function(b, n) {
  * @return {number}
  */
 bad.math.bit.clearBitAt = function(b, n) {
-    return b & ~(1 << n);
+  return b & ~(1 << n);
 };
 
 /**
@@ -78,7 +78,7 @@ bad.math.bit.clearBitAt = function(b, n) {
  * @return {number}
  */
 bad.math.bit.invBitAt = function(b, n) {
-    return b ^ (1 << n);
+  return b ^ (1 << n);
 };
 
 /**
@@ -89,7 +89,7 @@ bad.math.bit.invBitAt = function(b, n) {
  * @return {boolean}
  */
 bad.math.bit.hasBitAt = function(b, n) {
-    return bad.math.bit.getBitAt(b, n) == 1;
+  return bad.math.bit.getBitAt(b, n) == 1;
 };
 
 

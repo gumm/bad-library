@@ -48,6 +48,7 @@ bad.ui.Component.prototype.onBeforeCompReadyCallback_ = goog.nullFunction;
  * else it will simply fall back to normal component operation.
  * @param {?Element=} opt_target The target element
  *      where the panel will be rendered.
+ * @override
  */
 bad.ui.Component.prototype.render = function(opt_target) {
   if (opt_target) {

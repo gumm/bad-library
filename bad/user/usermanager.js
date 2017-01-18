@@ -86,4 +86,3 @@ bad.UserManager.prototype.getSalutation = function() {
   }
   return salutation;
 };
-

@@ -29,13 +29,13 @@ bad.Net.prototype.getXhrMan = function() {
  * @param {!goog.Uri} url
  * @param {!ArrayBuffer|Blob|Document|FormData|null|string|undefined} content
  * @param {?Function=} opt_callback
- * @param {?goog.net.XhrIo.ResponseType.<string>=} opt_responseType
+ * @param {?goog.net.XhrIo.ResponseType=} opt_responseType
  * @param {?(Object|goog.structs.Map)=} opt_headers Map of headers to add to the
  *     request.
  * @return {!goog.net.XhrManager.Request}
  */
-bad.Net.prototype.post = function(url, content, opt_callback, opt_responseType,
-                                  opt_headers) {
+bad.Net.prototype.post = function(
+    url, content, opt_callback, opt_responseType, opt_headers) {
 
   var headers = opt_headers || null;
   var uriString = url.toString();
@@ -43,14 +43,7 @@ bad.Net.prototype.post = function(url, content, opt_callback, opt_responseType,
   var responseType = opt_responseType || goog.net.XhrIo.ResponseType.TEXT;
 
   return this.xhrMan_.send(
-      id,
-      uriString,
-      'POST',
-      content,
-      headers,
-      10,
-      opt_callback,
-      0,
+      id, uriString, 'POST', content, headers, 10, opt_callback, 0,
       responseType);
 };
 
@@ -59,13 +52,13 @@ bad.Net.prototype.post = function(url, content, opt_callback, opt_responseType,
  * @param {!goog.Uri} url
  * @param {!ArrayBuffer|Blob|Document|FormData|null|string|undefined} content
  * @param {?Function=} opt_callback
- * @param {?goog.net.XhrIo.ResponseType.<string>=} opt_responseType
+ * @param {?goog.net.XhrIo.ResponseType=} opt_responseType
  * @param {?(Object|goog.structs.Map)=} opt_headers Map of headers to add to the
  *     request.
  * @return {!goog.net.XhrManager.Request}
  */
-bad.Net.prototype.put = function(url, content, opt_callback, opt_responseType,
-                                 opt_headers) {
+bad.Net.prototype.put = function(
+    url, content, opt_callback, opt_responseType, opt_headers) {
 
   var headers = opt_headers || null;
   var uriString = url.toString();
@@ -73,14 +66,7 @@ bad.Net.prototype.put = function(url, content, opt_callback, opt_responseType,
   var responseType = opt_responseType || goog.net.XhrIo.ResponseType.TEXT;
 
   return this.xhrMan_.send(
-      id,
-      uriString,
-      'PUT',
-      content,
-      headers,
-      10,
-      opt_callback,
-      0,
+      id, uriString, 'PUT', content, headers, 10, opt_callback, 0,
       responseType);
 };
 
@@ -89,13 +75,13 @@ bad.Net.prototype.put = function(url, content, opt_callback, opt_responseType,
  * @param {!goog.Uri} url
  * @param {!ArrayBuffer|Blob|Document|FormData|null|string|undefined} content
  * @param {?Function=} opt_callback
- * @param {?goog.net.XhrIo.ResponseType.<string>=} opt_responseType
+ * @param {?goog.net.XhrIo.ResponseType=} opt_responseType
  * @param {?(Object|goog.structs.Map)=} opt_headers Map of headers to add to the
  *     request.
  * @return {!goog.net.XhrManager.Request}
  */
-bad.Net.prototype.del = function(url, content, opt_callback, opt_responseType,
-                                 opt_headers) {
+bad.Net.prototype.del = function(
+    url, content, opt_callback, opt_responseType, opt_headers) {
 
   var headers = opt_headers || null;
   var uriString = url.toString();
@@ -103,14 +89,7 @@ bad.Net.prototype.del = function(url, content, opt_callback, opt_responseType,
   var responseType = opt_responseType || goog.net.XhrIo.ResponseType.TEXT;
 
   return this.xhrMan_.send(
-      id,
-      uriString,
-      'DELETE',
-      content,
-      headers,
-      10,
-      opt_callback,
-      0,
+      id, uriString, 'DELETE', content, headers, 10, opt_callback, 0,
       responseType);
 };
 
@@ -118,7 +97,7 @@ bad.Net.prototype.del = function(url, content, opt_callback, opt_responseType,
 /**
  * @param {!goog.Uri} url
  * @param {?Function=} opt_callback
- * @param {?goog.net.XhrIo.ResponseType.<string>=} opt_responseType
+ * @param {?goog.net.XhrIo.ResponseType=} opt_responseType
  * @return {!goog.net.XhrManager.Request}
  */
 bad.Net.prototype.get = function(url, opt_callback, opt_responseType) {
@@ -128,15 +107,7 @@ bad.Net.prototype.get = function(url, opt_callback, opt_responseType) {
   var responseType = opt_responseType || goog.net.XhrIo.ResponseType.TEXT;
 
   return this.xhrMan_.send(
-      id,
-      uriString,
-      'GET',
-      null,
-      null,
-      10,
-      opt_callback,
-      0,
-      responseType);
+      id, uriString, 'GET', null, null, 10, opt_callback, 0, responseType);
 };
 
 
