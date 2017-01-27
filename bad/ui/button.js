@@ -24,6 +24,16 @@ goog.require('goog.ui.ToggleButton');
 bad.ui.button.getBasicButtonRenderer = function() {
   return /**@type {!goog.ui.Css3ButtonRenderer} */ (
       goog.ui.ControlRenderer.getCustomRenderer(
+          goog.ui.Css3ButtonRenderer, 'ignore-this-class'));
+};
+
+
+/**
+ * @return {!goog.ui.Css3ButtonRenderer}
+ */
+bad.ui.button.getFlatButtonRenderer = function() {
+  return /**@type {!goog.ui.Css3ButtonRenderer} */ (
+      goog.ui.ControlRenderer.getCustomRenderer(
           goog.ui.Css3ButtonRenderer, 'flat-button'));
 };
 
@@ -49,8 +59,8 @@ bad.ui.button.getMenuButtonRenderer = function() {
  */
 bad.ui.button.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
 
-  var el = goog.dom.getElement(elId);
-  var button;
+  const el = goog.dom.getElement(elId);
+  let button;
 
   if (el) {
     button = /** @type {!goog.ui.CustomButton} */ (bad.ui.button.makeButton_(
@@ -72,8 +82,8 @@ bad.ui.button.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
 bad.ui.button.makeToggleButton = function(
     elId, parent, opt_callback, opt_domHelper) {
 
-  var el = goog.dom.getElement(elId);
-  var button;
+  const el = goog.dom.getElement(elId);
+  let button;
 
   if (el) {
     button = /** @type {!goog.ui.ToggleButton} */ (bad.ui.button.makeButton_(
@@ -98,10 +108,11 @@ bad.ui.button.makeToggleButton = function(
 bad.ui.button.makeButton_ = function(
     constructor, el, parent, opt_callback, opt_domHelper) {
 
-  var renderer = bad.ui.button.getBasicButtonRenderer();
-  var button;
-
-  button = new constructor('', renderer, opt_domHelper);
+  // var renderer = bad.ui.button.getBasicButtonRenderer();
+  /**
+   * @type {!goog.ui.ToggleButton|!goog.ui.CustomButton}
+   */
+  const button = new constructor('', undefined, opt_domHelper);
   button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
 
   if (parent) {
@@ -111,16 +122,17 @@ bad.ui.button.makeButton_ = function(
     button.decorate(el);
   }
 
-  if (opt_callback) {
-    var cb = /** {!Function} */ (opt_callback);
-    button.getHandler().listenWithScope(
-        button, goog.ui.Component.EventType.ACTION, function() {
-          if (goog.isDefAndNotNull(button.isChecked)) {
-            cb(button.isChecked());
-          } else {
-            cb();
-          }
-        }, undefined, button);
+  let cb = opt_callback;
+  if (goog.isDefAndNotNull(cb)) {
+    cb = /** @type {!Function} */ (cb);
+
+    button.listen(goog.ui.Component.EventType.ACTION, function() {
+      if (goog.isDefAndNotNull(button.isChecked)) {
+        cb(button.isChecked());
+      } else {
+        cb();
+      }
+    }, false, button);
   }
   return button;
 };

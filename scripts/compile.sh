@@ -387,4 +387,5 @@ java -server -XX:+TieredCompilation -jar ${CLOSURE_COMPILER_PATH}/compiler.jar \
 echo "Done"
 
 #    --checks-only                                           \
+#    --process_common_js_modules                             \
 

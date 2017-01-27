@@ -1,54 +1,53 @@
-goog.provide('CompilerEntry');
+goog.module('CompilerEntry');
 
-goog.require('bad.ActionEvent');
-goog.require('bad.CssClassMap');
-goog.require('bad.CssPrefix');
-goog.require('bad.Net');
-goog.require('bad.UserManager');
-goog.require('bad.math.bit');
-goog.require('bad.math.buff');
-goog.require('bad.ui.Component');
-goog.require('bad.ui.EventType');
-goog.require('bad.ui.ExButtonGroup');
-goog.require('bad.ui.Form');
-goog.require('bad.ui.Layout');
-goog.require('bad.ui.Layout.CssClassMap');
-goog.require('bad.ui.Layout.IdFragment');
-goog.require('bad.ui.Panel');
-goog.require('bad.ui.Resizable.EventType');
-goog.require('bad.ui.View');
-goog.require('bad.ui.ViewEvent');
-goog.require('bad.ui.button');
-goog.require('bad.utils');
-
+const A = goog.require('bad.ActionEvent');
+const B = goog.require('bad.CssClassMap');
+const C = goog.require('bad.CssPrefix');
+const E = goog.require('bad.UserManager');
+const F = goog.require('bad.math.bit');
+const G = goog.require('bad.math.buff');
+const H = goog.require('bad.ui.Component');
+const I = goog.require('bad.ui.EventType');
+const J = goog.require('bad.ui.ExButtonGroup');
+const K = goog.require('bad.ui.Form');
+const L = goog.require('bad.ui.Layout');
+const M = goog.require('bad.ui.Layout.CssClassMap');
+const N = goog.require('bad.ui.Layout.IdFragment');
+const O = goog.require('bad.ui.Panel');
+const P = goog.require('bad.ui.Resizable.EventType');
+const Q = goog.require('bad.ui.View');
+const R = goog.require('bad.ui.ViewEvent');
+const S = goog.require('bad.ui.button');
+const T = goog.require('bad.utils');
+const parseShape = goog.require('bad.layout.parseShape');
 
 
 /**
- * @constructor
+ * @return {!Array<*>}
  */
-CompilerEntry = function() {
+exports.enter = function() {
 
-  this.allMods = [
-    bad.CssClassMap,
-    bad.CssPrefix,
-    bad.math.bit,
-    bad.math.buff,
-    bad.Net,
-    bad.ui.button,
-    bad.ActionEvent,
-    bad.ui.Component,
-    bad.ui.ExButtonGroup,
-    bad.ui.Form,
-    bad.ui.Layout,
-    bad.ui.Layout.CssClassMap,
-    bad.ui.Layout.IdFragment,
-    bad.ui.Panel,
-    bad.ui.EventType,
-    bad.ui.Resizable.EventType,
-    bad.ui.View,
-    bad.ui.ViewEvent,
-    bad.UserManager,
-    bad.utils
+  return [
+    parseShape,
+    A,
+    B,
+    C,
+    E,
+    F,
+    G,
+    H,
+    I,
+    J,
+    K,
+    L,
+    M,
+    N,
+    O,
+    P,
+    Q,
+    R,
+    S,
+    T,
   ];
 };
 

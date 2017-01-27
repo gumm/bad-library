@@ -28,6 +28,9 @@
     "be-sert": "*",
     "google-closure-compiler": "*",
     "google-closure-library": "*",
-    "mocha": "*"
+    "mocha": "*",
+    "less": "*",
+    "less-middleware": "*",
+    "less-plugin-clean-css": "*"
   }
 }

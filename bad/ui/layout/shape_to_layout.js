@@ -1,9 +1,28 @@
-const getShape = require('./shapes');
+/**
+ * @fileoverview A utility that can convert ascii representation of a
+ *   layout to the required structure to render it.
+ */
+
+goog.module('bad.layout.parseShape');
+
+const getShape = goog.require('bad.layout.shapesNames');
+
+/**
+ * @typedef {{
+ * ORIENT: !string,
+ * TL: !Array<!number>,
+ * TR: !Array<!number>,
+ * BL: !Array<!number>,
+ * BR: !Array<!number>,
+ * CELLS: !Array}}
+ */
+let layoutLike;
+
 
 
 /**
  * @param {string} str
- * @return {!Array}
+ * @return {!Array<!Array<!string>>}
  */
 const toLines = str => {
   const result = [];
@@ -18,8 +37,8 @@ const toLines = str => {
 
 
 /**
- * @param {!Array} lines
- * @return {!Array}
+ * @param {!Array<!Array<!string>>} lines
+ * @return {!Array<!Array<!number>>}
  */
 const findMarkers = lines => {
   const markers = [];
@@ -35,8 +54,8 @@ const findMarkers = lines => {
 
 
 /**
- * @param {!Array} markers
- * @param {!Array} lines
+ * @param {!Array<!Array<!number>>} markers
+ * @param {!Array<!Array<!string>>} lines
  * @return {!Array}
  */
 const gradeMarkers = (markers, lines) => {
@@ -123,17 +142,17 @@ const gradeMarkers = (markers, lines) => {
 
 
 /**
- * @param {Array} gMarkers
- * @param {Object} gMark
- * @param {string} orient
- * @return {{ORIENT: String, TL: Object, TR: Object, BL: Object, BR: Object, CELLS: Array}}
+ * @param {!Array} gMarkers
+ * @param {!Array} gMark
+ * @param {!string} orient
+ * @return {!layoutLike}
  */
-const parseLayoutShapes = function(gMarkers, gMark, orient) {
+const parseLayoutShapes = (gMarkers, gMark, orient) => {
 
   const h = 'horizontal';
 
-  const findTR = function(x, y, targetShape) {
-    return gMarkers.find(function(poten) {
+  const findTR = (x, y, targetShape) => {
+    return gMarkers.find(poten => {
       const shape = poten[0];
       const tx = poten[1][0];
       const ty = poten[1][1];
@@ -141,8 +160,8 @@ const parseLayoutShapes = function(gMarkers, gMark, orient) {
     });
   };
 
-  const findBL = function(x, y, targetShape) {
-    return gMarkers.find(function(poten) {
+  const findBL = (x, y, targetShape) => {
+    return gMarkers.find(poten => {
       const shape = poten[0];
       const tx = poten[1][0];
       const ty = poten[1][1];
@@ -150,8 +169,8 @@ const parseLayoutShapes = function(gMarkers, gMark, orient) {
     });
   };
 
-  const findBR = function(x, y, tr, bl, targetShape) {
-    return gMarkers.find(function(poten) {
+  const findBR = (x, y, tr, bl, targetShape) => {
+    return gMarkers.find(poten => {
       const shape = poten[0];
       const tx = poten[1][0];
       const ty = poten[1][1];
@@ -160,64 +179,53 @@ const parseLayoutShapes = function(gMarkers, gMark, orient) {
   };
 
   const coord = gMark[1];
+  /**
+   * @type {!number}
+   */
   const x = coord[0];
+
+  /**
+   * @type {!number}
+   */
   const y = coord[1];
   const TL = gMark;
   const TR = findTR(x, y, 12);
   const BL = findBL(x, y, 3);
   const BR = findBR(x, y, TR, BL, 9);
-  const layout = {
-    ORIENT: orient,
-    TL: gMark,
-    TR: TR,
-    BL: BL,
-    BR: BR,
-    CELLS: []
-  };
 
-  const cellA = function(tl) {
+  /**
+   * @type {!layoutLike}
+   */
+  const layout = {ORIENT: orient, TL: gMark, TR: TR, BL: BL, BR: BR, CELLS: []};
+
+  const cellA = tl => {
     const ATL = tl;
     const x = ATL[1][0];
     const y = ATL[1][1];
     const ATR = findTR(x, y, orient == h ? 14 : 12);
     const ABL = findBL(x, y, orient == h ? 3 : 7);
     const ABR = findBR(x, y, ATR, ABL, orient == h ? 11 : 13);
-    return {
-      TL: ATL,
-      TR: ATR,
-      BL: ABL,
-      BR: ABR
-    };
+    return {TL: ATL, TR: ATR, BL: ABL, BR: ABR};
   };
 
-  const cellB = function(tl) {
+  const cellB = tl => {
     const ATL = tl;
     const x = ATL[1][0];
     const y = ATL[1][1];
     const ATR = findTR(x, y, orient == h ? 14 : 13);
     const ABL = findBL(x, y, orient == h ? 11 : 7);
     const ABR = findBR(x, y, ATR, ABL, orient == h ? 11 : 13);
-    return {
-      TL: ATL,
-      TR: ATR,
-      BL: ABL,
-      BR: ABR
-    };
+    return {TL: ATL, TR: ATR, BL: ABL, BR: ABR};
   };
 
-  const cellC = function(tl) {
+  const cellC = tl => {
     const ATL = tl;
     const x = ATL[1][0];
     const y = ATL[1][1];
     const ATR = findTR(x, y, orient == h ? 12 : 13);
     const ABL = findBL(x, y, orient == h ? 11 : 3);
     const ABR = findBR(x, y, ATR, ABL, orient == h ? 9 : 9);
-    return {
-      TL: ATL,
-      TR: ATR,
-      BL: ABL,
-      BR: ABR
-    };
+    return {TL: ATL, TR: ATR, BL: ABL, BR: ABR};
   };
 
   const A = cellA(TL);
@@ -230,14 +238,14 @@ const parseLayoutShapes = function(gMarkers, gMark, orient) {
 
 /**
  * @param {!Array} markers
- * @return {!Array}
+ * @return {!Array<!layoutLike>}
  */
-const parseStartMarkers = function(markers) {
+const parseStartMarkers = markers => {
   const v = 'vertical';
   const h = 'horizontal';
-  const e = null;
+  const e = '';
   const layouts = [];
-  markers.forEach(function(m, i) {
+  markers.forEach((m, i) => {
     const shape = m[0];
     if (shape === 6) {
       let orient = e;
@@ -255,19 +263,19 @@ const parseStartMarkers = function(markers) {
 
 
 /**
- * @param {Array} layouts
- * @param {Array} lines
- * @return {Array}
+ * @param {!Array} layouts
+ * @param {!Array} lines
+ * @return {!Array}
  */
-const parseNames = function(layouts, lines) {
-  return layouts.map(function(layout) {
-    layout.CELLS = layout.CELLS.map(function(cell) {
+const parseNames = (layouts, lines) => {
+  return layouts.map(layout => {
+    layout.CELLS = layout.CELLS.map(cell => {
       const nStart = cell.TL[1][0] + 1;
       const nEnd = cell.TR[1][0] - 1;
       const y = cell.TL[1][1] + 1;
       const tName = lines[y].slice(nStart, nEnd).join('').replace(/ */g, '');
       let size = null;
-      cell.NAME = tName.replace(/^(\D+)\((\d+)\)/ig, function(match, p1, p2) {
+      cell.NAME = tName.replace(/^(\D+)\((\d+)\)/ig, (match, p1, p2) => {
         if (match) {
           size = parseInt(p2, 10);
         }
@@ -282,29 +290,24 @@ const parseNames = function(layouts, lines) {
 
 
 /**
- * @param {!Object} a
- * @param {!Object} b
+ * @param {!layoutLike} a
+ * @param {!layoutLike} b
  * @return {boolean}
  */
-const aFitsInB = function(a, b) {
-  return (
-      a.TL[1][0] > b.TL[1][0] &&
-      a.TL[1][1] > b.TL[1][1] &&
-      a.BR[1][0] < b.BR[1][0] &&
-      a.BR[1][1] < b.BR[1][1]);
-};
+const aFitsInB = (a, b) =>
+    (a.TL[1][0] > b.TL[1][0] && a.TL[1][1] > b.TL[1][1] &&
+     a.BR[1][0] < b.BR[1][0] && a.BR[1][1] < b.BR[1][1]);
+
 
 
 /**
- * @param {!Array} layouts
- * @return {!Array}
+ * @param {!Array<!layoutLike>} layouts
+ * @return {!layoutLike}
  */
-const nestLayouts = function(layouts) {
-  const nested = layouts.map(function(l) {
-    l.CELLS = l.CELLS.map(function(cell) {
-      const lInC = layouts.filter(function(tl) {
-        return aFitsInB(tl, cell);
-      });
+const nestLayouts = layouts => {
+  const nested = layouts.map(l => {
+    l.CELLS = l.CELLS.map(cell => {
+      const lInC = layouts.filter(tl => { return aFitsInB(tl, cell); });
       if (lInC.length == 0) {
         cell.INNERLAYOUT = null;
       } else if (lInC.length == 1) {
@@ -322,20 +325,15 @@ const nestLayouts = function(layouts) {
 
 /**
  * @param {string} id
- * @param {!Object} layout
+ * @param {!layoutLike} layout
  * @return {!Array}
  */
-const parseOuterLayout = function(id, layout) {
+const parseOuterLayout = (id, layout) => {
 
-  const parseLayout = function(l) {
-    return [
-      parseCells(l.CELLS[0]),
-      parseCells(l.CELLS[1]),
-      parseCells(l.CELLS[2])
-    ];
-  };
+  const parseLayout = l =>
+      [parseCells(l.CELLS[0]), parseCells(l.CELLS[1]), parseCells(l.CELLS[2])];
 
-  const parseCells = function(c) {
+  const parseCells = c => {
     const reply = [c.NAME, null, []];
     if (c.INNERLAYOUT) {
       reply[1] = c.INNERLAYOUT.ORIENT;
@@ -355,8 +353,8 @@ const parseOuterLayout = function(id, layout) {
  * @param {string} str
  * @return {!Array}
  */
-module.exports = function(id, str) {
-  const shape = getShape(str);
+exports.do = function(id, str) {
+  const shape = getShape.get(str);
   const lines = toLines(shape);
   const markers = findMarkers(lines);
   const gradedMarkers = gradeMarkers(markers, lines);

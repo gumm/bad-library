@@ -18,12 +18,6 @@ bad.ui.View = function() {
   goog.events.EventTarget.call(this);
 
   /**
-   * @type {?bad.Net}
-   * @private
-   */
-  this.xMan_ = null;
-
-  /**
    * @type {!bad.ui.Layout|undefined}
    * @private
    */
@@ -95,12 +89,7 @@ bad.ui.View.prototype.dispose = function() {
  * @param {!bad.ui.Panel} panel The panel itself.
  */
 bad.ui.View.prototype.addPanelToView = function(name, panel) {
-  if (this.panelMap[name]) {
-    this.panelMap[name].dispose();
-  }
-  if (this.getXMan()) {
-    panel.setXMan(/** @type {!bad.Net} */ (this.getXMan()));
-  }
+  this.panelMap[name] && this.panelMap[name].dispose();
   this.panelMap[name] = panel;
   this.initListenersForPanel_(panel);
 };
@@ -160,22 +149,6 @@ bad.ui.View.prototype.getLayout = function() {
 
 
 /**
- * @param {!bad.Net} xMan
- */
-bad.ui.View.prototype.setXMan = function(xMan) {
-  this.xMan_ = xMan;
-};
-
-
-/**
- * @return {?bad.Net}
- */
-bad.ui.View.prototype.getXMan = function() {
-  return this.xMan_;
-};
-
-
-/**
  * @param {!bad.UserManager} user
  */
 bad.ui.View.prototype.setUser = function(user) {
@@ -183,8 +156,7 @@ bad.ui.View.prototype.setUser = function(user) {
 
   // Steps through each of the panels and makes sure their user is set
   // to the same.
-  goog.object.forEach(
-      this.panelMap, function(panel) { panel.setUser(user); }, this);
+  goog.object.forEach(this.panelMap, panel => panel.setUser(user), this);
 };
 
 
@@ -206,17 +178,15 @@ bad.ui.View.prototype.getUser = function() {
  * @param {boolean=} opt_ps If true, treat the size as a percentage.
  */
 bad.ui.View.prototype.slidePanelIn = function(panel, opt_cb, opt_size, opt_ps) {
-  var cb = opt_cb ? opt_cb : goog.bind(panel.show, panel);
-  var pix = opt_size ? opt_size : panel.getSlideSize();
-  var pers = null;
+  const cb = opt_cb || goog.bind(panel.show, panel);
+  let pix = opt_size ? opt_size : panel.getSlideSize();
+  let pers = null;
   if (opt_ps) {
     pers = pix;
     pix = null;
   }
-  var nest = panel.getSlideNest();
-  if (nest) {
-    nest.slideOpen(pers, pix, cb);
-  }
+  const nest = panel.getSlideNest();
+  nest && nest.slideOpen(pers, pix, cb);
 };
 
 
@@ -225,12 +195,9 @@ bad.ui.View.prototype.slidePanelIn = function(panel, opt_cb, opt_size, opt_ps) {
  * @param {?Function=} opt_cb
  */
 bad.ui.View.prototype.slidePanelClosed = function(panel, opt_cb) {
-  var cb = opt_cb ? opt_cb : goog.nullFunction;
-  var nest = panel.getSlideNest();
-  if (nest) {
-    nest.slideClosed(cb);
-  } else
-    cb();
+  const cb = opt_cb ? opt_cb : goog.nullFunction;
+  const nest = panel.getSlideNest();
+  nest ? nest.slideClosed(cb) : cb();
 };
 
 
@@ -262,19 +229,21 @@ bad.ui.View.prototype.slideAllClosed = function(opt_cb) {
   /**
    * @type {!Function}
    */
-  var cb = opt_cb ? opt_cb : goog.nullFunction;
+  const cb = opt_cb || goog.nullFunction;
 
   /**
    * @type {!Array.<string>}
    */
-  var panelIds = goog.object.getKeys(this.panelMap);
+  const panelIds = goog.object.getKeys(this.panelMap);
+
+  console.log('Here is the panelIds', this.panelMap);
 
   /**
    * Ca callback function called either immediately, if the panel cant slide
    * closed, or after the slide is done.
    * @param {!string} uid
    */
-  var callback = function(uid) {
+  const callback = function(uid) {
     goog.array.remove(panelIds, uid);
     if (panelIds.length > 0) {
       console.debug('Wait for it...');
@@ -285,7 +254,7 @@ bad.ui.View.prototype.slideAllClosed = function(opt_cb) {
   };
 
   goog.object.forEach(this.panelMap, function(panel, uid) {
-    var nest = panel.getSlideNest();
+    const nest = panel.getSlideNest();
     if (nest) {
       nest.slideClosed(goog.partial(callback, uid));
     } else {

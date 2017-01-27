@@ -58,18 +58,9 @@ bad.ui.Panel.prototype.initDom = goog.nullFunction;
  * Expects HTML data from a call to the back.
  */
 bad.ui.Panel.prototype.renderWithTemplate = function() {
-  this.xMan.get(this.uri_, goog.bind(this.onRenderWithTemplateReply_, this));
-};
 
-
-/**
- * @param {!goog.events.Event} e Event object.
- * @private
- */
-bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(e) {
-  const xhrIo = /** @type {!goog.net.XhrIo} */ (e.target);
-  this.responseObject = this.splitScripts(xhrIo.getResponseText());
-  this.render();
+  const usr = this.getUser();
+  usr && usr.fetch(this.uri_, goog.bind(this.onRenderWithTemplateReply_, this));
 };
 
 
@@ -80,8 +71,21 @@ bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(e) {
  *      that will receive the reply event.
  */
 bad.ui.Panel.prototype.renderWithJSON = function(callback) {
-  this.xMan.get(this.uri_, goog.bind(this.onRenderWithJSON, this, callback));
+  const usr = this.getUser();
+  usr && usr.fetch(this.uri_, goog.bind(this.onRenderWithJSON, this, callback));
 };
+
+
+/**
+ * @param {!string} s
+ * @private
+ */
+bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(s) {
+
+  this.responseObject = this.splitScripts(s);
+  this.render();
+};
+
 
 
 /**
@@ -91,6 +95,9 @@ bad.ui.Panel.prototype.renderWithJSON = function(callback) {
  * @param {?goog.events.EventLike} e Event object.
  */
 bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
+
+  console.log('onRenderWithJSON WE came here with:', e);
+
   callback(e);
   this.render();
 };
@@ -175,22 +182,6 @@ bad.ui.Panel.prototype.getSlideSize = function() {
 
 
 /**
- * @param {!bad.Net} xMan
- */
-bad.ui.Panel.prototype.setXMan = function(xMan) {
-  this.xMan = xMan;
-};
-
-
-/**
- * @return {!bad.Net} xMan.
- */
-bad.ui.Panel.prototype.getXMan = function() {
-  return this.xMan;
-};
-
-
-/**
  * @param {!goog.Uri} uri
  */
 bad.ui.Panel.prototype.setUri = function(uri) {
@@ -270,8 +261,7 @@ bad.ui.Panel.prototype.splitScripts = function(data) {
         }
       });
 
-  goog.array.forEach(
-      scriptNodes, function(script) { response.scripts.push(script); }, this);
+  scriptNodes.forEach(script => response.scripts.push(script));
 
   return response;
 };

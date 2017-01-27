@@ -9,7 +9,6 @@ goog.provide('bad.ui.Layout.IdFragment');
 goog.require('bad.CssPrefix');
 goog.require('bad.ui.Component');
 goog.require('bad.ui.EventType');
-goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.dom.ViewportSizeMonitor');
@@ -24,6 +23,31 @@ goog.require('goog.math.Size');
 goog.require('goog.object');
 goog.require('goog.style');
 goog.require('goog.ui.Component');
+
+
+/**
+ * Given a goog.math.rect object, this inverts the rectangle. That is:
+ * width becomes height, and top becomes left (and vice versa).
+ * @param {!goog.math.Rect} rect The rectangle object that will be inverted.
+ * @return {!goog.math.Rect} rect The inverted rectangle.
+ */
+const invertRect = rect => {
+  const [w, h, l, t] = [rect.width, rect.height, rect.left, rect.top];
+
+  // noinspection JSSuspiciousNameCombination
+  rect.width = h;
+
+  // noinspection JSSuspiciousNameCombination
+  rect.height = w;
+
+  // noinspection JSSuspiciousNameCombination
+  rect.left = t;
+
+  // noinspection JSSuspiciousNameCombination
+  rect.top = l;
+
+  return rect;
+};
 
 
 
@@ -229,7 +253,8 @@ bad.ui.Layout.CellType;
  *    cellClass: string,
  *    element: !Element,
  *    name: string,
- *    rect: !goog.math.Rect
+ *    rect: !goog.math.Rect,
+ *    hide: !Function
  * }}
  */
 bad.ui.Layout.NestType;
@@ -1159,34 +1184,8 @@ bad.ui.Layout.prototype.createRects_ = function() {
    * the created rectangles if the orientation is vertical.
    */
   if (this.orientation_ === bad.ui.Layout.Orientation.VERTICAL) {
-    goog.array.forEach(rects, function(rect) { this.invertRect_(rect); }, this);
+    rects.forEach(rect => invertRect(rect));
   }
-};
-
-
-/**
- * Given a goog.math.rect object, this inverts the rectangle. That is:
- * width becomes height, and top becomes left (and vice versa).
- * @param {!goog.math.Rect} rect The rectangle object that will be inverted.
- * @return {!goog.math.Rect} rect The inverted rectangle.
- * @private
- */
-bad.ui.Layout.prototype.invertRect_ = function(rect) {
-  const [w, h, l, t] = [rect.width, rect.height, rect.left, rect.top];
-
-  // noinspection JSSuspiciousNameCombination
-  rect.width = h;
-
-  // noinspection JSSuspiciousNameCombination
-  rect.height = w;
-
-  // noinspection JSSuspiciousNameCombination
-  rect.left = t;
-
-  // noinspection JSSuspiciousNameCombination
-  rect.top = l;
-
-  return rect;
 };
 
 
