@@ -218,3 +218,25 @@ bad.ui.Form.prototype.showErrs = function(obj) {
     }
   });
 };
+
+
+/**
+ * @param {!Response} response
+ * @return {!IThenable}
+ */
+bad.ui.Form.prototype.processSubmitReply = function(response) {
+
+  return response.text().then(text => {
+    let resObj = splitScripts(text);
+    /**
+     * @type {?HTMLFormElement}
+     */
+    let newForm = goog.dom.getElementsByTagName(
+        goog.dom.TagName.FORM, /** @type {!Element} */(resObj.html))[0];
+    goog.dom.replaceNode(newForm, this.form_);
+    this.form_ = newForm;
+    let hasErrors = goog.dom.getElementsByClass('zform_alert', this.form_);
+    return hasErrors.length == 0;
+  });
+
+};

@@ -268,4 +268,26 @@ bad.ui.Panel.prototype.isOpen = function() {
 };
 
 
+/**
+ * Listen to an event on a Listenable.  If the function is omitted then the
+ * EventHandler's handleEvent method will be used.
+ * @param {goog.events.ListenableType} src Event source.
+ * @param {!string|!Array<string>|
+ *     !goog.events.EventId<EVENTOBJ>|
+ *     !Array<!goog.events.EventId<EVENTOBJ>>} type Event type to listen
+ *     for or array of event types.
+ * @param {function(EVENTOBJ):?|{handleEvent:function(?):?}|null=} opt_fn
+ *     Optional callback function to be used as the listener or an object with
+ *     handleEvent function.
+ * @param {!boolean=} opt_capture Optional whether to use capture phase.
+ * @return {!goog.events.EventHandler} This object, allowing for
+ *     chaining of calls.
+ * @template EVENTOBJ
+ */
+bad.ui.Panel.prototype.listenToThis = function(src, type, opt_fn,
+                                               opt_capture=false) {
+  return this.getHandler().listen(src, type, opt_fn, opt_capture);
+};
+
+
 

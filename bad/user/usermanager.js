@@ -37,6 +37,12 @@ bad.UserManager = function() {
    */
   this.fireChangeCb_ = goog.nullFunction;
 
+
+  /**
+   * @type {!Headers}
+   */
+  this.headers = new Headers();
+
 };
 
 
@@ -45,6 +51,31 @@ bad.UserManager = function() {
  */
 bad.UserManager.prototype.setOnChangeCallback = function(cb) {
   this.fireChangeCb_ = cb;
+};
+
+
+/**
+ * @param {!Response} response
+ * @return {!IThenable}
+ * @private
+ */
+bad.UserManager.prototype.updateProfile_ = function(response) {
+
+  return response.json().then(data => {
+    let result = false;
+    switch(response.status) {
+      case 200:
+        this.jwToken_ = data['token'];
+        this.headers.append('Authorization', `bearer ${this.jwToken_}`);
+        this.updateProfile(data['user']);
+        result =  true;
+        break;
+      default:
+        console.log(
+          'Looks like there was a problem. Status Code: ' +
+          response.status);}
+    return result;
+  });
 };
 
 
@@ -108,7 +139,16 @@ bad.UserManager.prototype.getSalutation = function() {
  * @param {!Function=} opt_errCb
  */
 bad.UserManager.prototype.fetch = function(uri, callback, opt_errCb) {
-  fetch(uri.toString())
+
+  /**
+   * @type {!RequestInit}
+   */
+  const reqInit = {
+    headers: this.headers,
+    credentials: 'include'
+  };
+
+  fetch(uri.toString(), reqInit)
       .then(function(response) {
         if (response.status !== 200) {
           console.log(
@@ -120,42 +160,62 @@ bad.UserManager.prototype.fetch = function(uri, callback, opt_errCb) {
         }
       })
       .catch(function(err) { console.log('Fetch Error :-S', err); });
-
 };
 
 
 /**
  * @param {!Object} cred
- * @param {!Function=} opt_onSuccess
- * @param {!Function=} opt_onFail
+ * @param {!bad.ui.Form} formPanel
+ * @param {!Function} onSuccess
  */
-bad.UserManager.prototype.login = function(cred, opt_onSuccess, opt_onFail) {
-  let updateProfile = goog.bind(function(d) {
-    this.jwToken_ = d['token'];
-    this.updateProfile(d['user']);
-  }, this);
-  fetch('./api/v3/tokens/login/', {
+bad.UserManager.prototype.login = function(cred, formPanel, onSuccess) {
+  let processAsFormPanel = goog.bind(formPanel.processSubmitReply, formPanel);
+  let processJWTResponse = goog.bind(this.updateProfile_, this);
+
+
+  function status(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return Promise.resolve(response);
+    } else {
+      return Promise.reject(new Error(response.statusText));
+    }
+  }
+
+  function json(response) {
+    return response.json();
+  }
+
+  const jHeaders = new Headers();
+  jHeaders.append('Content-type', 'application/json');
+  /**
+   * @type {!RequestInit}
+   */
+  const reqJson = {
     method: 'post',
-    headers: {'Content-type': 'application/json'},
+    headers: jHeaders,
     body: JSON.stringify(cred)
-  })
-      .then(response => {
-        response.json()
-            .then(data => {
-              switch(response.status) {
-                case 200:
-                  updateProfile(data);
-                  opt_onSuccess && opt_onSuccess(data);
-                  break;
-                case 400:
-                  opt_onFail && opt_onFail(data);
-                  break;
-                default:
-                  console.log(
-                    'Looks like there was a problem. Status Code: ' +
-                    response.status);
-              }
-            });
-      })
-      .catch(function(err) { console.log('Fetch Error :-S', err); });
+  };
+  const f1 = fetch('/api/v3/tokens/login/', reqJson)
+      .then(status)
+      .then(processJWTResponse);
+
+
+  /**
+   * @type {!RequestInit}
+   */
+  const reqForm = {
+    method: 'post',
+    body: new FormData(formPanel.getForm()),
+    credentials: 'include'
+  };
+  const f2 = fetch('/login/', reqForm)
+      .then(status)
+      .then(processAsFormPanel);
+
+  Promise.all([f1, f2]).then(responses => {
+    if (!responses.includes(false)) {
+      onSuccess();
+    }
+  });
+
 };

@@ -16,7 +16,6 @@ const N = goog.require('bad.ui.Layout.IdFragment');
 const O = goog.require('bad.ui.Panel');
 const P = goog.require('bad.ui.Resizable.EventType');
 const Q = goog.require('bad.ui.View');
-const R = goog.require('bad.ui.ViewEvent');
 const S = goog.require('bad.ui.button');
 const T = goog.require('bad.utils');
 const parseShape = goog.require('bad.layout.parseShape');
@@ -45,7 +44,6 @@ exports.enter = function() {
     O,
     P,
     Q,
-    R,
     S,
     T,
   ];
