@@ -6,7 +6,42 @@ goog.require('goog.Uri');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
-goog.require('goog.html.legacyconversions');
+
+
+
+//------------------------------------------------------------[ Ajax Control ]--
+
+/**
+ * A function to split scripts out of an HTML response string.
+ * @param {!string} data The original HTML string returned from the server.
+ * @return {{html:?Element, scripts:?NodeList}} An object literal with two
+ * key value pairs:
+ *  html: The the scrubbed HTML string - without any <script> tags.
+ *  scripts: An array with the script nodes that was removed from the response,
+ *  in order that they were found.
+ */
+const splitScripts = data => {
+  const DF =  new DOMParser().parseFromString(data, "text/html");
+  const df = /** @type {!Document} */(DF);
+  return {
+    html: goog.dom.getFirstElementChild(df.body),
+    scripts: goog.dom.getElementsByTagName(goog.dom.TagName.SCRIPT, df)
+  };
+};
+
+/**
+ * Evaluates each of the scripts in the ajaxScriptsStrings_ map in turn.
+ * The scripts are evaluated in the scope of this panel.
+ * @param {!bad.ui.Panel} comp
+ * @return {!function(?NodeList)}
+ */
+const evalScripts = comp => arr => {
+  arr && Array.from(arr).forEach(s => {
+    goog.bind(function() {
+      eval(s.text);
+    }, comp)();
+  });
+};
 
 
 
@@ -43,7 +78,15 @@ bad.ui.Panel = function(opt_domHelper) {
    */
   this.elementClasses_ = [];
 
-  this.responseObject = {html: '', scripts: ''};
+  /**
+   * @type {!Function}
+   */
+  this.evalScripts = evalScripts(this);
+
+  /**
+   * @type {{html:?Element, scripts:?NodeList}}
+   */
+  this.responseObject = {html: null, scripts: null};
 };
 goog.inherits(bad.ui.Panel, bad.ui.Component);
 
@@ -58,7 +101,6 @@ bad.ui.Panel.prototype.initDom = goog.nullFunction;
  * Expects HTML data from a call to the back.
  */
 bad.ui.Panel.prototype.renderWithTemplate = function() {
-
   const usr = this.getUser();
   usr && usr.fetch(this.uri_, goog.bind(this.onRenderWithTemplateReply_, this));
 };
@@ -81,8 +123,7 @@ bad.ui.Panel.prototype.renderWithJSON = function(callback) {
  * @private
  */
 bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(s) {
-
-  this.responseObject = this.splitScripts(s);
+  this.responseObject = splitScripts(s);
   this.render();
 };
 
@@ -95,8 +136,6 @@ bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(s) {
  * @param {?goog.events.EventLike} e Event object.
  */
 bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
-
-  console.log('onRenderWithJSON WE came here with:', e);
 
   callback(e);
   this.render();
@@ -130,7 +169,7 @@ bad.ui.Panel.prototype.enterDocument = function() {
   // Calling this last makes sure that the final PANEL-READY event really is
   // dispatched right at the end of all of the enterDocument calls.
   bad.ui.Panel.superClass_.enterDocument.call(this);
-  this.evalScripts_();
+  this.evalScripts(this.responseObject.scripts);
 };
 
 
@@ -229,76 +268,4 @@ bad.ui.Panel.prototype.isOpen = function() {
 };
 
 
-//------------------------------------------------------------[ Ajax Control ]--
 
-/**
- * A function to split scripts out of an HTML response string.
- * @param {!string} data The original HTML string returned from the server.
- * @return {!Object} An object literal with two key value pairs:
- *  html: The the scrubbed HTML string - without any <script> tags.
- *  scripts: An array with the script nodes that was removed from the response,
- *  in order that they were found.
- */
-bad.ui.Panel.prototype.splitScripts = function(data) {
-
-  const sourceHtml = goog.dom.safeHtmlToNode(
-      goog.html.legacyconversions.safeHtmlFromString(data));
-
-  const response = {scripts: [], html: this.splitScripts_(sourceHtml)};
-
-  const scriptNodes = goog.dom.findNodes(
-      sourceHtml,
-      /**
-       * @param {?Node} node
-       * @return {!boolean}
-       */
-      function(node) {
-        if (goog.dom.isElement(node)) {
-          node = /** @type {!Element} */ (node);
-          return (node.tagName === 'SCRIPT');
-        } else {
-          return false;
-        }
-      });
-
-  scriptNodes.forEach(script => response.scripts.push(script));
-
-  return response;
-};
-
-
-/**
- * A helper function to remove the script tags from the given document fragment.
- * @param {!Node} documentFragment A valid HTML document fragment.
- * @return {!Node} The same document fragment but with scripts removed.
- */
-bad.ui.Panel.prototype.splitScripts_ = function(documentFragment) {
-  const temp =
-      goog.dom.getDocument().createElement(goog.dom.TagName.DIV.toString());
-
-  while (documentFragment.firstChild) {
-    temp.appendChild(documentFragment.firstChild);
-  }
-  const scripts = temp.getElementsByTagName(goog.dom.TagName.SCRIPT.toString());
-
-  let length = scripts.length;
-  while (length--) {
-    let p = scripts[length].parentNode;
-    p && p.removeChild(scripts[length]);
-  }
-  // Add elements back to fragment:
-  while (temp.firstChild) {
-    documentFragment.appendChild(temp.firstChild);
-  }
-  return documentFragment;
-};
-
-/**
- * Evaluates each of the scripts in the ajaxScriptsStrings_ map in turn.
- * The scripts are evaluated in the scope of this panel.
- */
-bad.ui.Panel.prototype.evalScripts_ = function() {
-  goog.array.forEach(this.responseObject.scripts, function(script) {
-    goog.bind(function() { eval(script.text); }, this)();
-  }, this);
-};

@@ -14,7 +14,10 @@ goog.require('goog.uri.utils');
  * A class for managing the display of field level messages on a form.
  */
 const FieldErrs = class {
-  constructor() { this.fMap = new Map(); }
+
+  constructor() {
+    this.fMap = new Map();
+  }
 
   /**
    * Format the message dom object and insert it into the DOM
@@ -22,18 +25,14 @@ const FieldErrs = class {
    *    alert will be inserted.
    * @param {!string} msg The message in the alert.
    * @param {!string} css A CSS class name to add to the alert div.
-   * @param {?string=} opt_itr An optional intro string to add before the
-   * message.
    *      This will be formatted bold.
    * @param {?string=} opt_icon An optional icon to add to the alert.
    */
-  displayAlert(field, msg, css, opt_itr, opt_icon) {
+  displayAlert(field, msg, css, opt_icon) {
     const icon =
         opt_icon ? goog.dom.createDom('i', 'material-icons', opt_icon) : '';
-    const intro =
-        opt_itr ? goog.dom.createDom('strong', {}, opt_itr + ' ') : '';
     const alertDom =
-        goog.dom.createDom('div', 'alert ' + css, icon, intro, msg);
+        goog.dom.createDom('div', 'zform_alert ' + css, icon, msg);
     goog.dom.insertSiblingAfter(alertDom, field);
 
     this.fMap.set(field, alertDom);
@@ -66,7 +65,7 @@ const FieldErrs = class {
    */
   displayError(field, message) {
     goog.dom.classlist.add(field, 'error');
-    this.displayAlert(field, message, 'alert-error', null, 'error_outline');
+    this.displayAlert(field, message, 'alert-error', 'error_outline');
   };
 
 
@@ -76,7 +75,7 @@ const FieldErrs = class {
    * @param {!string} message
    */
   displaySuccess(field, message) {
-    this.displayAlert(field, message, 'alert-success', null, 'icon-ok-sign');
+    this.displayAlert(field, message, 'alert-success', 'icon-ok-sign');
   };
 
 
@@ -86,14 +85,14 @@ const FieldErrs = class {
    * @param {!string} message
    */
   displayInfo(field, message) {
-    this.displayAlert(field, message, 'alert-info', null, 'icon-info-sign');
+    this.displayAlert(field, message, 'alert-info', 'icon-info-sign');
   };
 
   /**
    * @param {!Event} e
    */
   validateOnChange(e) {
-    this.checkValidationForField(/** @type {!HTMLInputElement} */(e.target));
+    this.checkValidationForField(/** @type {!HTMLInputElement} */ (e.target));
   }
 };
 
@@ -137,8 +136,7 @@ bad.ui.Form.prototype.enterDocument = function() {
   this.form_ = this.getSterileFormFromId(this.formElId_);
 
   let check = goog.bind(this.fieldErr_.validateOnChange, this.fieldErr_);
-  this.form_ && this.form_.addEventListener(
-    'change', check, false);
+  this.form_ && this.form_.addEventListener('change', check, false);
 
   bad.ui.Form.superClass_.enterDocument.call(this);
 };
@@ -199,8 +197,24 @@ bad.ui.Form.prototype.getPostContentFromForm = function() {
  * Checks field validation, and marks and displays errors if any.
  */
 bad.ui.Form.prototype.checkValidation = function() {
-  let fields = this.form_ ? this.form_.elements : [];
-  Array
-      .from(/** @type {!IArrayLike} */ (fields))
-      .forEach(field => this.fieldErr_.checkValidationForField(field));
+  let fields = this.form_ ? this.form_.elements : '';
+
+  for (let field of /** @type {!Iterable} */(fields)) {
+    this.fieldErr_.checkValidationForField(field);
+  }
+};
+
+
+/**
+ * @param {!Object} obj
+ */
+bad.ui.Form.prototype.showErrs = function(obj) {
+  const f = this.getForm();
+  const err = goog.bind(this.fieldErr_.displayError, this.fieldErr_);
+
+  Object.keys(obj).forEach(k => {
+    if (k === 'non_field_errors') {
+      err(f, obj[k].reduce((p, c) => `${p}${p == '' ? c : '\n' + c}`, ''));
+    }
+  });
 };

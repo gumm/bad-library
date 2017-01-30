@@ -1,17 +1,18 @@
 goog.provide('bad.UserLike');
 goog.provide('bad.UserManager');
 
-
 /** @typedef {{
-*     name: (string|undefined),
-*     surname: (string|undefined),
-*     email: (string|undefined),
-*     user: (string|undefined),
-*     _id: (string|undefined)
+*     first_name: (!string|undefined),
+*     last_name: (!string|undefined),
+*     email: (!string|undefined),
+*     username: (!string|undefined),
+*     id: (!number|undefined),
+*     is_active: (!boolean|undefined),
+*     is_staff: (!boolean|undefined),
+*     is_superuser: (!boolean|undefined)
 *     }}
  */
 bad.UserLike;
-
 
 
 /**
@@ -24,6 +25,26 @@ bad.UserManager = function() {
    * @private
    */
   this.user_ = {};
+
+  /**
+   * @type {!string}
+   * @private
+   */
+  this.jwToken_ = '';
+
+  /**
+   * @type {!Function}
+   */
+  this.fireChangeCb_ = goog.nullFunction;
+
+};
+
+
+/**
+ * @param {!Function} cb
+ */
+bad.UserManager.prototype.setOnChangeCallback = function(cb) {
+  this.fireChangeCb_ = cb;
 };
 
 
@@ -32,30 +53,23 @@ bad.UserManager = function() {
  */
 bad.UserManager.prototype.updateProfile = function(data) {
   this.user_ = data;
+  this.fireChangeCb_(data);
 };
 
 
 /**
- * @return {string|undefined}
+ * @param {string} t
+ */
+bad.UserManager.prototype.updateToken = function(t) {
+  this.jwToken_ = t;
+};
+
+
+/**
+ * @return {!number|undefined}
  */
 bad.UserManager.prototype.getId = function() {
-  return this.user_['_id'];
-};
-
-
-/**
- * @param {string} id
- */
-bad.UserManager.prototype.setId = function(id) {
-  this.user_['_id'] = id;
-};
-
-
-/**
- * @return {!bad.UserLike}
- */
-bad.UserManager.prototype.getProfile = function() {
-  return this.user_;
+  return this.user_['id'];
 };
 
 
@@ -63,7 +77,7 @@ bad.UserManager.prototype.getProfile = function() {
  * @return {string|undefined}
  */
 bad.UserManager.prototype.getName = function() {
-  return this.getProfile()['name'];
+  return this.user_['name'];
 };
 
 
@@ -71,7 +85,7 @@ bad.UserManager.prototype.getName = function() {
  * @return {string|undefined}
  */
 bad.UserManager.prototype.getSurname = function() {
-  return this.getProfile()['surname'];
+  return this.user_['surname'];
 };
 
 
@@ -112,23 +126,36 @@ bad.UserManager.prototype.fetch = function(uri, callback, opt_errCb) {
 
 /**
  * @param {!Object} cred
+ * @param {!Function=} opt_onSuccess
+ * @param {!Function=} opt_onFail
  */
-bad.UserManager.prototype.login = function(cred) {
+bad.UserManager.prototype.login = function(cred, opt_onSuccess, opt_onFail) {
+  let updateProfile = goog.bind(function(d) {
+    this.jwToken_ = d['token'];
+    this.updateProfile(d['user']);
+  }, this);
   fetch('./api/v3/tokens/login/', {
     method: 'post',
     headers: {'Content-type': 'application/json'},
     body: JSON.stringify(cred)
   })
-      .then(function(response) {
-        if (response.status !== 200) {
-          console.log(
-              'Looks like there was a problem. Status Code: ' +
-              response.status);
-          return;
-        }
-
-        // Examine the text in the response
-        response.json().then(function(data) { console.log(data); });
+      .then(response => {
+        response.json()
+            .then(data => {
+              switch(response.status) {
+                case 200:
+                  updateProfile(data);
+                  opt_onSuccess && opt_onSuccess(data);
+                  break;
+                case 400:
+                  opt_onFail && opt_onFail(data);
+                  break;
+                default:
+                  console.log(
+                    'Looks like there was a problem. Status Code: ' +
+                    response.status);
+              }
+            });
       })
       .catch(function(err) { console.log('Fetch Error :-S', err); });
 };

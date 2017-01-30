@@ -1,7 +1,9 @@
+goog.provide('ViewEvent');
 goog.provide('bad.ui.View');
-goog.provide('bad.ui.ViewEvent');
+goog.provide('bad.ui.ViewEventName');
 
 goog.require('bad.ui.EventType');
+goog.require('bad.utils');
 goog.require('goog.array');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventHandler');
@@ -9,7 +11,56 @@ goog.require('goog.events.EventTarget');
 goog.require('goog.object');
 
 
+//-------------------------------------------------------------[ View Events ]--
+/**
+ * @type {!string}
+ */
+bad.ui.ViewEventName = bad.utils.privateRandom();
 
+/**
+ * Object representing bad.ui.ViewEvent event.
+ *
+ * @param {!bad.ui.View} target The view that dispatched the event.
+ * @param {!string} value Secondary event value.
+ * @param {?Object=} opt_data Optional data to include in the event.
+ * @extends {goog.events.Event}
+ * @constructor
+ */
+ViewEvent = function(target, value, opt_data) {
+  goog.events.Event.call(this, bad.ui.ViewEventName, target);
+
+  /**
+   * @type {!string}
+   * @private
+   */
+  this.value_ = value;
+
+  /**
+   * @type {(string|number|?Object)}
+   * @private
+   */
+  this.data_ = opt_data || {};
+};
+goog.inherits(ViewEvent, goog.events.Event);
+
+/**
+ * @return {!string}
+ */
+ViewEvent.prototype.getValue = function() {
+  return this.value_;
+};
+
+
+/**
+ * @return {(string|number|?Object)}
+ */
+ViewEvent.prototype.getData = function() {
+  return this.data_;
+};
+
+
+
+//--------------------------------------------------------------------[ View ]--
 /**
  * @constructor
  * @extends {goog.events.EventTarget}
@@ -264,18 +315,13 @@ bad.ui.View.prototype.slideAllClosed = function(opt_cb) {
 };
 
 
-
+//------------------------------------------------------[ Panel Event Helper ]--
 /**
- * Object representing bad.ui.ViewEvent event.
- *
- * @param {!string} type Event type.
- * @param {!bad.ui.View} target The view that dispatched the event.
+ * @param {!string} v Secondary event value.
  * @param {?Object=} opt_data Optional data to include in the event.
- * @extends {goog.events.Event}
- * @constructor
  */
-bad.ui.ViewEvent = function(type, target, opt_data) {
-  goog.events.Event.call(this, type, target);
-  this.data = opt_data;
+bad.ui.View.prototype.dispatchViewEvent = function(v, opt_data) {
+  this.dispatchEvent(new ViewEvent(this, v, opt_data));
 };
-goog.inherits(bad.ui.ViewEvent, goog.events.Event);
+
+
