@@ -478,12 +478,14 @@ for (let n = 0; n < 10; n++) {
 // http://rosettacode.org/wiki/Split_a_character_string_based_on_change_of_character#ES6
 const splitOnCharChange = s => {
   const tail = x => x[x.length - 1];
-  return s.split('')
-      .reduce(
-          (p, c) => c === p[1] ? tail(p[0]).push(c) && [p[0], c] :
-                                 p[0].push([c]) && [p[0], c],
-          [[], ''])[0]
-      .map(e => e.join(''));
+  return s
+  .split('')
+  .reduce(
+    (p, c) => c === p[1] ?
+      tail(p[0]).push(c) && [p[0], c] :
+      p[0].push([c]) && [p[0], c],
+    [[], ''])[0]
+  .map(e => e.join(''));
 };
 let r = splitOnCharChange(`gHHH5YY++///\\`);
 r.forEach(e => console.log(e));

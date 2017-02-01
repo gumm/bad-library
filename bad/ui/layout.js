@@ -1412,9 +1412,7 @@ bad.ui.Layout.prototype.addInteraction_ = function() {
  */
 bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
 
-  compA.getLayout = goog.bind(function() {
-    return this;
-  }, this);
+  compA.getLayout = goog.bind(function() { return this; }, this);
 
   /**
    * Helper function to hide the A cell.
@@ -1538,20 +1536,18 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
   /**
    * Helper function to lock the A cell.
    */
-  compA.lock =
-      goog.bind(function() {
-        dragAB.dragger.setEnabled(false);
-        goog.dom.classlist.add(dragAB.dragger.target, 'ldh_locked');
-      }, this);
+  compA.lock = goog.bind(function() {
+    dragAB.dragger.setEnabled(false);
+    goog.dom.classlist.add(dragAB.dragger.target, 'ldh_locked');
+  }, this);
 
   /**
    * Helper function to unlock the A cell.
    */
-  compA.unlock =
-      goog.bind(function() {
-        dragAB.dragger.setEnabled(true);
-        goog.dom.classlist.remove(dragAB.dragger.target, 'ldh_locked');
-      }, this);
+  compA.unlock = goog.bind(function() {
+    dragAB.dragger.setEnabled(true);
+    goog.dom.classlist.remove(dragAB.dragger.target, 'ldh_locked');
+  }, this);
 
 
   /**
@@ -1570,9 +1566,7 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
  */
 bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
 
-  compC.getLayout = goog.bind(function() {
-    return this;
-  }, this);
+  compC.getLayout = goog.bind(function() { return this; }, this);
 
   /**
    * Helper function to hide the C cell.
@@ -1707,20 +1701,18 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
   /**
    * Helper function to lock the C cell.
    */
-  compC.lock =
-      goog.bind(function() {
-        dragBC.dragger.setEnabled(false);
-        goog.dom.classlist.add(dragBC.dragger.target, 'ldh_locked');
-      }, this);
+  compC.lock = goog.bind(function() {
+    dragBC.dragger.setEnabled(false);
+    goog.dom.classlist.add(dragBC.dragger.target, 'ldh_locked');
+  }, this);
 
   /**
    * Helper function to unlock the C cell.
    */
-  compC.unlock =
-      goog.bind(function() {
-        dragBC.dragger.setEnabled(true);
-        goog.dom.classlist.remove(dragBC.dragger.target, 'ldh_locked');
-      }, this);
+  compC.unlock = goog.bind(function() {
+    dragBC.dragger.setEnabled(true);
+    goog.dom.classlist.remove(dragBC.dragger.target, 'ldh_locked');
+  }, this);
 
   /**
    * Helper function to check if the cell is open.

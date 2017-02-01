@@ -21,8 +21,8 @@ goog.require('goog.dom.TagName');
  *  in order that they were found.
  */
 const splitScripts = data => {
-  const DF =  new DOMParser().parseFromString(data, "text/html");
-  const df = /** @type {!Document} */(DF);
+  const DF = new DOMParser().parseFromString(data, 'text/html');
+  const df = /** @type {!Document} */ (DF);
   return {
     html: goog.dom.getFirstElementChild(df.body),
     scripts: goog.dom.getElementsByTagName(goog.dom.TagName.SCRIPT, df)
@@ -37,9 +37,7 @@ const splitScripts = data => {
  */
 const evalScripts = comp => arr => {
   arr && Array.from(arr).forEach(s => {
-    goog.bind(function() {
-      eval(s.text);
-    }, comp)();
+    goog.bind(function() { eval(s.text); }, comp)();
   });
 };
 
@@ -102,11 +100,10 @@ bad.ui.Panel.prototype.initDom = goog.nullFunction;
  */
 bad.ui.Panel.prototype.renderWithTemplate = function() {
   const usr = this.getUser();
-  usr && usr.fetch(
-      this.uri_,
-      goog.bind(this.onRenderWithTemplateReply_, this),
-      console.warn
-  );
+  usr &&
+      usr.fetch(
+          this.uri_, goog.bind(this.onRenderWithTemplateReply_, this),
+          console.warn);
 };
 
 
@@ -152,10 +149,8 @@ bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
 bad.ui.Panel.prototype.createDom = function() {
   bad.ui.Panel.superClass_.createDom.call(this);
 
-  let classes = bad.CssClassMap.PANEL_WRAPPER;
-  goog.array.forEach(this.elementClasses_, function(className) {
-    classes = classes + ' ' + className;
-  }, this);
+  const classes = this.elementClasses_.reduce((p, c) => `${p} ${c}`,
+      bad.CssClassMap.PANEL_WRAPPER);
 
   this.setElementInternal(goog.dom.createDom(
       goog.dom.TagName.DIV, classes, this.responseObject.html));
@@ -171,16 +166,18 @@ bad.ui.Panel.prototype.enterDocument = function() {
   this.initDom();
   this.evalScripts(this.responseObject.scripts);
 
-  let toggles = goog.dom.getElementsByClass('mdc-icon-toggle', this.getElement());
+  const toggles =
+      this.dom_.getElementsByClass('mdc-icon-toggle', this.getElement());
   Array.from(toggles).forEach(el => {
-    this.listenToThis(el,'MDCIconToggle:change', function(e) {
-      this.dispatchActionEvent(e.target.getAttribute('data-zv'), e.event_['detail']['isOn']);
+    this.listenToThis(el, 'MDCIconToggle:change', function(e) {
+      this.dispatchActionEvent(
+          e.target.getAttribute('data-zv'), e.event_['detail']['isOn']);
     });
   });
 
-  let buttons = goog.dom.getElementsByClass('mdc-button', this.getElement());
+  const buttons = this.dom_.getElementsByClass('mdc-button', this.getElement());
   Array.from(buttons).forEach(el => {
-    this.listenToThis(el,'click', function({target}){
+    this.listenToThis(el, 'click', function({target}) {
       this.dispatchActionEvent(target.getAttribute('data-zv'));
     });
   });
@@ -303,10 +300,7 @@ bad.ui.Panel.prototype.isOpen = function() {
  *     chaining of calls.
  * @template EVENTOBJ
  */
-bad.ui.Panel.prototype.listenToThis = function(src, type, opt_fn,
-                                               opt_capture=false) {
+bad.ui.Panel.prototype.listenToThis = function(
+    src, type, opt_fn, opt_capture = false) {
   return this.getHandler().listen(src, type, opt_fn, opt_capture);
 };
-
-
-

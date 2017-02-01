@@ -333,5 +333,3 @@ bad.ui.View.prototype.slideAllClosed = function(opt_cb) {
 bad.ui.View.prototype.dispatchViewEvent = function(v, opt_data) {
   this.dispatchEvent(new ViewEvent(this, v, opt_data));
 };
-
-

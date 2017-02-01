@@ -10,8 +10,7 @@ const checkStatus = response => {
     return Promise.resolve(response);
   } else {
     return Promise.reject(new Error(
-        `${response.url} ${response.status} (${response.statusText})`
-    ));
+        `${response.url} ${response.status} (${response.statusText})`));
   }
 };
 
@@ -23,8 +22,7 @@ const checkStatus = response => {
 const getJson = response => {
   return response.json().then(
       data => Promise.resolve(data),
-      err => Promise.reject('Could not get JSON from response')
-  );
+      err => Promise.reject('Could not get JSON from response'));
 };
 
 
@@ -35,8 +33,7 @@ const getJson = response => {
 const getText = response => {
   return response.text().then(
       text => Promise.resolve(text),
-      err => Promise.reject('Could not get text from response')
-  );
+      err => Promise.reject('Could not get text from response'));
 };
 
 
@@ -84,11 +81,7 @@ const formPostInit = (jwt, formPanel) => {
 const basicGetInit = jwt => {
   const h = new Headers();
   h.append('Authorization', `bearer ${jwt}`);
-  return {
-    cache: 'no-cache',
-    headers: h,
-    credentials: 'include'
-  };
+  return {cache: 'no-cache', headers: h, credentials: 'include'};
 };
 
 
@@ -121,7 +114,9 @@ bad.UserManager = function(data) {
    */
   this.loginRequest = new Request('/accounts/login/');
 
-  if (data) { this.updateProfile_(data); }
+  if (data) {
+    this.updateProfile_(data);
+  }
 };
 
 
@@ -220,8 +215,7 @@ bad.UserManager.prototype.fetch = function(uri, callback, opt_errCb) {
       .then(checkStatus)
       .then(
           response => response.text().then(callback),
-          err => opt_errCb ? opt_errCb(err) : Promise.reject(err)
-      )
+          err => opt_errCb ? opt_errCb(err) : Promise.reject(err))
       .catch(err => console.error('UMan Fetch:', err));
 };
 
@@ -237,20 +231,19 @@ bad.UserManager.prototype.login = function(cred, formPanel, onSuccess) {
 
   // Get a JWT token
   const f1 = fetch(this.JWTTokenRequest, jsonPostInit(this.jwt, cred))
-      .then(checkStatus)
-      .then(getJson)
-      .then(processJWTResponse);
+                 .then(checkStatus)
+                 .then(getJson)
+                 .then(processJWTResponse);
 
   // Log into Django
   const f2 = fetch(this.loginRequest, formPostInit(this.jwt, formPanel))
-      .then(checkStatus)
-      .then(getText)
-      .then(processAsFormPanel);
+                 .then(checkStatus)
+                 .then(getText)
+                 .then(processAsFormPanel);
 
   // Only fire OK if both those came back OK
   Promise.all([f1, f2]).then(
       bothRes => onSuccess && onSuccess(),
-      someRej => console.error(`Some requests failed: ${someRej}`)
-  );
+      someRej => console.error(`Some requests failed: ${someRej}`));
 
 };

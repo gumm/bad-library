@@ -138,7 +138,7 @@ bad.ui.Component.prototype.show = function() {
  *     if any of the handlers returns false this will also return false.
  */
 bad.ui.Component.prototype.dispatchActionEvent = function(value, opt_data) {
-  var event = new bad.ActionEvent(this, value, opt_data);
+  const event = new bad.ActionEvent(this, value, opt_data);
   return this.dispatchEvent(event);
 };
 

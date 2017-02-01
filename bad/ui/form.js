@@ -13,10 +13,7 @@ goog.require('goog.uri.utils');
  * A class for managing the display of field level messages on a form.
  */
 bad.ui.FieldErrs = class {
-
-  constructor() {
-    this.fMap = new Map();
-  }
+  constructor() { this.fMap = new Map(); }
 
   /**
    * Format the message dom object and insert it into the DOM
@@ -203,7 +200,7 @@ bad.ui.Form.prototype.getPostContentFromForm = function() {
 bad.ui.Form.prototype.checkValidation = function() {
   let fields = this.form_ ? this.form_.elements : '';
 
-  for (let field of /** @type {!Iterable} */(fields)) {
+  for (let field of /** @type {!Iterable} */ (fields)) {
     this.fieldErr_.checkValidationForField(field);
   }
 };
@@ -239,15 +236,15 @@ bad.ui.Form.prototype.processSubmitReply = function(text) {
    * @type {?HTMLFormElement}
    */
   let newForm = goog.dom.getElementsByTagName(
-      goog.dom.TagName.FORM, /** @type {!Element} */(resObj.html))[0];
+      goog.dom.TagName.FORM, /** @type {!Element} */ (resObj.html))[0];
   goog.dom.replaceNode(newForm, this.form_);
 
   this.form_ = newForm;
 
   // Sterilize the form
-  this.getHandler().listen(this.form_, goog.events.EventType.SUBMIT, function(e) {
-    e.preventDefault();
-  });
+  this.getHandler().listen(
+      this.form_, goog.events.EventType.SUBMIT,
+      function(e) { e.preventDefault(); });
 
   // Add validity checkers
   let check = goog.bind(this.fieldErr_.validateOnChange, this.fieldErr_);
@@ -264,5 +261,3 @@ bad.ui.Form.prototype.processSubmitReply = function(text) {
     return Promise.resolve(true);
   }
 };
-
-
