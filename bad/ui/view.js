@@ -179,7 +179,9 @@ bad.ui.View.prototype.displayPanels = goog.nullFunction;
  * @param {!bad.ActionEvent} e
  */
 bad.ui.View.prototype.onPanelAction = function(e) {
-  e.stopPropagation();
+  const eventValue = e.getValue();
+  const eventData = e.getData();
+  console.debug('This event is not handled:', eventValue, eventData);
 };
 
 
@@ -196,6 +198,14 @@ bad.ui.View.prototype.setLayout = function(layout) {
  */
 bad.ui.View.prototype.getLayout = function() {
   return this.layout_;
+};
+
+
+/**
+ * @param {!nestMap} nests
+ */
+bad.ui.View.prototype.setNests = function(nests) {
+  this.nst = nests;
 };
 
 

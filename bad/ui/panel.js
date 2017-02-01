@@ -169,11 +169,26 @@ bad.ui.Panel.prototype.enterDocument = function() {
 
   this.dom_ = goog.dom.getDomHelper(this.getElement());
   this.initDom();
+  this.evalScripts(this.responseObject.scripts);
+
+  let toggles = goog.dom.getElementsByClass('mdc-icon-toggle', this.getElement());
+  Array.from(toggles).forEach(el => {
+    this.listenToThis(el,'MDCIconToggle:change', function(e) {
+      this.dispatchActionEvent(e.target.getAttribute('data-zv'), e.event_['detail']['isOn']);
+    });
+  });
+
+  let buttons = goog.dom.getElementsByClass('mdc-button', this.getElement());
+  Array.from(buttons).forEach(el => {
+    this.listenToThis(el,'click', function({target}){
+      this.dispatchActionEvent(target.getAttribute('data-zv'));
+    });
+  });
 
   // Calling this last makes sure that the final PANEL-READY event really is
   // dispatched right at the end of all of the enterDocument calls.
   bad.ui.Panel.superClass_.enterDocument.call(this);
-  this.evalScripts(this.responseObject.scripts);
+
 };
 
 
