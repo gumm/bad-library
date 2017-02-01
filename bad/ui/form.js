@@ -1,4 +1,4 @@
-goog.provide('FieldErrs');
+goog.provide('bad.ui.FieldErrs');
 goog.provide('bad.ui.Form');
 
 goog.require('bad.ui.Panel');
@@ -9,11 +9,10 @@ goog.require('goog.dom.forms');
 goog.require('goog.events.EventType');
 goog.require('goog.uri.utils');
 
-
 /**
  * A class for managing the display of field level messages on a form.
  */
-const FieldErrs = class {
+bad.ui.FieldErrs = class {
 
   constructor() {
     this.fMap = new Map();
@@ -26,14 +25,14 @@ const FieldErrs = class {
    * @param {!string} msg The message in the alert.
    * @param {!string} css A CSS class name to add to the alert div.
    *      This will be formatted bold.
-   * @param {?string=} opt_icon An optional icon to add to the alert.
    */
-  displayAlert(field, msg, css, opt_icon) {
-    const icon =
-        opt_icon ? goog.dom.createDom('i', 'material-icons', opt_icon) : '';
+  displayAlert(field, msg, css) {
     const alertDom =
-        goog.dom.createDom('div', 'zform_alert ' + css, icon, msg);
-    goog.dom.insertSiblingAfter(alertDom, field);
+        goog.dom.createDom('p', 'mdc-textfield-helptext ' + css, msg);
+
+    let parent = goog.dom.getParentElement(field);
+
+    goog.dom.insertSiblingAfter(alertDom, parent);
 
     this.fMap.set(field, alertDom);
   };
@@ -65,7 +64,7 @@ const FieldErrs = class {
    */
   displayError(field, message) {
     goog.dom.classlist.add(field, 'error');
-    this.displayAlert(field, message, 'alert-error', 'error_outline');
+    this.displayAlert(field, message, 'alert-error');
   };
 
 
@@ -75,7 +74,7 @@ const FieldErrs = class {
    * @param {!string} message
    */
   displaySuccess(field, message) {
-    this.displayAlert(field, message, 'alert-success', 'icon-ok-sign');
+    this.displayAlert(field, message, 'alert-success');
   };
 
 
@@ -85,7 +84,7 @@ const FieldErrs = class {
    * @param {!string} message
    */
   displayInfo(field, message) {
-    this.displayAlert(field, message, 'alert-info', 'icon-info-sign');
+    this.displayAlert(field, message, 'alert-info');
   };
 
   /**
@@ -95,7 +94,6 @@ const FieldErrs = class {
     this.checkValidationForField(/** @type {!HTMLInputElement} */ (e.target));
   }
 };
-
 
 
 /**
@@ -120,10 +118,10 @@ bad.ui.Form = function(id, opt_domHelper) {
   this.form_ = null;
 
   /**
-   * @type {!FieldErrs}
+   * @type {!bad.ui.FieldErrs}
    * @private
    */
-  this.fieldErr_ = new FieldErrs();
+  this.fieldErr_ = new bad.ui.FieldErrs();
 
 };
 goog.inherits(bad.ui.Form, bad.ui.Panel);
@@ -133,12 +131,18 @@ goog.inherits(bad.ui.Form, bad.ui.Panel);
  * @inheritDoc
  */
 bad.ui.Form.prototype.enterDocument = function() {
-  this.form_ = this.getSterileFormFromId(this.formElId_);
+  this.formIdElementToForm_();
+  bad.ui.Form.superClass_.enterDocument.call(this);
+};
 
+
+/**
+ * @private
+ */
+bad.ui.Form.prototype.formIdElementToForm_ = function() {
+  this.form_ = this.getSterileFormFromId(this.formElId_);
   let check = goog.bind(this.fieldErr_.validateOnChange, this.fieldErr_);
   this.form_ && this.form_.addEventListener('change', check, false);
-
-  bad.ui.Form.superClass_.enterDocument.call(this);
 };
 
 
@@ -221,22 +225,44 @@ bad.ui.Form.prototype.showErrs = function(obj) {
 
 
 /**
- * @param {!Response} response
- * @return {!IThenable}
+ * @param {!string} text
+ * @return {!Promise}
  */
-bad.ui.Form.prototype.processSubmitReply = function(response) {
+bad.ui.Form.prototype.processSubmitReply = function(text) {
 
-  return response.text().then(text => {
-    let resObj = splitScripts(text);
-    /**
-     * @type {?HTMLFormElement}
-     */
-    let newForm = goog.dom.getElementsByTagName(
-        goog.dom.TagName.FORM, /** @type {!Element} */(resObj.html))[0];
-    goog.dom.replaceNode(newForm, this.form_);
-    this.form_ = newForm;
-    let hasErrors = goog.dom.getElementsByClass('zform_alert', this.form_);
-    return hasErrors.length == 0;
+  let cErrs = goog.dom.getElementsByClass('alert-error', this.form_);
+  Array.from(cErrs).forEach(err => goog.dom.removeNode(err));
+
+
+  let resObj = splitScripts(text);
+  /**
+   * @type {?HTMLFormElement}
+   */
+  let newForm = goog.dom.getElementsByTagName(
+      goog.dom.TagName.FORM, /** @type {!Element} */(resObj.html))[0];
+  goog.dom.replaceNode(newForm, this.form_);
+
+  this.form_ = newForm;
+
+  // Sterilize the form
+  this.getHandler().listen(this.form_, goog.events.EventType.SUBMIT, function(e) {
+    e.preventDefault();
   });
 
+  // Add validity checkers
+  let check = goog.bind(this.fieldErr_.validateOnChange, this.fieldErr_);
+  this.form_ && this.form_.addEventListener('change', check, false);
+
+  // Eval the scripts
+  this.evalScripts(resObj.scripts);
+
+  let hasErrors = goog.dom.getElementsByClass('alert-error', this.form_);
+
+  if (hasErrors.length > 0) {
+    return Promise.reject('Form has errors');
+  } else {
+    return Promise.resolve(true);
+  }
 };
+
+

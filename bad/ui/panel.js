@@ -102,7 +102,11 @@ bad.ui.Panel.prototype.initDom = goog.nullFunction;
  */
 bad.ui.Panel.prototype.renderWithTemplate = function() {
   const usr = this.getUser();
-  usr && usr.fetch(this.uri_, goog.bind(this.onRenderWithTemplateReply_, this));
+  usr && usr.fetch(
+      this.uri_,
+      goog.bind(this.onRenderWithTemplateReply_, this),
+      console.warn
+  );
 };
 
 
@@ -174,7 +178,7 @@ bad.ui.Panel.prototype.enterDocument = function() {
 
 
 /**
- * @param {!bad.ui.Layout.NestType|undefined} nest
+ * @param {!bad.ui.Layout.CellType|undefined} nest
  */
 bad.ui.Panel.prototype.setNestAsTarget = function(nest) {
   if (nest) {
@@ -185,7 +189,7 @@ bad.ui.Panel.prototype.setNestAsTarget = function(nest) {
 
 
 /**
- * @param {!bad.ui.Layout.NestType|undefined} nest
+ * @param {!bad.ui.Layout.CellType|undefined} nest
  */
 bad.ui.Panel.prototype.setSlideNest = function(nest) {
   if (nest) {

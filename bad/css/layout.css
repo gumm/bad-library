@@ -13,6 +13,10 @@
   background-color: #FFA726;
 }
 
+.ldh_locked {
+  display:none !important;
+}
+
 .layout-drag-handle.grabber {
   background-repeat: no-repeat;
   background-position: center;

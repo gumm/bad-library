@@ -1,5 +1,129 @@
-goog.provide('bad.UserLike');
 goog.provide('bad.UserManager');
+
+
+/**
+ * @param {!Response} response
+ * @return {!Promise}
+ */
+const checkStatus = response => {
+  if (response.status >= 200 && response.status < 300) {
+    return Promise.resolve(response);
+  } else {
+    return Promise.reject(new Error(
+        `${response.url} ${response.status} (${response.statusText})`
+    ));
+  }
+};
+
+
+/**
+ * @param {!Response} response
+ * @return {!Promise}
+ */
+const getJson = response => {
+  return response.json().then(
+      data => Promise.resolve(data),
+      err => Promise.reject('Could not get JSON from response')
+  );
+};
+
+
+/**
+ * @param {!Response} response
+ * @return {!Promise}
+ */
+const getText = response => {
+  return response.text().then(
+      text => Promise.resolve(text),
+      err => Promise.reject('Could not get text from response')
+  );
+};
+
+
+/**
+ * @param {!string} jwt A JWT token
+ * @param {!Object} obj
+ * @return {!Object}
+ */
+const jsonPostInit = (jwt, obj) => {
+  const h = new Headers();
+  h.append('Content-type', 'application/json');
+  jwt && jwt !== '' && h.append('Authorization', `bearer ${jwt}`);
+  return {
+    cache: 'no-cache',
+    method: 'POST',
+    headers: h,
+    credentials: 'include',
+    body: JSON.stringify(obj),
+  };
+};
+
+
+/**
+ * @param {!string} jwt A JWT token
+ * @param {!bad.ui.Form} formPanel
+ * @return {!Object}
+ */
+const formPostInit = (jwt, formPanel) => {
+  const h = new Headers();
+  jwt && jwt !== '' && h.append('Authorization', `bearer ${jwt}`);
+  return {
+    cache: 'no-cache',
+    method: 'POST',
+    headers: h,
+    body: new FormData(formPanel.getForm()),
+    credentials: 'include'
+  };
+};
+
+
+/**
+ * @param {!string} jwt A JWT token
+ * @return {!Object}
+ */
+const basicGetInit = jwt => {
+  const h = new Headers();
+  h.append('Authorization', `bearer ${jwt}`);
+  return {
+    cache: 'no-cache',
+    headers: h,
+    credentials: 'include'
+  };
+};
+
+
+/**
+ * A class to manage the setting and getting of permissions.
+ * @param {?Object} data
+ * @constructor
+ */
+bad.UserManager = function(data) {
+  /**
+   * @type {!bad.UserLike}
+   * @private
+   */
+  this.user_ = {};
+
+  /**
+   * @type {!string}
+   * @private
+   */
+  this.jwt = '';
+
+  /**
+   * @type {!Request}
+   */
+  this.JWTTokenRequest = new Request('/api/v3/tokens/login/');
+
+
+  /**
+   * @type {!Request}
+   */
+  this.loginRequest = new Request('/accounts/login/');
+
+  if (data) { this.updateProfile_(data); }
+};
+
 
 /** @typedef {{
 *     first_name: (!string|undefined),
@@ -16,66 +140,18 @@ bad.UserLike;
 
 
 /**
- * A class to manage the setting and getting of permissions.
- * @constructor
- */
-bad.UserManager = function() {
-  /**
-   * @type {!bad.UserLike}
-   * @private
-   */
-  this.user_ = {};
-
-  /**
-   * @type {!string}
-   * @private
-   */
-  this.jwToken_ = '';
-
-  /**
-   * @type {!Function}
-   */
-  this.fireChangeCb_ = goog.nullFunction;
-
-
-  /**
-   * @type {!Headers}
-   */
-  this.headers = new Headers();
-
-};
-
-
-/**
- * @param {!Function} cb
- */
-bad.UserManager.prototype.setOnChangeCallback = function(cb) {
-  this.fireChangeCb_ = cb;
-};
-
-
-/**
- * @param {!Response} response
- * @return {!IThenable}
+ * @param {!Object} data
+ * @return {!Promise}
  * @private
  */
-bad.UserManager.prototype.updateProfile_ = function(response) {
-
-  return response.json().then(data => {
-    let result = false;
-    switch(response.status) {
-      case 200:
-        this.jwToken_ = data['token'];
-        this.headers.append('Authorization', `bearer ${this.jwToken_}`);
-        this.updateProfile(data['user']);
-        result =  true;
-        break;
-      default:
-        console.log(
-          'Looks like there was a problem. Status Code: ' +
-          response.status);}
-    return result;
-  });
+bad.UserManager.prototype.updateProfile_ = function(data) {
+  if (data['non_field_errors']) {
+    return Promise.reject(new Error(`JWT ${data['non_field_errors']}`));
+  } else {
+    this.updateToken(data['token']);
+    this.updateProfile(data['user']);
+    return Promise.resolve('User Profile Updated');
+  }
 };
 
 
@@ -84,7 +160,6 @@ bad.UserManager.prototype.updateProfile_ = function(response) {
  */
 bad.UserManager.prototype.updateProfile = function(data) {
   this.user_ = data;
-  this.fireChangeCb_(data);
 };
 
 
@@ -92,7 +167,7 @@ bad.UserManager.prototype.updateProfile = function(data) {
  * @param {string} t
  */
 bad.UserManager.prototype.updateToken = function(t) {
-  this.jwToken_ = t;
+  this.jwt = t;
 };
 
 
@@ -140,26 +215,14 @@ bad.UserManager.prototype.getSalutation = function() {
  */
 bad.UserManager.prototype.fetch = function(uri, callback, opt_errCb) {
 
-  /**
-   * @type {!RequestInit}
-   */
-  const reqInit = {
-    headers: this.headers,
-    credentials: 'include'
-  };
-
-  fetch(uri.toString(), reqInit)
-      .then(function(response) {
-        if (response.status !== 200) {
-          console.log(
-              'Looks like there was a problem. Status Code: ' +
-              response.status);
-          opt_errCb && response.text().then(opt_errCb);
-        } else {
-          response.text().then(callback);
-        }
-      })
-      .catch(function(err) { console.log('Fetch Error :-S', err); });
+  const req = new Request(uri.toString());
+  fetch(req, basicGetInit(this.jwt))
+      .then(checkStatus)
+      .then(
+          response => response.text().then(callback),
+          err => opt_errCb ? opt_errCb(err) : Promise.reject(err)
+      )
+      .catch(err => console.error('UMan Fetch:', err));
 };
 
 
@@ -172,50 +235,22 @@ bad.UserManager.prototype.login = function(cred, formPanel, onSuccess) {
   let processAsFormPanel = goog.bind(formPanel.processSubmitReply, formPanel);
   let processJWTResponse = goog.bind(this.updateProfile_, this);
 
-
-  function status(response) {
-    if (response.status >= 200 && response.status < 300) {
-      return Promise.resolve(response);
-    } else {
-      return Promise.reject(new Error(response.statusText));
-    }
-  }
-
-  function json(response) {
-    return response.json();
-  }
-
-  const jHeaders = new Headers();
-  jHeaders.append('Content-type', 'application/json');
-  /**
-   * @type {!RequestInit}
-   */
-  const reqJson = {
-    method: 'post',
-    headers: jHeaders,
-    body: JSON.stringify(cred)
-  };
-  const f1 = fetch('/api/v3/tokens/login/', reqJson)
-      .then(status)
+  // Get a JWT token
+  const f1 = fetch(this.JWTTokenRequest, jsonPostInit(this.jwt, cred))
+      .then(checkStatus)
+      .then(getJson)
       .then(processJWTResponse);
 
-
-  /**
-   * @type {!RequestInit}
-   */
-  const reqForm = {
-    method: 'post',
-    body: new FormData(formPanel.getForm()),
-    credentials: 'include'
-  };
-  const f2 = fetch('/login/', reqForm)
-      .then(status)
+  // Log into Django
+  const f2 = fetch(this.loginRequest, formPostInit(this.jwt, formPanel))
+      .then(checkStatus)
+      .then(getText)
       .then(processAsFormPanel);
 
-  Promise.all([f1, f2]).then(responses => {
-    if (!responses.includes(false)) {
-      onSuccess();
-    }
-  });
+  // Only fire OK if both those came back OK
+  Promise.all([f1, f2]).then(
+      bothRes => onSuccess && onSuccess(),
+      someRej => console.error(`Some requests failed: ${someRej}`)
+  );
 
 };

@@ -12,6 +12,7 @@ goog.require('bad.ui.EventType');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.dom.ViewportSizeMonitor');
+goog.require('goog.dom.classlist');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventType');
 goog.require('goog.fx.Animation');
@@ -134,7 +135,7 @@ bad.ui.Layout = function(id, cellNames, opt_orientation, opt_domHelper) {
   /**
    * All cell elements - including those of the inner layout
    * are accessible through this map.
-   * @enum {!bad.ui.Layout.NestType}
+   * @enum {!bad.ui.Layout.CellType}
    */
   this.nests = {};
 
@@ -228,36 +229,24 @@ goog.inherits(bad.ui.Layout, bad.ui.Component);
 /**
  * @typedef {{
  *     cellClass: string,
- *     close: !Function,
  *     element: !Element,
- *     hide: !Function,
  *     initSize: !number,
  *     minSize: !number,
- *     isOpen: !function(): !boolean,
- *     lock: !Function,
  *     name: string,
  *     rect: !goog.math.Rect,
+ *     isOpen: !function(): !boolean,
+ *     hide: !Function,
+ *     close: !Function,
  *     show: !Function,
  *     slideClosed: !Function,
  *     slideOpen: !Function,
  *     slideTo: !Function,
  *     toggle: !Function,
+ *     lock: !Function,
  *     unlock: !Function
  * }}
  */
 bad.ui.Layout.CellType;
-
-
-/**
- * @typedef {{
- *    cellClass: string,
- *    element: !Element,
- *    name: string,
- *    rect: !goog.math.Rect,
- *    hide: !Function
- * }}
- */
-bad.ui.Layout.NestType;
 
 
 /**
@@ -280,6 +269,7 @@ bad.ui.Layout.DraggerType;
  * }}
  */
 bad.ui.Layout.EventDataType;
+
 
 
 /**
@@ -631,7 +621,7 @@ bad.ui.Layout.prototype.pullNests_ = function() {
   goog.object.forEach(this.innerLayout_, function(layout) {
 
     /**
-     * @type {!Object.<!string, !bad.ui.Layout.NestType>}
+     * @type {!Object.<!string, !bad.ui.Layout.CellType>}
      */
     const parentNests = this.getNests();
     const layoutNests = layout.getNests();
@@ -751,7 +741,7 @@ bad.ui.Layout.prototype.onTargetSizeChange = function(parentCell) {
 
 //-----------------------------------------------------[ Setters and Getters ]--
 /**
- * @return {!Object<!string, !bad.ui.Layout.NestType>} The nests object.
+ * @return {!Object<!string, !bad.ui.Layout.CellType>} The nests object.
  */
 bad.ui.Layout.prototype.getNests = function() {
   return this.nests;
@@ -761,7 +751,7 @@ bad.ui.Layout.prototype.getNests = function() {
 /**
  * Given a list of names, get the nest object for that layout position.
  * @param {...*} var_args
- * @return {!bad.ui.Layout.NestType|undefined}
+ * @return {!bad.ui.Layout.CellType|undefined}
  */
 bad.ui.Layout.prototype.getNest = function(var_args) {
   let accessor = '';
@@ -1422,6 +1412,10 @@ bad.ui.Layout.prototype.addInteraction_ = function() {
  */
 bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
 
+  compA.getLayout = goog.bind(function() {
+    return this;
+  }, this);
+
   /**
    * Helper function to hide the A cell.
    * @param {?Function=} opt_callback
@@ -1545,13 +1539,19 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
    * Helper function to lock the A cell.
    */
   compA.lock =
-      goog.bind(function() { dragAB.dragger.setEnabled(false); }, this);
+      goog.bind(function() {
+        dragAB.dragger.setEnabled(false);
+        goog.dom.classlist.add(dragAB.dragger.target, 'ldh_locked');
+      }, this);
 
   /**
    * Helper function to unlock the A cell.
    */
   compA.unlock =
-      goog.bind(function() { dragAB.dragger.setEnabled(true); }, this);
+      goog.bind(function() {
+        dragAB.dragger.setEnabled(true);
+        goog.dom.classlist.remove(dragAB.dragger.target, 'ldh_locked');
+      }, this);
 
 
   /**
@@ -1569,6 +1569,10 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
  * @private
  */
 bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
+
+  compC.getLayout = goog.bind(function() {
+    return this;
+  }, this);
 
   /**
    * Helper function to hide the C cell.
@@ -1704,13 +1708,19 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
    * Helper function to lock the C cell.
    */
   compC.lock =
-      goog.bind(function() { dragBC.dragger.setEnabled(false); }, this);
+      goog.bind(function() {
+        dragBC.dragger.setEnabled(false);
+        goog.dom.classlist.add(dragBC.dragger.target, 'ldh_locked');
+      }, this);
 
   /**
    * Helper function to unlock the C cell.
    */
   compC.unlock =
-      goog.bind(function() { dragBC.dragger.setEnabled(true); }, this);
+      goog.bind(function() {
+        dragBC.dragger.setEnabled(true);
+        goog.dom.classlist.remove(dragBC.dragger.target, 'ldh_locked');
+      }, this);
 
   /**
    * Helper function to check if the cell is open.

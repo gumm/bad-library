@@ -345,6 +345,8 @@ HEREDOC
 WORKSPACE=$1
 CLOSURE_COMPILER_PATH=${WORKSPACE}/node_modules/google-closure-compiler
 EXT_MAP=${CLOSURE_COMPILER_PATH}/contrib/externs/maps/google_maps_api_v3_23.js
+
+EXT_RAMDA=${WORKSPACE}/externs/ramda.js
 CLOSURE_LIB_PATH=${WORKSPACE}/node_modules/google-closure-library/closure/goog
 
 OUT=${WORKSPACE}/scripts/build
@@ -353,6 +355,16 @@ echo "${WORKSPACE}"
 echo "${CLOSURE_COMPILER_PATH}"
 
 cd ${WORKSPACE}/bad
+
+cd ${CLOSURE_LIB_PATH}
+CLOSUREJSFILES=$(find -L \( -iname "*.js" \) ! \( -iname "*deps.js" -o -iname "*test*.js" \) | sed "s%^.%--js ${CLOSURE_LIB_PATH}%" )
+
+
+cd ${WORKSPACE}/bad
+JSFILES=$(find -L \( -iname "*.js" \) ! \( -iname "*deps.js" -o -iname "*test*.js" \) | sed "s%^.%--js ${WORKSPACE}/bad%" )
+
+echo "Closure Files ... ${CLOSUREJSFILES}"
+echo "Compiling JS files... ${JSFILES}"
 
 java -server -XX:+TieredCompilation -jar ${CLOSURE_COMPILER_PATH}/compiler.jar \
     --new_type_inf                                          \
@@ -370,18 +382,20 @@ java -server -XX:+TieredCompilation -jar ${CLOSURE_COMPILER_PATH}/compiler.jar \
     --tracer_mode                   OFF                     \
     --hide_warnings_for             ${CLOSURE_LIB_PATH}     \
     --externs                       ${EXT_MAP}              \
+    --externs                       ${EXT_RAMDA}            \
     --hide_warnings_for             ${EXT_MAP}              \
-    --js=${WORKSPACE}/bad/**.js                             \
-    --js=${CLOSURE_LIB_PATH}/**.js                          \
-    --js='!../**test.js'                                    \
-    --js='!../**deps.js'                                    \
-    --js=${WORKSPACE}/scripts/testme.js                     \
     --create_source_map             %outname%.map           \
     --output_manifest               ${OUT}/manifest.MF      \
     --js_output_file                ${OUT}/compile.min.js   \
     --dependency_mode=STRICT                                \
     --assume_function_wrapper                               \
-    --entry_point=goog:CompilerEntry
+    --entry_point=goog:CompilerEntry                        \
+    --js=${WORKSPACE}/bad/**.js                             \
+    --js=${CLOSURE_LIB_PATH}/**.js             \
+    --js=${WORKSPACE}/node_modules/google-closure-library/third_party/**.js              \
+    --js='!../js/**test.js'                                 \
+    --js='!../js/**deps.js'                                 \
+    --js=${WORKSPACE}/scripts/testme.js
 
 
 echo "Done"
