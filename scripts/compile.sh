@@ -372,8 +372,8 @@ java -server -XX:+TieredCompilation -jar ${CLOSURE_COMPILER_PATH}/compiler.jar \
     --process_closure_primitives                            \
     --jscomp_warning=*                                      \
     --charset                       UTF-8                   \
-    --language_in                   ECMASCRIPT6             \
-    --language_out                  ECMASCRIPT5_STRICT      \
+    --language_in           ECMASCRIPT6_STRICT \
+    --language_out          ECMASCRIPT5_STRICT \
     --summary_detail_level          3                       \
     --warning_level                 VERBOSE                 \
     --compilation_level             ADVANCED                \

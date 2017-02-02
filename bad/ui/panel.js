@@ -3,7 +3,6 @@ goog.provide('bad.ui.Panel');
 goog.require('bad.CssClassMap');
 goog.require('bad.ui.Component');
 goog.require('goog.Uri');
-goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 
@@ -149,8 +148,8 @@ bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
 bad.ui.Panel.prototype.createDom = function() {
   bad.ui.Panel.superClass_.createDom.call(this);
 
-  const classes = this.elementClasses_.reduce((p, c) => `${p} ${c}`,
-      bad.CssClassMap.PANEL_WRAPPER);
+  const classes = this.elementClasses_.reduce(
+      (p, c) => `${p} ${c}`, bad.CssClassMap.PANEL_WRAPPER);
 
   this.setElementInternal(goog.dom.createDom(
       goog.dom.TagName.DIV, classes, this.responseObject.html));
@@ -166,19 +165,24 @@ bad.ui.Panel.prototype.enterDocument = function() {
   this.initDom();
   this.evalScripts(this.responseObject.scripts);
 
-  const toggles =
-      this.dom_.getElementsByClass('mdc-icon-toggle', this.getElement());
-  Array.from(toggles).forEach(el => {
-    this.listenToThis(el, 'MDCIconToggle:change', function(e) {
+  const tst = this.dom_.getElementsByClass('tst_button', this.getElement());
+  Array.from(tst).forEach(el => {
+    const ev = el.classList.contains('mdc-icon-toggle') ?
+        'MDCIconToggle:change' :
+        'click';
+    this.listenToThis(el, ev, function(e) {
       this.dispatchActionEvent(
-          e.target.getAttribute('data-zv'), e.event_['detail']['isOn']);
+          e.target.getAttribute('data-zv'),
+          {custom: e.event_['detail'], trigger: e.target});
     });
   });
 
-  const buttons = this.dom_.getElementsByClass('mdc-button', this.getElement());
-  Array.from(buttons).forEach(el => {
-    this.listenToThis(el, 'click', function({target}) {
-      this.dispatchActionEvent(target.getAttribute('data-zv'));
+  const ms = this.dom_.getElementsByClass('mdc-simple-menu', this.getElement());
+  Array.from(ms).forEach(el => {
+    this.listenToThis(el, 'MDCSimpleMenu:selected', function(e) {
+      let v = e.event_['detail']['item'].getAttribute('data-zv');
+      this.dispatchActionEvent(
+          v, {custom: e.event_['detail'], trigger: e.event_['detail']['item']});
     });
   });
 

@@ -234,7 +234,7 @@ goog.inherits(bad.ui.Layout, bad.ui.Component);
  *     minSize: !number,
  *     name: string,
  *     rect: !goog.math.Rect,
- *     isOpen: !function(): !boolean,
+ *     isOpen: !function(): !number,
  *     hide: !Function,
  *     close: !Function,
  *     show: !Function,
@@ -1449,13 +1449,13 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
 
   /**
    * Helper function to show the A cell.
+   * @param {?Function=} opt_callback
    * @param {number=} opt_percentage
    * @param {number=} opt_pixels
-   * @param {?Function=} opt_callback
    * @param {boolean=} opt_animate
    */
   compA.show = goog.bind(
-      function(opt_percentage, opt_pixels, opt_callback, opt_animate) {
+      function(opt_callback, opt_percentage, opt_pixels, opt_animate) {
         const fullSize = this.getWidth_(this.componentBoxSize_);
         const initSize = this.getInitialSize_(this.cell_.A);
         const minSize = this.getMinimumSize_(this.cell_.A);
@@ -1481,16 +1481,16 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
 
   /**
    * Helper function to slide the A cell open.
+   * @param {?Function=} opt_callback
    * @param {number=} opt_percentage
    * @param {number=} opt_pixels
-   * @param {?Function=} opt_callback
    */
   compA.slideOpen =
-      goog.bind(function(opt_percentage, opt_pixels, opt_callback) {
+      goog.bind(function(opt_callback, opt_percentage, opt_pixels) {
         const size = this.getWidth_(compA.rect);
         if (size <= 0) {
           const animate = true;
-          compA.show(opt_percentage, opt_pixels, opt_callback, animate);
+          compA.show(opt_callback, opt_percentage, opt_pixels, animate);
         }
       }, this);
 
@@ -1510,13 +1510,13 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
 
   /**
    * Helper function to slide the C cell to any arbitrary position.
+   * @param {?Function=} opt_callback
    * @param {number=} opt_percentage
    * @param {number=} opt_pixels
-   * @param {?Function=} opt_callback
    */
-  compA.slideTo = goog.bind(function(opt_percentage, opt_pixels, opt_callback) {
+  compA.slideTo = goog.bind(function(opt_callback, opt_percentage, opt_pixels) {
     const animate = true;
-    compA.show(opt_percentage, opt_pixels, opt_callback, animate);
+    compA.show(opt_callback, opt_percentage, opt_pixels, animate);
   }, this);
 
   /**
@@ -1527,7 +1527,7 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
     const size = this.getWidth_(compA.rect);
     const animate = true;
     if (size <= 0) {
-      compA.show(opt_perc, opt_pix, opt_callback, animate);
+      compA.show(opt_callback, opt_perc, opt_pix, animate);
     } else {
       compA.close(opt_callback, animate);
     }
@@ -1554,7 +1554,7 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
    * Helper function to check if the cell is open.
    */
   compA.isOpen =
-      goog.bind(function() { return this.getWidth_(compA.rect) > 0; }, this);
+      goog.bind(function() { return this.getWidth_(compA.rect); }, this);
 };
 
 
@@ -1607,13 +1607,13 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
 
   /**
    * Helper function to show the C cell.
+   * @param {?Function=} opt_callback
    * @param {number=} opt_percentage
    * @param {number=} opt_pixels
-   * @param {?Function=} opt_callback
    * @param {boolean=} opt_animate
    */
   compC.show = goog.bind(
-      function(opt_percentage, opt_pixels, opt_callback, opt_animate) {
+      function(opt_callback, opt_percentage, opt_pixels, opt_animate) {
         const fullSize = this.getWidth_(this.componentBoxSize_);
         const compASize = this.getWidth_(compA.rect);
         const initSize = this.getInitialSize_(this.cell_.C);
@@ -1645,28 +1645,28 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
 
   /**
    * Helper function to slide the C cell open.
+   * @param {?Function=} opt_callback
    * @param {number=} opt_percentage
    * @param {number=} opt_pixels
-   * @param {?Function=} opt_callback
    */
   compC.slideOpen =
-      goog.bind(function(opt_percentage, opt_pixels, opt_callback) {
+      goog.bind(function(opt_callback, opt_percentage, opt_pixels) {
         const size = this.getWidth_(compC.rect);
         if (size <= 0) {
           const animate = true;
-          compC.show(opt_percentage, opt_pixels, opt_callback, animate);
+          compC.show(opt_callback, opt_percentage, opt_pixels, animate);
         }
       }, this);
 
   /**
    * Helper function to slide the C cell to any arbitrary position.
+   * @param {?Function=} opt_callback
    * @param {number=} opt_percentage
    * @param {number=} opt_pixels
-   * @param {?Function=} opt_callback
    */
-  compC.slideTo = goog.bind(function(opt_percentage, opt_pixels, opt_callback) {
+  compC.slideTo = goog.bind(function(opt_callback, opt_percentage, opt_pixels) {
     const animate = true;
-    compC.show(opt_percentage, opt_pixels, opt_callback, animate);
+    compC.show(opt_callback, opt_percentage, opt_pixels, animate);
   }, this);
 
   /**
@@ -1692,7 +1692,7 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
     const size = this.getWidth_(compC.rect);
     const animate = true;
     if (size <= 0) {
-      compC.show(opt_perc, opt_pix, opt_callback, animate);
+      compC.show(opt_callback, opt_perc, opt_pix, animate);
     } else {
       compC.close(opt_callback, animate);
     }
@@ -1718,7 +1718,7 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
    * Helper function to check if the cell is open.
    */
   compC.isOpen =
-      goog.bind(function() { return this.getWidth_(compC.rect) > 0; }, this);
+      goog.bind(function() { return this.getWidth_(compC.rect); }, this);
 };
 
 
