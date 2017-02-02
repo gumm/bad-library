@@ -1,6 +1,6 @@
 goog.module('CompilerEntry');
 
-const A = goog.require('bad.ActionEvent');
+const A = goog.require('bad.CompEvent');
 const B = goog.require('bad.CssClassMap');
 const C = goog.require('bad.CssPrefix');
 const D = goog.require('bad.ui.FieldErrs');

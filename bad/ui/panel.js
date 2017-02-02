@@ -171,7 +171,7 @@ bad.ui.Panel.prototype.enterDocument = function() {
         'MDCIconToggle:change' :
         'click';
     this.listenToThis(el, ev, function(e) {
-      this.dispatchActionEvent(
+      this.dispatchCompEvent(
           e.target.getAttribute('data-zv'),
           {custom: e.event_['detail'], trigger: e.target});
     });
@@ -181,7 +181,7 @@ bad.ui.Panel.prototype.enterDocument = function() {
   Array.from(ms).forEach(el => {
     this.listenToThis(el, 'MDCSimpleMenu:selected', function(e) {
       let v = e.event_['detail']['item'].getAttribute('data-zv');
-      this.dispatchActionEvent(
+      this.dispatchCompEvent(
           v, {custom: e.event_['detail'], trigger: e.event_['detail']['item']});
     });
   });

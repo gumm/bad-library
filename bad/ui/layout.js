@@ -27,6 +27,24 @@ goog.require('goog.ui.Component');
 
 
 /**
+ * @typedef {{
+ *    head: !bad.ui.Layout.CellType,
+ *    sliderLeft: !bad.ui.Layout.CellType,
+ *    leftTop: !bad.ui.Layout.CellType,
+ *    left: !bad.ui.Layout.CellType,
+ *    leftBot: !bad.ui.Layout.CellType,
+ *    center: !bad.ui.Layout.CellType,
+ *    sliderRight: !bad.ui.Layout.CellType,
+ *    rightTop: !bad.ui.Layout.CellType,
+ *    right: !bad.ui.Layout.CellType,
+ *    rightBot: !bad.ui.Layout.CellType,
+ *    foot: !bad.ui.Layout.CellType
+ * }}
+ */
+let nestMap;
+
+
+/**
  * Given a goog.math.rect object, this inverts the rectangle. That is:
  * width becomes height, and top becomes left (and vice versa).
  * @param {!goog.math.Rect} rect The rectangle object that will be inverted.

@@ -20,7 +20,7 @@ bad.ui.ViewEventName = bad.utils.privateRandom();
  *
  * @param {!bad.ui.View} target The view that dispatched the event.
  * @param {!string} value Secondary event value.
- * @param {(string|number|?Object)=} opt_data Optional data to include
+ * @param {*=} opt_data Optional data to include
  *    in the event.
  * @extends {goog.events.Event}
  * @constructor
@@ -35,7 +35,7 @@ ViewEvent = function(target, value, opt_data) {
   this.value_ = value;
 
   /**
-   * @type {(string|number|?Object)}
+   * @type {*}
    * @private
    */
   this.data_ = opt_data || {};
@@ -51,7 +51,7 @@ ViewEvent.prototype.getValue = function() {
 
 
 /**
- * @return {(string|number|?Object)}
+ * @return {*}
  */
 ViewEvent.prototype.getData = function() {
   return this.data_;
@@ -179,7 +179,7 @@ bad.ui.View.prototype.displayPanels = goog.nullFunction;
 
 
 /**
- * @param {!bad.ActionEvent} e
+ * @param {!bad.CompEvent} e
  */
 bad.ui.View.prototype.onPanelAction = function(e) {
   const eventValue = e.getValue();
@@ -221,7 +221,7 @@ bad.ui.View.prototype.getUser = function() {
 //------------------------------------------------------[ Panel Event Helper ]--
 /**
  * @param {!string} v Secondary event value.
- * @param {(string|number|?Object)=} opt_data Optional data to include in the
+ * @param {*=} opt_data Optional data to include in the
  * event.
  */
 bad.ui.View.prototype.dispatchViewEvent = function(v, opt_data) {

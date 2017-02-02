@@ -2,11 +2,10 @@
  * @fileoverview  An extension of goog.ui.Component to extend the workflow.
  */
 
-goog.provide('bad.ActionEvent');
 goog.provide('bad.ui.Component');
 
+goog.require('bad.CompEvent');
 goog.require('bad.ui.EventType');
-goog.require('goog.events.Event');
 goog.require('goog.style');
 goog.require('goog.ui.Component');
 
@@ -70,7 +69,7 @@ bad.ui.Component.prototype.enterDocument = function() {
   bad.ui.Component.superClass_.enterDocument.call(this);
 
   this.onBeforeComponentReady();
-  this.dispatchActionEvent(bad.ui.EventType.READY);
+  this.dispatchCompEvent(bad.ui.EventType.READY);
 };
 
 
@@ -137,50 +136,10 @@ bad.ui.Component.prototype.show = function() {
  * @return {boolean} If anyone called preventDefault on the event object (or
  *     if any of the handlers returns false this will also return false.
  */
-bad.ui.Component.prototype.dispatchActionEvent = function(value, opt_data) {
-  const event = new bad.ActionEvent(this, value, opt_data);
+bad.ui.Component.prototype.dispatchCompEvent = function(value, opt_data) {
+  const event = new bad.CompEvent(this, value, opt_data);
   return this.dispatchEvent(event);
 };
 
 
 
-//-------------------------------------------------------------[ Panel Event ]--
-/**
- * @param {!bad.ui.Component} target
- * @param {!string} value
- * @param {(string|number|?Object)=} opt_data
- * @constructor
- * @extends {goog.events.Event}
- */
-bad.ActionEvent = function(target, value, opt_data) {
-  goog.events.Event.call(this, bad.ui.EventType.ACTION, target);
-
-  /**
-   * @type {!string}
-   * @private
-   */
-  this.value_ = value;
-
-  /**
-   * @type {(string|number|?Object)}
-   * @private
-   */
-  this.data_ = opt_data || {};
-};
-goog.inherits(bad.ActionEvent, goog.events.Event);
-
-
-/**
- * @return {!string}
- */
-bad.ActionEvent.prototype.getValue = function() {
-  return this.value_;
-};
-
-
-/**
- * @return {(string|number|?Object)}
- */
-bad.ActionEvent.prototype.getData = function() {
-  return this.data_;
-};
