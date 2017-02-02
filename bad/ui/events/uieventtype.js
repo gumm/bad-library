@@ -2,7 +2,7 @@
  * @fileoverview Panel Event Types.
  *
  */
-goog.provide('bad.ui.EventType');
+goog.provide('bad.EventType');
 goog.provide('bad.ui.Resizable.EventType');
 
 goog.require('bad.utils');
@@ -21,7 +21,7 @@ bad.ui.Resizable.EventType = {
  * @enum {string}
  */
 // noinspection JSUnusedGlobalSymbols
-bad.ui.EventType = {
+bad.EventType = {
   /**
    * Dispatched after the content from the template is in the DOM
    * and the in-line scripts from the AJAX call has been eval'd.

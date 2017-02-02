@@ -8,7 +8,7 @@ goog.provide('bad.ui.Layout.IdFragment');
 
 goog.require('bad.CssPrefix');
 goog.require('bad.ui.Component');
-goog.require('bad.ui.EventType');
+goog.require('bad.EventType');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.dom.ViewportSizeMonitor');
@@ -27,24 +27,6 @@ goog.require('goog.ui.Component');
 
 
 /**
- * @typedef {{
- *    head: !bad.ui.Layout.CellType,
- *    sliderLeft: !bad.ui.Layout.CellType,
- *    leftTop: !bad.ui.Layout.CellType,
- *    left: !bad.ui.Layout.CellType,
- *    leftBot: !bad.ui.Layout.CellType,
- *    center: !bad.ui.Layout.CellType,
- *    sliderRight: !bad.ui.Layout.CellType,
- *    rightTop: !bad.ui.Layout.CellType,
- *    right: !bad.ui.Layout.CellType,
- *    rightBot: !bad.ui.Layout.CellType,
- *    foot: !bad.ui.Layout.CellType
- * }}
- */
-let nestMap;
-
-
-/**
  * Given a goog.math.rect object, this inverts the rectangle. That is:
  * width becomes height, and top becomes left (and vice versa).
  * @param {!goog.math.Rect} rect The rectangle object that will be inverted.
@@ -53,16 +35,9 @@ let nestMap;
 const invertRect = rect => {
   const [w, h, l, t] = [rect.width, rect.height, rect.left, rect.top];
 
-  // noinspection JSSuspiciousNameCombination
   rect.width = h;
-
-  // noinspection JSSuspiciousNameCombination
   rect.height = w;
-
-  // noinspection JSSuspiciousNameCombination
   rect.left = t;
-
-  // noinspection JSSuspiciousNameCombination
   rect.top = l;
 
   return rect;
@@ -242,6 +217,23 @@ bad.ui.Layout = function(id, cellNames, opt_orientation, opt_domHelper) {
   this.aniDuration_ = 250;
 };
 goog.inherits(bad.ui.Layout, bad.ui.Component);
+
+/**
+ * @typedef {{
+ *    head: !bad.ui.Layout.CellType,
+ *    sliderLeft: !bad.ui.Layout.CellType,
+ *    leftTop: !bad.ui.Layout.CellType,
+ *    left: !bad.ui.Layout.CellType,
+ *    leftBot: !bad.ui.Layout.CellType,
+ *    center: !bad.ui.Layout.CellType,
+ *    sliderRight: !bad.ui.Layout.CellType,
+ *    rightTop: !bad.ui.Layout.CellType,
+ *    right: !bad.ui.Layout.CellType,
+ *    rightBot: !bad.ui.Layout.CellType,
+ *    foot: !bad.ui.Layout.CellType
+ * }}
+ */
+bad.ui.Layout.NestMap;
 
 
 /**
@@ -450,7 +442,7 @@ bad.ui.Layout.prototype.enterDocument = function() {
       .listen(
           this.dragger_.AB.element, goog.events.EventType.DBLCLICK,
           goog.bind(this.onDoubleClick_, this, this.cell_.A))
-      .listen(this, bad.ui.EventType.PANEL_MINIMIZE, this.onPanelMinimize_)
+      .listen(this, bad.EventType.PANEL_MINIMIZE, this.onPanelMinimize_)
       .listen(this, goog.ui.Component.EventType.CHANGE, this.updateChildSizes_);
 
   this.createRects_();

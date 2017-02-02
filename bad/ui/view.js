@@ -2,7 +2,7 @@ goog.provide('ViewEvent');
 goog.provide('bad.ui.View');
 goog.provide('bad.ui.ViewEventName');
 
-goog.require('bad.ui.EventType');
+goog.require('bad.EventType');
 goog.require('bad.utils');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventHandler');
@@ -156,7 +156,7 @@ bad.ui.View.prototype.getPanelByName = function(name) {
  */
 bad.ui.View.prototype.initListenersForPanel_ = function(panel) {
   this.getHandler().listen(
-      panel, bad.ui.EventType.ACTION, goog.bind(this.onPanelAction, this));
+      panel, bad.EventType.ACTION, goog.bind(this.onPanelAction, this));
 };
 
 
@@ -189,7 +189,7 @@ bad.ui.View.prototype.onPanelAction = function(e) {
 
 
 /**
- * @param {!nestMap} nests
+ * @param {!bad.ui.Layout.NestMap} nests
  */
 bad.ui.View.prototype.setNests = function(nests) {
   this.nst = nests;

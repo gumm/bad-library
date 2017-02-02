@@ -165,6 +165,7 @@ bad.ui.Panel.prototype.enterDocument = function() {
   this.initDom();
   this.evalScripts(this.responseObject.scripts);
 
+  // Activate buttons
   const tst = this.dom_.getElementsByClass('tst_button', this.getElement());
   Array.from(tst).forEach(el => {
     const ev = el.classList.contains('mdc-icon-toggle') ?
@@ -177,6 +178,7 @@ bad.ui.Panel.prototype.enterDocument = function() {
     });
   });
 
+  // Activate Menu items
   const ms = this.dom_.getElementsByClass('mdc-simple-menu', this.getElement());
   Array.from(ms).forEach(el => {
     this.listenToThis(el, 'MDCSimpleMenu:selected', function(e) {

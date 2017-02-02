@@ -45,6 +45,7 @@ const getText = response => {
 const jsonPostInit = (jwt, obj) => {
   const h = new Headers();
   h.append('Content-type', 'application/json');
+  h.append('X-Requested-With', 'XMLHttpRequest');
   jwt && jwt !== '' && h.append('Authorization', `bearer ${jwt}`);
   return {
     cache: 'no-cache',
@@ -64,6 +65,7 @@ const jsonPostInit = (jwt, obj) => {
 const formPostInit = (jwt, formPanel) => {
   const h = new Headers();
   jwt && jwt !== '' && h.append('Authorization', `bearer ${jwt}`);
+  h.append('X-Requested-With', 'XMLHttpRequest');
   return {
     cache: 'no-cache',
     method: 'POST',
@@ -81,6 +83,7 @@ const formPostInit = (jwt, formPanel) => {
 const basicGetInit = jwt => {
   const h = new Headers();
   h.append('Authorization', `bearer ${jwt}`);
+  h.append('X-Requested-With', 'XMLHttpRequest');
   return {cache: 'no-cache', headers: h, credentials: 'include'};
 };
 
@@ -204,8 +207,22 @@ bad.UserManager.prototype.getSalutation = function() {
 
 
 /**
+ * @param formPanel
+ */
+bad.UserManager.prototype.formSubmit = function(formPanel) {
+  const req = new Request(formPanel.getUri().toString());
+  const processSubmitReply = goog.bind(formPanel.processSubmitReply, formPanel);
+  fetch(req, formPostInit(this.jwt, formPanel))
+      .then(checkStatus)
+      .then(getText)
+      .then(processSubmitReply)
+      .catch(err => console.error('Form submit error', err));
+};
+
+
+/**
  * @param {!goog.Uri} uri
- * @param {!Function} callback
+ * @param {!bad.ui.Form} formPanel
  * @param {!Function=} opt_errCb
  */
 bad.UserManager.prototype.fetch = function(uri, callback, opt_errCb) {

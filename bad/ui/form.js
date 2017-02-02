@@ -30,7 +30,7 @@ bad.ui.FieldErrs = class {
     let parent = goog.dom.getParentElement(field);
 
     goog.dom.insertSiblingAfter(alertDom, parent);
-
+    console.log('We came here...', msg);
     this.fMap.set(field, alertDom);
   };
 
@@ -88,6 +88,7 @@ bad.ui.FieldErrs = class {
    * @param {!Event} e
    */
   validateOnChange(e) {
+    console.log('This??', e);
     this.checkValidationForField(/** @type {!HTMLInputElement} */ (e.target));
   }
 };
@@ -167,9 +168,11 @@ bad.ui.Form.prototype.getSterileFormFromId = function(string) {
   const el = goog.dom.getElement(string);
   if (el && el.tagName == goog.dom.TagName.FORM) {
     form = /** @type {!HTMLFormElement} */ (el);
-    this.getHandler().listen(form, goog.events.EventType.SUBMIT, function(e) {
-      e.preventDefault();
-    });
+    this.listenToThis(form, goog.events.EventType.SUBMIT, goog.bind(
+        function(e) {
+          e.preventDefault();
+          this.getUser().formSubmit(this);
+        }, this));
   }
   return form;
 };
@@ -229,7 +232,6 @@ bad.ui.Form.prototype.processSubmitReply = function(text) {
 
   let cErrs = goog.dom.getElementsByClass('alert-error', this.form_);
   Array.from(cErrs).forEach(err => goog.dom.removeNode(err));
-
 
   let resObj = splitScripts(text);
   /**

@@ -5,7 +5,7 @@
 goog.provide('bad.ui.Component');
 
 goog.require('bad.CompEvent');
-goog.require('bad.ui.EventType');
+goog.require('bad.EventType');
 goog.require('goog.style');
 goog.require('goog.ui.Component');
 
@@ -69,7 +69,7 @@ bad.ui.Component.prototype.enterDocument = function() {
   bad.ui.Component.superClass_.enterDocument.call(this);
 
   this.onBeforeComponentReady();
-  this.dispatchCompEvent(bad.ui.EventType.READY);
+  this.dispatchCompEvent(bad.EventType.READY);
 };
 
 
@@ -84,7 +84,7 @@ bad.ui.Component.prototype.onBeforeComponentReady = function() {
 /**
  * @param {!Function} func A callback guaranteed to fire after the panels is
  * ready, and in the document, but before the
- * {@code bad.ui.EventType.READY} event is fired.
+ * {@code bad.EventType.READY} event is fired.
  */
 bad.ui.Component.prototype.setBeforeReadyCallback = function(func) {
   this.onBeforeCompReadyCallback_ = func;
@@ -127,7 +127,7 @@ bad.ui.Component.prototype.show = function() {
 
 //---------------------------------------------------------[ Component Event ]--
 /**
- * Dispatches a {@code bad.ui.EventType.ACTION} event.
+ * Dispatches a {@code bad.EventType.ACTION} event.
  * A shorthand method to get panels to dispatch uniform events.
  * Views may listen just to this event, and act on the supplied value or
  * data payload.
