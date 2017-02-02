@@ -14,7 +14,7 @@ goog.require('goog.events.Event');
  * @extends {goog.events.Event}
  */
 bad.CompEvent = function(target, value, opt_data) {
-  goog.events.Event.call(this, bad.EventType.ACTION, target);
+  goog.events.Event.call(this, bad.EventType.COMP, target);
 
   /**
    * @type {!string}

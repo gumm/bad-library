@@ -12,6 +12,6 @@ goog.addDependency('../../../../bad/ui/layout/shape_to_layout.js', ['bad.layout.
 goog.addDependency('../../../../bad/ui/layout/shapes.js', ['bad.layout.shapesNames'], [], true);
 goog.addDependency('../../../../bad/ui/panel.js', ['bad.ui.Panel'], ['bad.CssClassMap', 'bad.ui.Component', 'goog.Uri', 'goog.dom', 'goog.dom.TagName'], false);
 goog.addDependency('../../../../bad/ui/uieventtype.js', ['bad.EventType', 'bad.ui.Resizable.EventType'], ['bad.utils'], false);
-goog.addDependency('../../../../bad/ui/view.js', ['ViewEvent', 'bad.ui.View', 'bad.ui.ViewEventName'], ['bad.EventType', 'bad.utils', 'goog.events.Event', 'goog.events.EventHandler', 'goog.events.EventTarget'], false);
+goog.addDependency('../../../../bad/ui/view.js', ['ViewEvent', 'bad.ui.View', 'bad.EventType.VIEW'], ['bad.EventType', 'bad.utils', 'goog.events.Event', 'goog.events.EventHandler', 'goog.events.EventTarget'], false);
 goog.addDependency('../../../../bad/user/usermanager.js', ['bad.UserManager'], [], false);
 goog.addDependency('../../../../bad/util/utils.js', ['bad.utils'], ['goog.array', 'goog.dom', 'goog.object', 'goog.string'], false);

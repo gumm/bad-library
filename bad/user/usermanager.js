@@ -207,7 +207,7 @@ bad.UserManager.prototype.getSalutation = function() {
 
 
 /**
- * @param formPanel
+ * @param {!bad.ui.Form} formPanel
  */
 bad.UserManager.prototype.formSubmit = function(formPanel) {
   const req = new Request(formPanel.getUri().toString());
@@ -222,7 +222,7 @@ bad.UserManager.prototype.formSubmit = function(formPanel) {
 
 /**
  * @param {!goog.Uri} uri
- * @param {!bad.ui.Form} formPanel
+ * @param {!Function} callback
  * @param {!Function=} opt_errCb
  */
 bad.UserManager.prototype.fetch = function(uri, callback, opt_errCb) {

@@ -165,13 +165,14 @@ bad.ui.Form.prototype.getForm = function() {
  */
 bad.ui.Form.prototype.getSterileFormFromId = function(string) {
   let form = null;
+  const user = this.getUser();
   const el = goog.dom.getElement(string);
   if (el && el.tagName == goog.dom.TagName.FORM) {
     form = /** @type {!HTMLFormElement} */ (el);
     this.listenToThis(form, goog.events.EventType.SUBMIT, goog.bind(
         function(e) {
           e.preventDefault();
-          this.getUser().formSubmit(this);
+          user && user.formSubmit(this);
         }, this));
   }
   return form;
@@ -260,6 +261,7 @@ bad.ui.Form.prototype.processSubmitReply = function(text) {
   if (hasErrors.length > 0) {
     return Promise.reject('Form has errors');
   } else {
+    this.dispatchCompEvent(bad.EventType.FORM_SUBMIT_SUCCESS);
     return Promise.resolve(true);
   }
 };

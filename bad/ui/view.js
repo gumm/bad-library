@@ -1,65 +1,11 @@
-goog.provide('ViewEvent');
 goog.provide('bad.ui.View');
-goog.provide('bad.ui.ViewEventName');
 
 goog.require('bad.EventType');
-goog.require('bad.utils');
-goog.require('goog.events.Event');
+goog.require('bad.ViewEvent');
 goog.require('goog.events.EventHandler');
 goog.require('goog.events.EventTarget');
 
 
-//-------------------------------------------------------------[ View Events ]--
-/**
- * @type {!string}
- */
-bad.ui.ViewEventName = bad.utils.privateRandom();
-
-/**
- * Object representing bad.ui.ViewEvent event.
- *
- * @param {!bad.ui.View} target The view that dispatched the event.
- * @param {!string} value Secondary event value.
- * @param {*=} opt_data Optional data to include
- *    in the event.
- * @extends {goog.events.Event}
- * @constructor
- */
-ViewEvent = function(target, value, opt_data) {
-  goog.events.Event.call(this, bad.ui.ViewEventName, target);
-
-  /**
-   * @type {!string}
-   * @private
-   */
-  this.value_ = value;
-
-  /**
-   * @type {*}
-   * @private
-   */
-  this.data_ = opt_data || {};
-};
-goog.inherits(ViewEvent, goog.events.Event);
-
-/**
- * @return {!string}
- */
-ViewEvent.prototype.getValue = function() {
-  return this.value_;
-};
-
-
-/**
- * @return {*}
- */
-ViewEvent.prototype.getData = function() {
-  return this.data_;
-};
-
-
-
-//--------------------------------------------------------------------[ View ]--
 /**
  * @constructor
  * @extends {goog.events.EventTarget}
@@ -156,7 +102,7 @@ bad.ui.View.prototype.getPanelByName = function(name) {
  */
 bad.ui.View.prototype.initListenersForPanel_ = function(panel) {
   this.getHandler().listen(
-      panel, bad.EventType.ACTION, goog.bind(this.onPanelAction, this));
+      panel, bad.EventType.COMP, goog.bind(this.onPanelAction, this));
 };
 
 
@@ -225,5 +171,5 @@ bad.ui.View.prototype.getUser = function() {
  * event.
  */
 bad.ui.View.prototype.dispatchViewEvent = function(v, opt_data) {
-  this.dispatchEvent(new ViewEvent(this, v, opt_data));
+  this.dispatchEvent(new bad.ViewEvent(this, v, opt_data));
 };

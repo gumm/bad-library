@@ -127,7 +127,7 @@ bad.ui.Component.prototype.show = function() {
 
 //---------------------------------------------------------[ Component Event ]--
 /**
- * Dispatches a {@code bad.EventType.ACTION} event.
+ * Dispatches a {@code bad.EventType.COMP} event.
  * A shorthand method to get panels to dispatch uniform events.
  * Views may listen just to this event, and act on the supplied value or
  * data payload.

@@ -7,8 +7,8 @@ goog.provide('bad.ui.Layout.CssClassMap');
 goog.provide('bad.ui.Layout.IdFragment');
 
 goog.require('bad.CssPrefix');
-goog.require('bad.ui.Component');
 goog.require('bad.EventType');
+goog.require('bad.ui.Component');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.dom.ViewportSizeMonitor');

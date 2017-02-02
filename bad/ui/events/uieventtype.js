@@ -26,8 +26,9 @@ bad.EventType = {
    * Dispatched after the content from the template is in the DOM
    * and the in-line scripts from the AJAX call has been eval'd.
    */
-  ACTION: bad.utils.privateRandom(),
+  COMP: bad.utils.privateRandom(),
+  VIEW: bad.utils.privateRandom(),
   READY: bad.utils.privateRandom(),
-  APP_DO: bad.utils.privateRandom(),
-  PANEL_MINIMIZE: bad.utils.privateRandom()
+  PANEL_MINIMIZE: bad.utils.privateRandom(),
+  FORM_SUBMIT_SUCCESS: bad.utils.privateRandom(),
 };
