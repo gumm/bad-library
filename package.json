@@ -32,6 +32,7 @@
     "mocha": "*",
     "less": "*",
     "less-middleware": "*",
-    "less-plugin-clean-css": "*"
+    "less-plugin-clean-css": "*",
+    "ramda": "^0.23.0"
   }
 }

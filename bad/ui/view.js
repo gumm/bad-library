@@ -130,7 +130,16 @@ bad.ui.View.prototype.displayPanels = goog.nullFunction;
 bad.ui.View.prototype.onPanelAction = function(e) {
   const eventValue = e.getValue();
   const eventData = e.getData();
-  console.debug('This event is not handled:', eventValue, eventData);
+  // We know this is a panel.
+  const ePanel = /** @type {!bad.ui.Panel} */ (e.target);
+
+  switch (eventValue) {
+    case 'destroy_me':
+      ePanel.dispose();
+      break;
+    default:
+      console.debug('This event is not handled:', eventValue, eventData);
+  }
 };
 
 

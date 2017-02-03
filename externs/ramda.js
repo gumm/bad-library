@@ -148,6 +148,7 @@ const R = {
   'or': function() {},
   'over': function() {},
   'pair': function() {},
+
   'partial': function() {},
   'partialRight': function() {},
   'partition': function() {},

@@ -6,8 +6,6 @@ goog.require('goog.Uri');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 
-
-
 //------------------------------------------------------------[ Ajax Control ]--
 
 /**
@@ -136,7 +134,6 @@ bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(s) {
  * @param {?goog.events.EventLike} e Event object.
  */
 bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
-
   callback(e);
   this.render();
 };

@@ -7,13 +7,48 @@ goog.require('goog.string');
 
 
 /**
+ * @param {!bad.ui.Panel} panel
+ * @param {!bad.ui.View} view
+ * @param {!string} name
+ * @param {?bad.ui.Panel=} opt_tPan The target panel
+ * @return {!Array<!Function>}
+ */
+bad.utils.panelWithinPanel = (panel, view, name, opt_tPan) => {
+  /**
+   * @param {!string} c The class name
+   * @param {!Element} t The target element where to look from
+   * @param {!Element} def The default if we could not find it
+   * @return {!Element|!HTMLBodyElement}
+   */
+  const getEbyCorD = (c, t, def) => goog.dom.getElementByClass(c, t) || def;
+  const user = view.getUser();
+  const b = /** @type {!Element} */(goog.dom.getDocument().body);
+  const target = opt_tPan ? getEbyCorD(
+      'tst_content',
+      /** @type {!Element} */(opt_tPan.getElement()),
+      b) : b;
+  const render = () => {
+    panel.setUser(user);
+    panel.setTarget(target);
+    view.addPanelToView(name, panel);
+    panel.renderWithTemplate();
+  };
+  const destroy = () => {
+    const p = view.getPanelByName(name);
+    p && p.dispose();
+  };
+  return [render, destroy];
+};
+
+
+/**
  * Given a string this returns an array of bytes
  * @param {!string} s
  * @return {!Array}
  */
 bad.utils.stringToBytes = function(s) {
-  var bytes = new Array(s.length);
-  for (var i = 0; i < s.length; ++i) bytes[i] = s.charCodeAt(i) & 255;
+  const bytes = new Array(s.length);
+  for (let i = 0; i < s.length; ++i) bytes[i] = s.charCodeAt(i) & 255;
   return bytes;
 };
 
@@ -36,7 +71,7 @@ bad.utils.getNowSeconds = function() {
  * @return {!function(): number}
  */
 bad.utils.privateCounter = function(opt_start) {
-  var c = opt_start ? opt_start : 0;
+  let c = opt_start ? opt_start : 0;
   return function() {
     c = c + 1;
     return c;
@@ -49,9 +84,9 @@ bad.utils.privateCounter = function(opt_start) {
  * it is called.
  * @return {!string}
  */
-bad.utils.privateRandom = function() {
-  var c = bad.utils.makeId();
-  return (function() { return c; })();
+bad.utils.privateRandom = () => {
+  const c = bad.utils.makeId();
+  return (() => c)();
 };
 
 
@@ -62,7 +97,7 @@ bad.utils.privateRandom = function() {
  * @return {!string}
  */
 bad.utils.makeId = function(opt_length) {
-  var s = goog.string.getRandomString();
+  const s = goog.string.getRandomString();
   return opt_length ? s.substr(0, opt_length) : s;
 };
 
