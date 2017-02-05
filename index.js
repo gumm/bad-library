@@ -24,11 +24,7 @@ const parseShape = goog.require('bad.layout.parseShape');
 const shapeNames = goog.require('bad.layout.shapesNames');
 const utils = goog.require('bad.utils');
 
-/**
- * @constructor
- */
-exports.CompilerEntry = function() {
-  this.map = {
+exports = {
     'CssClassMap': CssClassMap,
     'CssPrefix': CssPrefix,
     'bit': bit,
@@ -52,7 +48,4 @@ exports.CompilerEntry = function() {
     'UserManager': UserManager,
     'utils': utils,
     'func': func
-  }
 };
-
-const testme = new CompilerEntry();

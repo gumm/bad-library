@@ -222,7 +222,7 @@ const sameEls = (a, b) => a.length == b.length &&
 
 /**
  * @param {!number|!string} n The number to calc and check
- * @return {{valid: !boolean, num: !number}}
+ * @return {{valid: !boolean, luhn: !number}}
  */
 const luhn = n => {
   let result = n.toString().split('').reverse().reduce((p, e, i) => {
