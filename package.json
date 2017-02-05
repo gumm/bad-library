@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "be-sert": "*",
-    "google-closure-compiler": "20161201.0.0",
+    "google-closure-compiler": "*",
     "google-closure-library": "*",
     "mocha": "*",
     "less": "*",

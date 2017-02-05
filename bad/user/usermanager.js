@@ -38,6 +38,20 @@ const getText = response => {
 
 
 /**
+ * @param {!Response} response
+ * @return {!Promise}
+ */
+const getTextOrJson = response => {
+  return response.json().then(
+      data => Promise.resolve(data),
+      err => response.text().then(
+        text => Promise.resolve(text),
+        err => Promise.reject('Could not get text or json from response'))
+  );
+};
+
+
+/**
  * @param {!string} jwt A JWT token
  * @param {!Object} obj
  * @return {!Object}
@@ -214,7 +228,7 @@ bad.UserManager.prototype.formSubmit = function(formPanel) {
   const processSubmitReply = goog.bind(formPanel.processSubmitReply, formPanel);
   fetch(req, formPostInit(this.jwt, formPanel))
       .then(checkStatus)
-      .then(getText)
+      .then(getTextOrJson)
       .then(processSubmitReply)
       .catch(err => console.error('Form submit error', err));
 };

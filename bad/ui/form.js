@@ -1,6 +1,7 @@
 goog.provide('bad.ui.FieldErrs');
 goog.provide('bad.ui.Form');
 
+goog.require('bad.func');
 goog.require('bad.ui.Panel');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
@@ -8,6 +9,7 @@ goog.require('goog.dom.classlist');
 goog.require('goog.dom.forms');
 goog.require('goog.events.EventType');
 goog.require('goog.uri.utils');
+
 
 /**
  * A class for managing the display of field level messages on a form.
@@ -225,43 +227,61 @@ bad.ui.Form.prototype.showErrs = function(obj) {
 };
 
 
+// bad.ui.Form.prototype.setSnackbar = function(sb, func) {
+//   console.log('Yippee...');
+//   this.snakbar = function() {
+//     func(sb);
+//   }
+// }
+
 /**
- * @param {!string} text
+ * @param {!string|!Object.<!string,*>} reply
  * @return {!Promise}
  */
-bad.ui.Form.prototype.processSubmitReply = function(text) {
+bad.ui.Form.prototype.processSubmitReply = function(reply) {
 
-  let cErrs = goog.dom.getElementsByClass('alert-error', this.form_);
-  Array.from(cErrs).forEach(err => goog.dom.removeNode(err));
+  const func = goog.module.get('bad.func');
+  let success = false;
 
-  let resObj = splitScripts(text);
-  /**
-   * @type {?HTMLFormElement}
-   */
-  let newForm = goog.dom.getElementsByTagName(
+  if (func.whatType(reply) === 'object' && reply['success']) {
+    success = true;
+  } else {
+    reply = /** @type {!string} */(reply);
+    let cErrs = goog.dom.getElementsByClass('alert-error', this.form_);
+    Array.from(cErrs).forEach(err => goog.dom.removeNode(err));
+
+    let resObj = splitScripts(reply);
+    /**
+     * @type {?HTMLFormElement}
+     */
+    let newForm = goog.dom.getElementsByTagName(
       goog.dom.TagName.FORM, /** @type {!Element} */ (resObj.html))[0];
-  goog.dom.replaceNode(newForm, this.form_);
+    goog.dom.replaceNode(newForm, this.form_);
 
-  this.form_ = newForm;
+    this.form_ = newForm;
 
-  // Sterilize the form
-  this.getHandler().listen(
+    // Sterilize the form
+    this.getHandler().listen(
       this.form_, goog.events.EventType.SUBMIT,
       function(e) { e.preventDefault(); });
 
-  // Add validity checkers
-  let check = goog.bind(this.fieldErr_.validateOnChange, this.fieldErr_);
-  this.form_ && this.form_.addEventListener('change', check, false);
+    // Add validity checkers
+    let check = goog.bind(this.fieldErr_.validateOnChange, this.fieldErr_);
+    this.form_ && this.form_.addEventListener('change', check, false);
 
-  // Eval the scripts
-  this.evalScripts(resObj.scripts);
+    // Eval the scripts
+    this.evalScripts(resObj.scripts);
 
-  let hasErrors = goog.dom.getElementsByClass('alert-error', this.form_);
+    let hasErrors = goog.dom.getElementsByClass('alert-error', this.form_);
+    success = !hasErrors.length
+  }
 
-  if (hasErrors.length > 0) {
-    return Promise.reject('Form has errors');
-  } else {
+
+  if (success) {
     this.dispatchCompEvent(bad.EventType.FORM_SUBMIT_SUCCESS);
+    // this.snakbar && this.snakbar();
     return Promise.resolve(true);
+  } else {
+    return Promise.reject('Form has errors');
   }
 };

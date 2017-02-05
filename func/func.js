@@ -67,15 +67,6 @@ const isEven = t => isNumber(t) && !(t % 2);
 const isDivisibleBy = n => x => x % n === 0 && isNumber(x);
 
 
-const logInline = (tag, x) => {
-  console.log(tag, x);
-  return x;
-};
-
-
-const trace = t => partial(logInline, t);
-
-
 /**
  * @type {function(*): !string}
  */
@@ -132,6 +123,14 @@ const reverse = x => {
   let y = x.split ? x.split('') : x;
   return y.reduce((p, c) => [c].concat(p), [])
 };
+
+const logInline = (tag, x) => {
+  console.log(tag, x);
+  return x;
+};
+
+
+const trace = t => partial(logInline, t);
 
 
 const flatten = arr =>

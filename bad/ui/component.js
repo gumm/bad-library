@@ -28,6 +28,8 @@ bad.ui.Component = function(opt_domHelper) {
    * @private
    */
   this.target_ = null;
+
+  goog.exportProperty(this, 'getElement', this.getElement);
 };
 goog.inherits(bad.ui.Component, goog.ui.Component);
 

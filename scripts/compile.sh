@@ -1,9 +1,88 @@
 #!/bin/bash
 
 : <<'HEREDOC'
- --angular_pass                         : Generate $inject properties for
-                                          AngularJS for functions annotated
-                                          with @ngInject
+Basic Usage:
+ --compilation_level (-O) VAL           : Specifies the compilation level to
+                                          use. Options: WHITESPACE_ONLY,
+                                          SIMPLE, ADVANCED (default: SIMPLE)
+ --env [BROWSER | CUSTOM]               : Determines the set of builtin externs
+                                          to load. Options: BROWSER, CUSTOM.
+                                          Defaults to BROWSER. (default:
+                                          BROWSER)
+ --externs VAL                          : The file containing JavaScript
+                                          externs. You may specify multiple
+ --js VAL                               : The JavaScript filename. You may
+                                          specify multiple. The flag name is
+                                          optional, because args are
+                                          interpreted as files by default. You
+                                          may also use minimatch-style glob
+                                          patterns. For example, use
+                                          --js='**.js' --js='!**_test.js' to
+                                          recursively include all js files that
+                                          do not end in _test.js
+ --js_output_file VAL                   : Primary output filename. If not
+                                          specified, output is written to
+                                          stdout (default: )
+ --language_in VAL                      : Sets what language spec that input
+                                          sources conform. Options:
+                                          ECMASCRIPT3, ECMASCRIPT5,
+                                          ECMASCRIPT5_STRICT, ECMASCRIPT6
+                                          (default), ECMASCRIPT6_STRICT,
+                                          ECMASCRIPT6_TYPED (experimental)
+                                          (default: ECMASCRIPT6)
+ --language_out VAL                     : Sets what language spec the output
+                                          should conform to. Options:
+                                          ECMASCRIPT3 (default), ECMASCRIPT5,
+                                          ECMASCRIPT5_STRICT, ECMASCRIPT6_TYPED
+                                          (experimental) (default: ECMASCRIPT3)
+ --warning_level (-W) [QUIET | DEFAULT  : Specifies the warning level to use.
+ | VERBOSE]                               Options: QUIET, DEFAULT, VERBOSE
+                                          (default: DEFAULT)
+
+
+Warning and Error Management:
+ --conformance_configs VAL              : A list of JS Conformance
+                                          configurations in text protocol
+                                          buffer format.
+ --extra_annotation_name VAL            : A whitelist of tag names in JSDoc.
+                                          You may specify multiple
+ --hide_warnings_for VAL                : If specified, files whose path
+                                          contains this string will have their
+                                          warnings hidden. You may specify
+                                          multiple.
+ --jscomp_error VAL                     : Make the named class of warnings an
+                                          error. Must be one of the error group
+                                          items. '*' adds all supported.
+ --jscomp_off VAL                       : Turn off the named class of warnings.
+                                          Must be one of the error group items.
+                                          '*' adds all supported.
+ --jscomp_warning VAL                   : Make the named class of warnings a
+                                          normal warning. Must be one of the
+                                          error group items. '*' adds all
+                                          supported.
+ --new_type_inf                         : Checks for type errors using the new
+                                          type inference algorithm. (default:
+                                          false)
+ --warnings_whitelist_file VAL          : A file containing warnings to
+                                          suppress. Each line should be of the
+                                          form
+                                          <file-name>:<line-number>?
+                                          <warning-description> (default: )
+
+Available Error Groups: accessControls, ambiguousFunctionDecl,
+    checkEventfulObjectDisposal, checkRegExp, checkTypes, checkVars,
+    commonJsModuleLoad, conformanceViolations, const, constantProperty,
+    deprecated, deprecatedAnnotations, duplicateMessage, es3, es5Strict,
+    externsValidation, fileoverviewTags, functionParams, globalThis,
+    internetExplorerChecks, invalidCasts, misplacedTypeAnnotation,
+    missingGetCssName, missingOverride, missingPolyfill, missingProperties,
+    missingProvide, missingRequire, missingReturn, msgDescriptions,
+    newCheckTypes, nonStandardJsDocs, reportUnknownTypes, suspiciousCode,
+    strictModuleDepCheck, typeInvalidation, undefinedNames, undefinedVars,
+    unknownDefines, unusedLocalVariables, unusedPrivateMembers, uselessCode,
+    useOfGoogBase, underscore, visibility
+
+Output:
  --assume_function_wrapper              : Enable additional optimizations based
                                           on the assumption that the output
                                           will be wrapped with a function
@@ -12,48 +91,32 @@
                                           will not actually be global but
                                           instead isolated to the compilation
                                           unit. This enables additional
-                                          optimizations.
- --charset VAL                          : Input and output charset for all
-                                          files. By default, we accept UTF-8 as
-                                          input and output US_ASCII
- --checks-only                          : Don't generate output. Run checks,
-                                          but no compiler passes.
- --closure_entry_point VAL              : Deprecated: use --entry_point.
- --common_js_entry_module VAL           : Deprecated: use --entry_point.
- --common_js_module_path_prefix VAL     : Deprecated: use --js_module_root.
- --compilation_level (-O) VAL           : Specifies the compilation level to
-                                          use. Options: WHITESPACE_ONLY,
-                                          SIMPLE, ADVANCED
- --conformance_configs VAL              : A list of JS Conformance configuration
-                                          s in text protocol buffer format.
- --create_renaming_reports              : If true, variable renaming and
-                                          property renaming report files will
-                                          be produced as {binary name}_vars_rena
-                                          ming_report.out and {binary name}_prop
-                                          s_renaming_report.out. Note that this
-                                          flag cannot be used in conjunction
-                                          with either variable_renaming_report
-                                          or property_renaming_report
- --create_source_map VAL                : If specified, a source map file
-                                          mapping the generated source files
-                                          back to the original source file will
-                                          be output to the specified path. The
-                                          %outname% placeholder will expand to
-                                          the name of the output file that the
-                                          source map corresponds to.
- --dart_pass                            : Rewrite Dart Dev Compiler output to
-                                          be compiler-friendly.
- --debug                                : Enable debugging options
- --define (--D, -D) VAL                 : Override the value of a variable
-                                          annotated @define. The format is
-                                          <name>[=<val>], where <name> is the
-                                          name of a @define variable and <val>
-                                          is a boolean, number, or a single-quot
-                                          ed string that contains no single
-                                          quotes. If [=<val>] is omitted, the
-                                          variable is marked true
+                                          optimizations. (default: false)
+ --export_local_property_definitions    : Generates export code for local
+                                          properties marked with @export
+                                          (default: false)
+ --formatting [PRETTY_PRINT |           : Specifies which formatting options,
+ PRINT_INPUT_DELIMITER | SINGLE_QUOTES]   if any, should be applied to the
+                                          output JS. Options: PRETTY_PRINT,
+                                          PRINT_INPUT_DELIMITER, SINGLE_QUOTES
+ --generate_exports                     : Generates export code for those
+                                          marked with @export (default: false)
+ --output_wrapper VAL                   : Interpolate output into this string
+                                          at the place denoted by the marker
+                                          token %output%. Use marker token
+                                          %output|jsstring% to do js string
+                                          escaping on the output. (default: )
+ --output_wrapper_file VAL              : Loads the specified file and passes
+                                          the file contents to the
+                                          --output_wrapper flag, replacing the
+                                          value if it exists. This is useful if
+                                          you want special characters like
+                                          newline in the wrapper. (default: )
+
+
+Dependency Management:
  --dependency_mode [NONE | LOOSE |      : Specifies how the compiler should
- STRICT]                                : determine the set and order of files
+ STRICT]                                  determine the set and order of files
                                           for a compilation. Options: NONE the
                                           compiler will include all src files
                                           in the order listed, STRICT files
@@ -67,149 +130,45 @@
                                           do not goog.provide a namespace and
                                           are not modules will be automatically
                                           added as --entry_point entries.
-                                          Defaults to NONE.
+                                          Defaults to NONE. (default: NONE)
  --entry_point VAL                      : A file or namespace to use as the
                                           starting point for determining which
-                                          src files to include in the compilatio
-                                          n. ES6 and CommonJS modules are
-                                          specified as file paths (without the
-                                          extension). Closure-library namespaces
-                                          are specified with a "goog:" prefix.
-                                          Example: --entry_point=goog:goog.Promi
-                                          se
- --env [BROWSER | CUSTOM]               : Determines the set of builtin externs
-                                          to load. Options: BROWSER, CUSTOM.
-                                          Defaults to BROWSER.
- --export_local_property_definitions    : Generates export code for local
-                                          properties marked with @export
- --externs VAL                          : The file containing JavaScript
-                                          externs. You may specify multiple
- --extra_annotation_name VAL            : A whitelist of tag names in JSDoc.
-                                          You may specify multiple
- --flagfile VAL                         : A file containing additional command-l
-                                          ine options.
- --formatting [PRETTY_PRINT | PRINT_INP : Specifies which formatting options,
- UT_DELIMITER | SINGLE_QUOTES]          : if any, should be applied to the
-                                          output JS. Options: PRETTY_PRINT,
-                                          PRINT_INPUT_DELIMITER, SINGLE_QUOTES
- --generate_exports                     : Generates export code for those
-                                          marked with @export
- --help                                 : Displays this message on stdout and
-                                          exit
- --hide_warnings_for VAL                : If specified, files whose path
-                                          contains this string will have their
-                                          warnings hidden. You may specify
-                                          multiple.
- --instrumentation_template VAL         : A file containing an instrumentation
-                                          template.
- --j2cl_pass                            : Rewrite J2CL output to be compiler-fri
-                                          endly.
- --js VAL                               : The JavaScript filename. You may
-                                          specify multiple. The flag name is
-                                          optional, because args are interpreted
-                                          as files by default. You may also use
-                                          minimatch-style glob patterns. For
-                                          example, use --js='**.js' --js='!**_te
-                                          st.js' to recursively include all js
-                                          files that do not end in _test.js
+                                          src files to include in the
+                                          compilation. ES6 and CommonJS modules
+                                          are specified as file paths (without
+                                          the extension). Closure-library
+                                          namespaces are specified with a
+                                          "goog:" prefix. Example:
+                                          --entry_point=goog:goog.Promise
+
+
+JS Modules:
  --js_module_root VAL                   : Path prefixes to be removed from ES6
                                           & CommonJS modules.
- --js_output_file VAL                   : Primary output filename. If not
-                                          specified, output is written to stdout
- --jscomp_error VAL                     : Make the named class of warnings an
-                                          error. Options:accessControls,
-                                          ambiguousFunctionDecl, checkEventfulOb
-                                          jectDisposal, checkRegExp, checkTypes,
-                                          checkVars, conformanceViolations,
-                                          const, constantProperty, deprecated,
-                                          deprecatedAnnotations, duplicateMessag
-                                          e, es3, es5Strict, externsValidation,
-                                          fileoverviewTags, globalThis,
-                                          internetExplorerChecks, invalidCasts,
-                                          misplacedTypeAnnotation, missingGetCss
-                                          Name, missingProperties, missingProvid
-                                          e, missingRequire, missingReturn,
-                                          msgDescriptions, newCheckTypes,
-                                          nonStandardJsDocs, reportUnknownTypes,
-                                          suspiciousCode, strictModuleDepCheck,
-                                          typeInvalidation, undefinedNames,
-                                          undefinedVars, unknownDefines,
-                                          unnecessaryCasts, unusedLocalVariables
-                                          , unusedPrivateMembers, uselessCode,
-                                          useOfGoogBase, visibility. '*' adds
-                                          all supported.
- --jscomp_off VAL                       : Turn off the named class of warnings.
-                                          Options:accessControls, ambiguousFunct
-                                          ionDecl, checkEventfulObjectDisposal,
-                                          checkRegExp, checkTypes, checkVars,
-                                          conformanceViolations, const,
-                                          constantProperty, deprecated,
-                                          deprecatedAnnotations, duplicateMessag
-                                          e, es3, es5Strict, externsValidation,
-                                          fileoverviewTags, globalThis,
-                                          internetExplorerChecks, invalidCasts,
-                                          misplacedTypeAnnotation, missingGetCss
-                                          Name, missingProperties, missingProvid
-                                          e, missingRequire, missingReturn,
-                                          msgDescriptions, newCheckTypes,
-                                          nonStandardJsDocs, reportUnknownTypes,
-                                          suspiciousCode, strictModuleDepCheck,
-                                          typeInvalidation, undefinedNames,
-                                          undefinedVars, unknownDefines,
-                                          unnecessaryCasts, unusedLocalVariables
-                                          , unusedPrivateMembers, uselessCode,
-                                          useOfGoogBase, visibility. '*' adds
-                                          all supported.
- --jscomp_warning VAL                   : Make the named class of warnings a
-                                          normal warning. Options:accessControls
-                                          , ambiguousFunctionDecl, checkEventful
-                                          ObjectDisposal, checkRegExp, checkType
-                                          s, checkVars, conformanceViolations,
-                                          const, constantProperty, deprecated,
-                                          deprecatedAnnotations, duplicateMessag
-                                          e, es3, es5Strict, externsValidation,
-                                          fileoverviewTags, globalThis,
-                                          internetExplorerChecks, invalidCasts,
-                                          misplacedTypeAnnotation, missingGetCss
-                                          Name, missingProperties, missingProvid
-                                          e, missingRequire, missingReturn,
-                                          msgDescriptions, newCheckTypes,
-                                          nonStandardJsDocs, reportUnknownTypes,
-                                          suspiciousCode, strictModuleDepCheck,
-                                          typeInvalidation, undefinedNames,
-                                          undefinedVars, unknownDefines,
-                                          unnecessaryCasts, unusedLocalVariables
-                                          , unusedPrivateMembers, uselessCode,
-                                          useOfGoogBase, visibility. '*' adds
-                                          all supported.
- --json_streams [NONE | IN | OUT |      : Specifies whether standard input and
- BOTH]                                  : output streams will be a JSON array
-                                          of sources. Each source will be an
-                                          object of the form {path: filename,
-                                          src: file_contents, srcmap: srcmap_con
-                                          tents }. Intended for use by stream-ba
-                                          sed build systems such as gulpjs.
-                                          Options: NONE, IN, OUT, BOTH.
-                                          Defaults to NONE.
- --jszip VAL                            : The JavaScript zip filename. You may
-                                          specify multiple.
- --language_in VAL                      : Sets what language spec that input
-                                          sources conform. Options: ECMASCRIPT3,
-                                          ECMASCRIPT5, ECMASCRIPT5_STRICT,
-                                          ECMASCRIPT6 (default), ECMASCRIPT6_STR
-                                          ICT, ECMASCRIPT6_TYPED (experimental)
- --language_out VAL                     : Sets what language spec the output
-                                          should conform to. Options: ECMASCRIPT
-                                          3 (default), ECMASCRIPT5, ECMASCRIPT5_
-                                          STRICT, ECMASCRIPT6_TYPED (experimenta
-                                          l)
- --logging_level VAL                    : The logging level (standard java.util.
-                                          logging.Level values) for Compiler
-                                          progress. Does not control errors or
-                                          warnings for the JavaScript code
-                                          under compilation
- --manage_closure_dependencies          : Deprecated: use --dependency_mode=LOOS
-                                          E.
+ --process_common_js_modules            : Process CommonJS modules to a
+                                          concatenable form. (default: false)
+ --transform_amd_modules                : Transform AMD to CommonJS modules.
+                                          (default: false)
+
+
+Library and Framework Specific:
+ --angular_pass                         : Generate $inject properties for
+                                          AngularJS for functions annotated
+                                          with @ngInject (default: false)
+ --dart_pass                            : Rewrite Dart Dev Compiler output to
+                                          be compiler-friendly. (default: false)
+ --polymer_pass                         : Rewrite Polymer classes to be
+                                          compiler-friendly. (default: false)
+ --process_closure_primitives           : Processes built-ins from the Closure
+                                          library, such as goog.require(),
+                                          goog.provide(), and goog.exportSymbol(
+                                          ). True by default. (default: true)
+ --rewrite_polyfills                    : Rewrite ES6 library calls to use
+                                          polyfills provided by the compiler's
+                                          runtime. (default: true)
+
+
+Code Splitting:
  --module VAL                           : A JavaScript module specification.
                                           The format is <name>:<num-js-files>[:[
                                           <dep>,...][:]]]. Module names must be
@@ -219,32 +178,37 @@
                                           order, and JS source files must be
                                           listed in the corresponding order.
                                           Where --module flags occur in
-                                          relation to --js flags is unimportant.
-                                          <num-js-files> may be set to 'auto'
-                                          for the first module if it has no
-                                          dependencies. Provide the value
-                                          'auto' to trigger module creation
-                                          from CommonJSmodules.
+                                          relation to --js flags is
+                                          unimportant. <num-js-files> may be
+                                          set to 'auto' for the first module if
+                                          it has no dependencies. Provide the
+                                          value 'auto' to trigger module
+                                          creation from CommonJSmodules.
  --module_output_path_prefix VAL        : Prefix for filenames of compiled JS
                                           modules. <module-name>.js will be
                                           appended to this prefix. Directories
                                           will be created as needed. Use with
-                                          --module
+                                          --module (default: ./)
  --module_wrapper VAL                   : An output wrapper for a JavaScript
                                           module (optional). The format is
                                           <name>:<wrapper>. The module name
                                           must correspond with a module
                                           specified using --module. The wrapper
-                                          must contain %s as the code placeholde
-                                          r. The %basename% placeholder can
-                                          also be used to substitute the base
-                                          name of the module output file.
- --new_type_inf                         : Checks for type errors using the new
-                                          type inference algorithm.
- --noinject_library VAL                 : Prevent injecting the named runtime
-                                          libraries.
- --only_closure_dependencies            : Deprecated: use --dependency_mode=STRI
-                                          CT.
+                                          must contain %s as the code
+                                          placeholder. The %basename%
+                                          placeholder can also be used to
+                                          substitute the base name of the
+                                          module output file.
+
+
+Reports:
+ --create_source_map VAL                : If specified, a source map file
+                                          mapping the generated source files
+                                          back to the original source file will
+                                          be output to the specified path. The
+                                          %outname% placeholder will expand to
+                                          the name of the output file that the
+                                          source map corresponds to. (default: )
  --output_manifest VAL                  : Prints out a list of all the files in
                                           the compilation. If --dependency_mode=
                                           STRICT or LOOSE is specified, this
@@ -254,90 +218,55 @@
                                           expands to the JS output file. If
                                           you're using modularization, using
                                           %outname% will create a manifest for
-                                          each module.
- --output_module_dependencies VAL       : Prints out a JSON file of dependencies
-                                          between modules.
- --output_wrapper VAL                   : Interpolate output into this string
-                                          at the place denoted by the marker
-                                          token %output%. Use marker token
-                                          %output|jsstring% to do js string
-                                          escaping on the output.
- --output_wrapper_file VAL              : Loads the specified file and passes
-                                          the file contents to the --output_wrap
-                                          per flag, replacing the value if it
-                                          exists.
- --polymer_pass                         : Rewrite Polymer classes to be
-                                          compiler-friendly.
- --preserve_type_annotations            : Preserves type annotations.
- --print_ast                            : Prints a dot file describing the
-                                          internal abstract syntax tree and
-                                          exits
- --print_pass_graph                     : Prints a dot file describing the
-                                          passes that will get run and exits
- --print_tree                           : Prints out the parse tree and exits
- --process_closure_primitives           : Processes built-ins from the Closure
-                                          library, such as goog.require(),
-                                          goog.provide(), and goog.exportSymbol(
-                                          ). True by default.
- --process_common_js_modules            : Process CommonJS modules to a
-                                          concatenable form.
- --process_jquery_primitives            : Processes built-ins from the Jquery
-                                          library, such as jQuery.fn and
-                                          jQuery.extend()
+                                          each module. (default: )
+ --output_module_dependencies VAL       : Prints out a JSON file of
+                                          dependencies between modules.
+                                          (default: )
  --property_renaming_report VAL         : File where the serialized version of
                                           the property renaming map produced
-                                          should be saved
- --rename_prefix_namespace VAL          : Specifies the name of an object that
-                                          will be used to store all non-extern
-                                          globals
- --source_map_format [DEFAULT | V3]     : The source map format to produce.
-                                          Options are V3 and DEFAULT, which are
-                                          equivalent.
+                                          should be saved (default: )
+ --source_map_include_content           : Includes sources content into source
+                                          map. Greatly increases the size of
+                                          source maps but offers greater
+                                          portability (default: false)
  --source_map_input VAL                 : Source map locations for input files,
-                                          separated by a '|', (i.e. input-file-p
-                                          ath|input-source-map)
+                                          separated by a '|', (i.e.
+                                          input-file-path|input-source-map)
  --source_map_location_mapping VAL      : Source map location mapping separated
                                           by a '|' (i.e. filesystem-path|webserv
                                           er-path)
- --summary_detail_level N               : Controls how detailed the compilation
-                                          summary is. Values: 0 (never print
-                                          summary), 1 (print summary only if
-                                          there are errors or warnings), 2
-                                          (print summary if the 'checkTypes'
-                                          diagnostic  group is enabled, see
-                                          --jscomp_warning), 3 (always print
-                                          summary). The default level is 1
+ --variable_renaming_report VAL         : File where the serialized version of
+                                          the variable renaming map produced
+                                          should be saved (default: )
+
+
+Miscellaneous:
+ --charset VAL                          : Input and output charset for all
+                                          files. By default, we accept UTF-8 as
+                                          input and output US_ASCII (default: )
+ --checks_only (--checks-only)          : Don't generate output. Run checks,
+                                          but no optimization passes. (default:
+                                          false)
+ --define (--D, -D) VAL                 : Override the value of a variable
+                                          annotated @define. The format is
+                                          <name>[=<val>], where <name> is the
+                                          name of a @define variable and <val>
+                                          is a boolean, number, or a
+                                          single-quoted string that contains no
+                                          single quotes. If [=<val>] is
+                                          omitted, the variable is marked true
+ --help                                 : Displays this message on stdout and
+                                          exit (default: true)
  --third_party                          : Check source validity but do not
                                           enforce Closure style rules and
-                                          conventions
- --tracer_mode [ALL | RAW_SIZE |        : Shows the duration of each compiler
- TIMING_ONLY | OFF]                     : pass and the impact to the compiled
-                                          output size. Options: ALL, RAW_SIZE,
-                                          TIMING_ONLY, OFF
- --transform_amd_modules                : Transform AMD to CommonJS modules.
- --translations_file VAL                : Source of translated messages.
-                                          Currently only supports XTB.
- --translations_project VAL             : Scopes all translations to the
-                                          specified project.When specified, we
-                                          will use different message ids so
-                                          that messages in different projects
-                                          can have different translations.
+                                          conventions (default: false)
  --use_types_for_optimization           : Enable or disable the optimizations
                                           based on available type information.
                                           Inaccurate type annotations may
                                           result in incorrect results.
- --variable_renaming_report VAL         : File where the serialized version of
-                                          the variable renaming map produced
-                                          should be saved
+                                          (default: true)
  --version                              : Prints the compiler version to stdout
-                                          and exit.
- --warning_level (-W) [QUIET | DEFAULT  : Specifies the warning level to use.
- | VERBOSE]                             : Options: QUIET, DEFAULT, VERBOSE
- --warnings_whitelist_file VAL          : A file containing warnings to
-                                          suppress. Each line should be of the
-                                          form
-                                          <file-name>:<line-number>?  <warning-d
-                                          escription>
+                                          and exit. (default: false)
 
 HEREDOC
 
@@ -345,61 +274,86 @@ HEREDOC
 WORKSPACE=$1
 CLOSURE_COMPILER_PATH=${WORKSPACE}/node_modules/google-closure-compiler
 EXT_MAP=${CLOSURE_COMPILER_PATH}/contrib/externs/maps/google_maps_api_v3_23.js
-
-EXT_RAMDA=${WORKSPACE}/externs/ramda.js
-CLOSURE_LIB_PATH=${WORKSPACE}/node_modules/google-closure-library/closure/goog
-
+CLOSURE_LIB_PATH=${WORKSPACE}/node_modules/google-closure-library
 OUT=${WORKSPACE}/scripts/build
 
 echo "${WORKSPACE}"
 echo "${CLOSURE_COMPILER_PATH}"
 
-cd ${WORKSPACE}/bad
-
-cd ${CLOSURE_LIB_PATH}
-CLOSUREJSFILES=$(find -L \( -iname "*.js" \) ! \( -iname "*deps.js" -o -iname "*test*.js" \) | sed "s%^.%--js ${CLOSURE_LIB_PATH}%" )
-
-
-cd ${WORKSPACE}/bad
-JSFILES=$(find -L \( -iname "*.js" \) ! \( -iname "*deps.js" -o -iname "*test*.js" \) | sed "s%^.%--js ${WORKSPACE}/bad%" )
-
-echo "Closure Files ... ${CLOSUREJSFILES}"
-echo "Compiling JS files... ${JSFILES}"
-
-java -server -XX:+TieredCompilation -jar ${CLOSURE_COMPILER_PATH}/compiler.jar \
-    --new_type_inf                                          \
-    --use_types_for_optimization                            \
-    --process_closure_primitives                            \
-    --jscomp_warning=*                                      \
-    --charset                       UTF-8                   \
-    --language_in           ECMASCRIPT6_STRICT \
-    --language_out          ECMASCRIPT5_STRICT \
-    --summary_detail_level          3                       \
-    --warning_level                 VERBOSE                 \
-    --compilation_level             ADVANCED                \
-    --logging_level                 CONFIG                  \
-    --source_map_format             V3                      \
-    --tracer_mode                   OFF                     \
-    --hide_warnings_for             ${CLOSURE_LIB_PATH}     \
-    --externs                       ${EXT_MAP}              \
-    --externs                       ${EXT_RAMDA}            \
-    --hide_warnings_for             ${EXT_MAP}              \
-    --create_source_map             %outname%.map           \
-    --output_manifest               ${OUT}/manifest.MF      \
-    --js_output_file                ${OUT}/compile.min.js   \
-    --dependency_mode=STRICT                                \
-    --assume_function_wrapper                               \
-    --entry_point=goog:CompilerEntry                        \
-    --js=${WORKSPACE}/bad/**.js                             \
-    --js=${CLOSURE_LIB_PATH}/**.js             \
-    --js=${WORKSPACE}/node_modules/google-closure-library/third_party/**.js              \
-    --js='!../js/**test.js'                                 \
-    --js='!../js/**deps.js'                                 \
-    --js=${WORKSPACE}/scripts/testme.js
+cd ${WORKSPACE}
+java -jar node_modules/google-closure-compiler/compiler.jar \
+    --hide_warnings_for ${CLOSURE_LIB_PATH} \
+    --js="!${CLOSURE_LIB_PATH}/**_test.js" \
+    --js="${WORKSPACE}/bad/**.js" \
+    --js="${CLOSURE_LIB_PATH}/closure/**.js" \
+    --js="${CLOSURE_LIB_PATH}/third_party/**.js" \
+    --js=index.js \
+    --assume_function_wrapper \
+    --output_wrapper "(function(){%output%})();" \
+    --externs ${EXT_MAP} \
+    --hide_warnings_for ${EXT_MAP} \
+    --output_manifest ${OUT}/manifest.MF \
+    --js_output_file ${OUT}/compile.min.js \
+    --compilation_level ADVANCED \
+    --dependency_mode=STRICT \
+    --entry_point=CompilerEntry \
+    --language_in ECMASCRIPT6_STRICT \
+    --language_out ECMASCRIPT5_STRICT \
+    --summary_detail_level 3 \
+    --warning_level VERBOSE \
+    --process_closure_primitives \
+    --new_type_inf \
+    --use_types_for_optimization \
+    --charset UTF-8 \
+    --create_source_map %outname%.map \
+    --source_map_format V3 \
+    --logging_level CONFIG \
+    --tracer_mode OFF \
+    --jscomp_warning accessControls \
+    --jscomp_warning ambiguousFunctionDecl \
+    --jscomp_warning checkEventfulObjectDisposal \
+    --jscomp_warning checkRegExp \
+    --jscomp_warning checkTypes \
+    --jscomp_warning checkVars \
+    --jscomp_warning commonJsModuleLoad \
+    --jscomp_warning conformanceViolations \
+    --jscomp_warning const \
+    --jscomp_warning constantProperty \
+    --jscomp_warning deprecated \
+    --jscomp_warning deprecatedAnnotations \
+    --jscomp_warning duplicateMessage \
+    --jscomp_warning es3 \
+    --jscomp_warning es5Strict \
+    --jscomp_warning externsValidation \
+    --jscomp_warning fileoverviewTags \
+    --jscomp_warning functionParams \
+    --jscomp_warning globalThis \
+    --jscomp_warning internetExplorerChecks \
+    --jscomp_warning invalidCasts \
+    --jscomp_warning misplacedTypeAnnotation \
+    --jscomp_warning missingGetCssName \
+    --jscomp_warning missingOverride \
+    --jscomp_warning missingPolyfill \
+    --jscomp_warning missingProperties \
+    --jscomp_warning missingProvide \
+    --jscomp_warning missingRequire \
+    --jscomp_warning missingReturn \
+    --jscomp_warning msgDescriptions \
+    --jscomp_warning newCheckTypes \
+    --jscomp_warning nonStandardJsDocs \
+    --jscomp_off     reportUnknownTypes \
+    --jscomp_warning suspiciousCode \
+    --jscomp_warning strictModuleDepCheck \
+    --jscomp_warning typeInvalidation \
+    --jscomp_warning undefinedNames \
+    --jscomp_warning undefinedVars \
+    --jscomp_warning unknownDefines \
+    --jscomp_warning unusedLocalVariables \
+    --jscomp_warning unusedPrivateMembers \
+    --jscomp_warning uselessCode \
+    --jscomp_warning useOfGoogBase \
+    --jscomp_warning underscore \
+    --jscomp_warning visibility
 
 
 echo "Done"
-
-#    --checks-only                                           \
-#    --process_common_js_modules                             \
-
