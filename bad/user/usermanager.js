@@ -22,7 +22,7 @@ const checkStatus = response => {
 const getJson = response => {
   return response.json().then(
       data => Promise.resolve(data),
-      err => Promise.reject('Could not get JSON from response'));
+      err => Promise.reject(`Could not get JSON from response: ${err}`));
 };
 
 
@@ -33,21 +33,7 @@ const getJson = response => {
 const getText = response => {
   return response.text().then(
       text => Promise.resolve(text),
-      err => Promise.reject('Could not get text from response'));
-};
-
-
-/**
- * @param {!Response} response
- * @return {!Promise}
- */
-const getTextOrJson = response => {
-  return response.json().then(
-      data => Promise.resolve(data),
-      err => response.text().then(
-        text => Promise.resolve(text),
-        err => Promise.reject('Could not get text or json from response'))
-  );
+      err => Promise.reject(`Could not get text from response: ${err}`));
 };
 
 
@@ -228,7 +214,7 @@ bad.UserManager.prototype.formSubmit = function(formPanel) {
   const processSubmitReply = goog.bind(formPanel.processSubmitReply, formPanel);
   fetch(req, formPostInit(this.jwt, formPanel))
       .then(checkStatus)
-      .then(getTextOrJson)
+      .then(getText)
       .then(processSubmitReply)
       .catch(err => console.error('Form submit error', err));
 };
@@ -236,18 +222,27 @@ bad.UserManager.prototype.formSubmit = function(formPanel) {
 
 /**
  * @param {!goog.Uri} uri
- * @param {!Function} callback
- * @param {!Function=} opt_errCb
+ * @return {!Promise}
  */
-bad.UserManager.prototype.fetch = function(uri, callback, opt_errCb) {
-
+bad.UserManager.prototype.fetch = function(uri) {
   const req = new Request(uri.toString());
-  fetch(req, basicGetInit(this.jwt))
+  return fetch(req, basicGetInit(this.jwt))
       .then(checkStatus)
-      .then(
-          response => response.text().then(callback),
-          err => opt_errCb ? opt_errCb(err) : Promise.reject(err))
-      .catch(err => console.error('UMan Fetch:', err));
+      .then(getText)
+      .catch(err => console.error('UMan Text Fetch:', err));
+};
+
+
+/**
+ * @param {!goog.Uri} uri
+ * @return {!Promise}
+ */
+bad.UserManager.prototype.fetchJson = function(uri) {
+  const req = new Request(uri.toString());
+  return fetch(req, basicGetInit(this.jwt))
+      .then(checkStatus)
+      .then(getJson)
+      .catch(err => console.error('UMan Json Fetch:', err));
 };
 
 

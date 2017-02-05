@@ -108,11 +108,11 @@ bad.ui.button.makeToggleButton = function(
 bad.ui.button.makeButton_ = function(
     constructor, el, parent, opt_callback, opt_domHelper) {
 
-  // var renderer = bad.ui.button.getBasicButtonRenderer();
+   var renderer = bad.ui.button.getBasicButtonRenderer();
   /**
    * @type {!goog.ui.ToggleButton|!goog.ui.CustomButton}
    */
-  const button = new constructor('', undefined, opt_domHelper);
+  const button = new constructor('', renderer, opt_domHelper);
   button.setSupportedState(goog.ui.Component.State.FOCUSED, false);
 
   if (parent) {

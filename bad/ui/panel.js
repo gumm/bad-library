@@ -94,13 +94,16 @@ bad.ui.Panel.prototype.initDom = goog.nullFunction;
 
 /**
  * Expects HTML data from a call to the back.
+ * @return {!Promise} Returns a promise with this panel as value.
  */
 bad.ui.Panel.prototype.renderWithTemplate = function() {
   const usr = this.getUser();
-  usr &&
-      usr.fetch(
-          this.uri_, goog.bind(this.onRenderWithTemplateReply_, this),
-          console.warn);
+  if (usr) {
+     return usr.fetch(this.uri_).then(s => this.onRenderWithTemplateReply_(s));
+  } else {
+    return Promise.reject('No user')
+  }
+
 };
 
 
@@ -112,17 +115,26 @@ bad.ui.Panel.prototype.renderWithTemplate = function() {
  */
 bad.ui.Panel.prototype.renderWithJSON = function(callback) {
   const usr = this.getUser();
-  usr && usr.fetch(this.uri_, goog.bind(this.onRenderWithJSON, this, callback));
+  if (usr) {
+     return usr.fetchJson(this.uri_).then(json => this.onRenderWithJSON(json));
+  } else {
+    return Promise.reject('No user')
+  }
 };
 
 
 /**
  * @param {!string} s
  * @private
+ * @return {!Promise}
  */
 bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(s) {
-  this.responseObject = splitScripts(s);
-  this.render();
+
+  return new Promise((res, rej) => {
+    this.responseObject = splitScripts(s);
+    this.render();
+    return res(this);
+  })
 };
 
 
@@ -132,10 +144,15 @@ bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(s) {
  * @param {!function(?goog.events.EventLike)} callback The callback function
  *      that will receive the reply event.
  * @param {?goog.events.EventLike} e Event object.
+ * @return {!Promise}
  */
 bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
-  callback(e);
-  this.render();
+
+  return new Promise((res, rej) => {
+    callback(e);
+    this.render();
+    return res(this);
+  })
 };
 
 

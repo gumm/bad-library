@@ -140,9 +140,24 @@ bad.ui.Form.prototype.enterDocument = function() {
  * @private
  */
 bad.ui.Form.prototype.formIdElementToForm_ = function() {
-  this.form_ = this.getSterileFormFromId(this.formElId_);
+  this.form_ = this.interceptFormSubmit(
+      this.getFormFromId(this.formElId_));
   let check = goog.bind(this.fieldErr_.validateOnChange, this.fieldErr_);
   this.form_ && this.form_.addEventListener('change', check, false);
+};
+
+
+/**
+ * @param {!string} string The id of the form we want to sterilise.
+ * @return {?HTMLFormElement}
+ */
+bad.ui.Form.prototype.getFormFromId = function(string) {
+  let form = null;
+  const el = goog.dom.getElement(string);
+  if (el && el.tagName == goog.dom.TagName.FORM) {
+    form = /** @type {!HTMLFormElement} */ (el);
+  }
+  return form;
 };
 
 
@@ -162,21 +177,16 @@ bad.ui.Form.prototype.getForm = function() {
  * type="submit", which will trigger the validation, and we can submit
  * valid forms with xhrio which allows us to add callbacks to them.
  *
- * @param {!string} string The id of the form we want to sterilise.
+ * @param {?HTMLFormElement} form The form we want to sterilise.
  * @return {?HTMLFormElement}
  */
-bad.ui.Form.prototype.getSterileFormFromId = function(string) {
-  let form = null;
+bad.ui.Form.prototype.interceptFormSubmit = function(form) {
   const user = this.getUser();
-  const el = goog.dom.getElement(string);
-  if (el && el.tagName == goog.dom.TagName.FORM) {
-    form = /** @type {!HTMLFormElement} */ (el);
-    this.listenToThis(form, goog.events.EventType.SUBMIT, goog.bind(
-        function(e) {
-          e.preventDefault();
-          user && user.formSubmit(this);
-        }, this));
-  }
+  this.listenToThis(form, goog.events.EventType.SUBMIT, goog.bind(
+    function(e) {
+      e.preventDefault();
+      user && user.formSubmit(this);
+    }, this));
   return form;
 };
 
@@ -235,18 +245,19 @@ bad.ui.Form.prototype.showErrs = function(obj) {
 // }
 
 /**
- * @param {!string|!Object.<!string,*>} reply
+ * @param {!string} reply
  * @return {!Promise}
  */
 bad.ui.Form.prototype.processSubmitReply = function(reply) {
 
+  console.log(reply);
   const func = goog.module.get('bad.func');
   let success = false;
 
-  if (func.whatType(reply) === 'object' && reply['success']) {
+  if (reply === 'success') {
     success = true;
   } else {
-    reply = /** @type {!string} */(reply);
+    // Is this really needed?
     let cErrs = goog.dom.getElementsByClass('alert-error', this.form_);
     Array.from(cErrs).forEach(err => goog.dom.removeNode(err));
 
@@ -257,17 +268,7 @@ bad.ui.Form.prototype.processSubmitReply = function(reply) {
     let newForm = goog.dom.getElementsByTagName(
       goog.dom.TagName.FORM, /** @type {!Element} */ (resObj.html))[0];
     goog.dom.replaceNode(newForm, this.form_);
-
-    this.form_ = newForm;
-
-    // Sterilize the form
-    this.getHandler().listen(
-      this.form_, goog.events.EventType.SUBMIT,
-      function(e) { e.preventDefault(); });
-
-    // Add validity checkers
-    let check = goog.bind(this.fieldErr_.validateOnChange, this.fieldErr_);
-    this.form_ && this.form_.addEventListener('change', check, false);
+    this.enterDocument();
 
     // Eval the scripts
     this.evalScripts(resObj.scripts);
@@ -279,7 +280,6 @@ bad.ui.Form.prototype.processSubmitReply = function(reply) {
 
   if (success) {
     this.dispatchCompEvent(bad.EventType.FORM_SUBMIT_SUCCESS);
-    // this.snakbar && this.snakbar();
     return Promise.resolve(true);
   } else {
     return Promise.reject('Form has errors');

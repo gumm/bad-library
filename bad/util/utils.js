@@ -10,10 +10,12 @@ goog.require('goog.string');
  * @param {!bad.ui.Panel} panel
  * @param {!bad.ui.View} view
  * @param {!string} name
+ * @param {!string} eValue The event value that brought us here
  * @param {?bad.ui.Panel=} opt_tPan The target panel
- * @return {!Array<!Function>}
+ * @param {?string=} opt_tEl Optional target element class name in target panel
+ * @return {!Array<!function()>}
  */
-bad.utils.panelWithinPanel = (panel, view, name, opt_tPan) => {
+bad.utils.panelWithinPanel = (panel, view, name, eValue, opt_tPan, opt_tEl) => {
   /**
    * @param {!string} c The class name
    * @param {!Element} t The target element where to look from
@@ -21,23 +23,27 @@ bad.utils.panelWithinPanel = (panel, view, name, opt_tPan) => {
    * @return {!Element|!HTMLBodyElement}
    */
   const getEbyCorD = (c, t, def) => goog.dom.getElementByClass(c, t) || def;
-  const user = view.getUser();
-  const b = /** @type {!Element} */(goog.dom.getDocument().body);
-  const target = opt_tPan ? getEbyCorD(
-      'tst_content',
-      /** @type {!Element} */(opt_tPan.getElement()),
-      b) : b;
   const render = () => {
+    const user = view.getUser();
+    const b = /** @type {!Element} */(goog.dom.getDocument().body);
+    const targetClassNAme = opt_tEl || 'tst_content';
+    const target = opt_tPan ? getEbyCorD(
+        targetClassNAme,
+        /** @type {!Element} */(opt_tPan.getElement()),
+      b) : b;
     panel.setUser(user);
     panel.setTarget(target);
     view.addPanelToView(name, panel);
-    panel.renderWithTemplate();
+    return panel.renderWithTemplate();
   };
   const destroy = () => {
     const p = view.getPanelByName(name);
     p && p.dispose();
   };
-  return [render, destroy];
+  const rerender = () => {
+    opt_tPan && opt_tPan.dispatchCompEvent(eValue);
+  };
+  return [render, destroy, rerender];
 };
 
 
@@ -46,7 +52,7 @@ bad.utils.panelWithinPanel = (panel, view, name, opt_tPan) => {
  * @param {!string} s
  * @return {!Array}
  */
-bad.utils.stringToBytes = function(s) {
+bad.utils.stringToBytes = s => {
   const bytes = new Array(s.length);
   for (let i = 0; i < s.length; ++i) bytes[i] = s.charCodeAt(i) & 255;
   return bytes;
@@ -59,9 +65,7 @@ bad.utils.stringToBytes = function(s) {
  * since 1 January 1970 00:00:00 UTC. Always UTC.
  * @return {!number} The current Epoch timestamp in seconds. Rounding down.
  */
-bad.utils.getNowSeconds = function() {
-  return Math.floor(Date.now() / 1000);
-};
+bad.utils.getNowSeconds = () => Math.floor(Date.now() / 1000);
 
 
 /**
@@ -70,12 +74,9 @@ bad.utils.getNowSeconds = function() {
  * @param {?number=} opt_start
  * @return {!function(): number}
  */
-bad.utils.privateCounter = function(opt_start) {
+bad.utils.privateCounter = (opt_start) => {
   let c = opt_start ? opt_start : 0;
-  return function() {
-    c = c + 1;
-    return c;
-  };
+  return () => c++;
 };
 
 
@@ -96,7 +97,7 @@ bad.utils.privateRandom = () => {
  *    clearly reduces the randomness, and increases the chances of a collision.
  * @return {!string}
  */
-bad.utils.makeId = function(opt_length) {
+bad.utils.makeId = opt_length => {
   const s = goog.string.getRandomString();
   return opt_length ? s.substr(0, opt_length) : s;
 };
@@ -107,9 +108,9 @@ bad.utils.makeId = function(opt_length) {
  * @param {!string} icon
  * @return {!Element}
  */
-bad.utils.getIconString = function(string, icon) {
-  return goog.dom.createDom('span', {}, goog.dom.createDom('i', icon), string);
-};
+bad.utils.getIconString = (string, icon) =>
+  goog.dom.createDom('span', {}, goog.dom.createDom('i', icon), string);
+
 
 
 /**
@@ -118,13 +119,12 @@ bad.utils.getIconString = function(string, icon) {
  * @param {!HTMLFormElement} form
  * @return {!Array<!Element>}
  */
-bad.utils.getRawFormElements = function(form) {
-  var formElements = [];
-  if (form) {
-    goog.array.forEach(form.elements, function(el) {
-      if (el.type && el.type !== 'fieldset') {
-        formElements.push(el);
-      }
+bad.utils.getRawFormElements = form => {
+  const formElements = [];
+  if (form && form.elements) {
+    Array.from(/** @type {!Iterable<HTMLElement>} */(form.elements))
+        .forEach(el => {
+          if (el.type && el.type !== 'fieldset') { formElements.push(el);}
     });
   }
   return formElements;

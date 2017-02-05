@@ -212,13 +212,12 @@
 
 /* Panels inside panel content ---------------------------------------------- */
 
-.tst_content > .pan-wrapper {
+.tst_content.tst_floaty_content > .pan-wrapper {
   position: relative;
   left: initial;
   right: initial;
   top: initial;
   bottom: initial;
-  margin: 30px 0 0 30px;
 }
 
 .tst_content.tst_floaty_content {
@@ -231,6 +230,16 @@
 .tst_content.tst_floaty_content.center_center {
   align-items: center;
   justify-content: center;
+}
+
+.tst_content.tst_floaty_content.baseline_center {
+  align-items: baseline;
+  justify-content: center;
+}
+
+.tst_content.tst_floaty_content.center_center > .pan-wrapper,
+.tst_content.tst_floaty_content.baseline_center > .pan-wrapper {
+  margin: 30px 0 0 0;
 }
 
 
