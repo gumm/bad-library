@@ -1,7 +1,6 @@
 goog.provide('bad.ui.FieldErrs');
 goog.provide('bad.ui.Form');
 
-goog.require('bad.func');
 goog.require('bad.ui.Panel');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
@@ -251,7 +250,6 @@ bad.ui.Form.prototype.showErrs = function(obj) {
 bad.ui.Form.prototype.processSubmitReply = function(reply) {
 
   console.log(reply);
-  const func = goog.module.get('bad.func');
   let success = false;
 
   if (reply === 'success') {

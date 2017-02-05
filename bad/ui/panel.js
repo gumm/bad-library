@@ -116,7 +116,8 @@ bad.ui.Panel.prototype.renderWithTemplate = function() {
 bad.ui.Panel.prototype.renderWithJSON = function(callback) {
   const usr = this.getUser();
   if (usr) {
-     return usr.fetchJson(this.uri_).then(json => this.onRenderWithJSON(json));
+     return usr.fetchJson(this.uri_).then(json =>
+       this.onRenderWithJSON(json, callback));
   } else {
     return Promise.reject('No user')
   }
