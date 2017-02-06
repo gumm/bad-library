@@ -130,7 +130,6 @@ bad.ui.View.prototype.displayPanels = goog.nullFunction;
 bad.ui.View.prototype.onPanelAction = function(e) {
   const eventValue = e.getValue();
   const eventData = e.getData();
-  // We know this is a panel.
   const ePanel = /** @type {!bad.ui.Panel} */ (e.target);
 
   switch (eventValue) {

@@ -257,19 +257,19 @@ bad.UserManager.prototype.login = function(cred, formPanel, onSuccess) {
 
   // Get a JWT token
   const f1 = fetch(this.JWTTokenRequest, jsonPostInit(this.jwt, cred))
-                 .then(checkStatus)
-                 .then(getJson)
-                 .then(processJWTResponse);
+      .then(checkStatus)
+      .then(getJson)
+      .then(processJWTResponse);
 
   // Log into Django
   const f2 = fetch(this.loginRequest, formPostInit(this.jwt, formPanel))
-                 .then(checkStatus)
-                 .then(getText)
-                 .then(processAsFormPanel);
+      .then(checkStatus)
+      .then(getText)
+      .then(processAsFormPanel);
 
   // Only fire OK if both those came back OK
-  Promise.all([f1, f2]).then(
-      bothRes => onSuccess && onSuccess(),
-      someRej => console.error(`Some requests failed: ${someRej}`));
+  Promise.all([f1, f2])
+      .then(bothRes => onSuccess && onSuccess())
+      .catch(err => console.error(`Some requests failed: ${err}`));
 
 };

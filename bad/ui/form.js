@@ -27,11 +27,8 @@ bad.ui.FieldErrs = class {
   displayAlert(field, msg, css) {
     const alertDom =
         goog.dom.createDom('p', 'mdc-textfield-helptext ' + css, msg);
-
     let parent = goog.dom.getParentElement(field);
-
     goog.dom.insertSiblingAfter(alertDom, parent);
-    console.log('We came here...', msg);
     this.fMap.set(field, alertDom);
   };
 
@@ -40,11 +37,8 @@ bad.ui.FieldErrs = class {
    */
   checkValidationForField(field) {
     this.clearAlertOnField(field);
-    if (field.willValidate && !field.checkValidity()) {
-      this.displayError(field, field.validationMessage);
-    }
+    field.willValidate && field.checkValidity();
   };
-
 
   /**
    * @param {!HTMLInputElement} field
@@ -58,13 +52,13 @@ bad.ui.FieldErrs = class {
   /**
    * Display the given error message on the given form field.
    * @param {!HTMLInputElement} field
-   * @param {!string} message
+   * @param {!string=} opt_msg
    */
-  displayError(field, message) {
+  displayError(field, opt_msg) {
+    let message = opt_msg || field.validationMessage;
     goog.dom.classlist.add(field, 'error');
     this.displayAlert(field, message, 'alert-error');
   };
-
 
   /**
    * Display the given success message on the given form field.
@@ -74,7 +68,6 @@ bad.ui.FieldErrs = class {
   displaySuccess(field, message) {
     this.displayAlert(field, message, 'alert-success');
   };
-
 
   /**
    * Display the given information message on the given form field.
@@ -89,7 +82,6 @@ bad.ui.FieldErrs = class {
    * @param {!Event} e
    */
   validateOnChange(e) {
-    console.log('This??', e);
     this.checkValidationForField(/** @type {!HTMLInputElement} */ (e.target));
   }
 };
@@ -122,6 +114,11 @@ bad.ui.Form = function(id, opt_domHelper) {
    */
   this.fieldErr_ = new bad.ui.FieldErrs();
 
+  /**
+   * @type {!function(!bad.ui.Form):?|null}
+   */
+  this.onSubmitSucFunc = panel => null;
+
 };
 goog.inherits(bad.ui.Form, bad.ui.Panel);
 
@@ -139,10 +136,17 @@ bad.ui.Form.prototype.enterDocument = function() {
  * @private
  */
 bad.ui.Form.prototype.formIdElementToForm_ = function() {
-  this.form_ = this.interceptFormSubmit(
-      this.getFormFromId(this.formElId_));
-  let check = goog.bind(this.fieldErr_.validateOnChange, this.fieldErr_);
-  this.form_ && this.form_.addEventListener('change', check, false);
+  this.form_ = this.interceptFormSubmit(this.getFormFromId(this.formElId_));
+  if (this.form_) {
+    this.form_.addEventListener(
+        'change', e => {this.fieldErr_.validateOnChange(e)}, false);
+    this.form_.addEventListener('invalid', e => {
+      e.preventDefault();
+      const field = /** @type {!HTMLInputElement} */ (e.target);
+      this.fieldErr_.clearAlertOnField(field);
+      this.fieldErr_.displayError(field);
+    }, true);
+  }
 };
 
 
@@ -181,11 +185,10 @@ bad.ui.Form.prototype.getForm = function() {
  */
 bad.ui.Form.prototype.interceptFormSubmit = function(form) {
   const user = this.getUser();
-  this.listenToThis(form, goog.events.EventType.SUBMIT, goog.bind(
-    function(e) {
-      e.preventDefault();
-      user && user.formSubmit(this);
-    }, this));
+  this.listenToThis(form, goog.events.EventType.SUBMIT, goog.bind(function(e) {
+    e.preventDefault();
+    user && user.formSubmit(this);
+  }, this));
   return form;
 };
 
@@ -210,24 +213,11 @@ bad.ui.Form.prototype.getPostContentFromForm = function() {
 
 //----------------------------------------------------------[ Alert Messages ]--
 /**
- * Checks field validation, and marks and displays errors if any.
- */
-bad.ui.Form.prototype.checkValidation = function() {
-  let fields = this.form_ ? this.form_.elements : '';
-
-  for (let field of /** @type {!Iterable} */ (fields)) {
-    this.fieldErr_.checkValidationForField(field);
-  }
-};
-
-
-/**
  * @param {!Object} obj
  */
 bad.ui.Form.prototype.showErrs = function(obj) {
   const f = this.getForm();
   const err = goog.bind(this.fieldErr_.displayError, this.fieldErr_);
-
   Object.keys(obj).forEach(k => {
     if (k === 'non_field_errors') {
       err(f, obj[k].reduce((p, c) => `${p}${p == '' ? c : '\n' + c}`, ''));
@@ -236,12 +226,60 @@ bad.ui.Form.prototype.showErrs = function(obj) {
 };
 
 
-// bad.ui.Form.prototype.setSnackbar = function(sb, func) {
-//   console.log('Yippee...');
-//   this.snakbar = function() {
-//     func(sb);
-//   }
-// }
+/**
+ * Clear all existing errors
+ */
+bad.ui.Form.prototype.clearErrs = function() {
+  let fields = this.form_ ? this.form_.elements : [];
+  Array.from(
+    /** @type {!HTMLFormControlsCollection<!HTMLElement>} */(fields))
+    .forEach(field => this.fieldErr_.clearAlertOnField(field));
+
+  let nonFieldErrs = goog.dom.getElementByClass(
+      'zform_alert__non-field-errors', this.getElement());
+  nonFieldErrs && goog.dom.removeNode(nonFieldErrs);
+};
+
+
+//--------------------------------------------------------------[ Round Trip ]--
+/**
+ * @param {?function(!bad.ui.Form):?|null} func
+ */
+bad.ui.Form.prototype.onSubmitSuccess = function(func) {
+  this.onSubmitSucFunc = func;
+};
+
+/**
+ * Given a 'fetch' reply, replace the form.
+ * This simply replaced the form element with what came back from the server
+ * and re-reads the scripts.
+ * @param {!string} reply
+ */
+bad.ui.Form.prototype.replaceForm = function(reply) {
+  this.responseObject = splitScripts(reply);
+  let newForm = goog.dom.getElementsByTagName(
+      goog.dom.TagName.FORM,
+      /** @type {!Element} */ (this.responseObject.html))[0];
+  goog.dom.replaceNode(newForm, this.form_);
+  this.enterDocument();
+  this.evalScripts(this.responseObject.scripts);
+};
+
+
+/**
+ * Expects HTML data from a call to the back.
+ * @return {!Promise} Returns a promise with this panel as value.
+ */
+bad.ui.Form.prototype.refreshFromFromServer = function() {
+  const usr = this.getUser();
+  const uri = this.getUri();
+  if (usr) {
+    return usr.fetch(uri).then(s => this.replaceForm(s));
+  } else {
+    return Promise.reject('No user')
+  }
+};
+
 
 /**
  * @param {!string} reply
@@ -249,36 +287,22 @@ bad.ui.Form.prototype.showErrs = function(obj) {
  */
 bad.ui.Form.prototype.processSubmitReply = function(reply) {
 
-  console.log(reply);
+  this.clearErrs();
   let success = false;
 
   if (reply === 'success') {
     success = true;
   } else {
-    // Is this really needed?
-    let cErrs = goog.dom.getElementsByClass('alert-error', this.form_);
-    Array.from(cErrs).forEach(err => goog.dom.removeNode(err));
-
-    let resObj = splitScripts(reply);
-    /**
-     * @type {?HTMLFormElement}
-     */
-    let newForm = goog.dom.getElementsByTagName(
-      goog.dom.TagName.FORM, /** @type {!Element} */ (resObj.html))[0];
-    goog.dom.replaceNode(newForm, this.form_);
-    this.enterDocument();
-
-    // Eval the scripts
-    this.evalScripts(resObj.scripts);
-
+    this.replaceForm(reply);
     let hasErrors = goog.dom.getElementsByClass('alert-error', this.form_);
     success = !hasErrors.length
   }
 
-
   if (success) {
-    this.dispatchCompEvent(bad.EventType.FORM_SUBMIT_SUCCESS);
-    return Promise.resolve(true);
+    return Promise.resolve(this).then(p => {
+      this.onSubmitSucFunc(this);
+      this.dispatchCompEvent(bad.EventType.FORM_SUBMIT_SUCCESS);
+    });
   } else {
     return Promise.reject('Form has errors');
   }

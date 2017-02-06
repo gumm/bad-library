@@ -99,11 +99,10 @@ bad.ui.Panel.prototype.initDom = goog.nullFunction;
 bad.ui.Panel.prototype.renderWithTemplate = function() {
   const usr = this.getUser();
   if (usr) {
-     return usr.fetch(this.uri_).then(s => this.onRenderWithTemplateReply_(s));
+    return usr.fetch(this.uri_).then(s => this.onRenderWithTemplateReply(s));
   } else {
     return Promise.reject('No user')
   }
-
 };
 
 
@@ -116,8 +115,8 @@ bad.ui.Panel.prototype.renderWithTemplate = function() {
 bad.ui.Panel.prototype.renderWithJSON = function(callback) {
   const usr = this.getUser();
   if (usr) {
-     return usr.fetchJson(this.uri_).then(json =>
-       this.onRenderWithJSON(json, callback));
+    return usr.fetchJson(this.uri_).then(
+        json => this.onRenderWithJSON(json, callback));
   } else {
     return Promise.reject('No user')
   }
@@ -129,12 +128,12 @@ bad.ui.Panel.prototype.renderWithJSON = function(callback) {
  * @private
  * @return {!Promise}
  */
-bad.ui.Panel.prototype.onRenderWithTemplateReply_ = function(s) {
+bad.ui.Panel.prototype.onRenderWithTemplateReply = function(s) {
 
-  return new Promise((res, rej) => {
+  return new Promise(x => {
     this.responseObject = splitScripts(s);
     this.render();
-    return res(this);
+    return x(this);
   })
 };
 

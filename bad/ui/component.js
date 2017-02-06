@@ -142,6 +142,3 @@ bad.ui.Component.prototype.dispatchCompEvent = function(value, opt_data) {
   const event = new bad.CompEvent(this, value, opt_data);
   return this.dispatchEvent(event);
 };
-
-
-

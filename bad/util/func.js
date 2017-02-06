@@ -27,7 +27,7 @@ const whatType = x => typeof x;
  * @return {!boolean}
  */
 const isNumber = n =>
-  whatType(n) === 'number' && !Number.isNaN(/** @type {number}*/(n));
+    whatType(n) === 'number' && !Number.isNaN(/** @type {number}*/ (n));
 
 
 /**
@@ -49,15 +49,15 @@ const isString = n => whatType(n) === 'string';
  * @param {*} t
  * @return {!boolean}
  */
-const isEven = t => isNumber(t) && !(/** @type {!number} */(t) % 2);
+const isEven = t => isNumber(t) && !(/** @type {!number} */ (t) % 2);
 
 
 /**
  * @param {!number} n
  * @return {function(*): !boolean}
  */
-const isDivisibleBy = n =>
-  x => isNumber(x) && /** @type {!number} */(x) % n === 0;
+const isDivisibleBy = n => x =>
+    isNumber(x) && /** @type {!number} */ (x) % n === 0;
 
 
 /**
@@ -98,8 +98,8 @@ const append = (x, y) => y + x;
  * @return {!Array.<*>}
  */
 const reverse = x => {
-  let y = (isString(x) && /** @type {!string} */(x).split('')) ||
-    /** @type {!Array} */(x);
+  let y = (isString(x) && /** @type {!string} */ (x).split('')) ||
+      /** @type {!Array} */ (x);
   return y.reduce((p, c) => [c].concat(p), [])
 };
 
@@ -231,9 +231,7 @@ const luhn = n => {
         n :
         (n * 2).toString().split('').reduce((a, b) => Number(a) + Number(b), 0);
   }, 0);
-  return {
-    valid: !(result % 10),
-    luhn: result / 10};
+  return {valid: !(result % 10), luhn: result / 10};
 };
 
 

@@ -10,12 +10,11 @@ goog.require('goog.string');
  * @param {!bad.ui.Panel} panel
  * @param {!bad.ui.View} view
  * @param {!string} name
- * @param {!string} eValue The event value that brought us here
  * @param {?bad.ui.Panel=} opt_tPan The target panel
  * @param {?string=} opt_tEl Optional target element class name in target panel
  * @return {!Array<!function()>}
  */
-bad.utils.panelWithinPanel = (panel, view, name, eValue, opt_tPan, opt_tEl) => {
+bad.utils.panelWithinPanel = (panel, view, name, opt_tPan, opt_tEl) => {
   /**
    * @param {!string} c The class name
    * @param {!Element} t The target element where to look from
@@ -25,12 +24,13 @@ bad.utils.panelWithinPanel = (panel, view, name, eValue, opt_tPan, opt_tEl) => {
   const getEbyCorD = (c, t, def) => goog.dom.getElementByClass(c, t) || def;
   const render = () => {
     const user = view.getUser();
-    const b = /** @type {!Element} */(goog.dom.getDocument().body);
+    const b = /** @type {!Element} */ (goog.dom.getDocument().body);
     const targetClassNAme = opt_tEl || 'tst_content';
-    const target = opt_tPan ? getEbyCorD(
-        targetClassNAme,
-        /** @type {!Element} */(opt_tPan.getElement()),
-      b) : b;
+    const target = opt_tPan ?
+        getEbyCorD(
+            targetClassNAme,
+            /** @type {!Element} */ (opt_tPan.getElement()), b) :
+        b;
     panel.setUser(user);
     panel.setTarget(target);
     view.addPanelToView(name, panel);
@@ -40,10 +40,7 @@ bad.utils.panelWithinPanel = (panel, view, name, eValue, opt_tPan, opt_tEl) => {
     const p = view.getPanelByName(name);
     p && p.dispose();
   };
-  const rerender = () => {
-    opt_tPan && opt_tPan.dispatchCompEvent(eValue);
-  };
-  return [render, destroy, rerender];
+  return [render, destroy];
 };
 
 
@@ -109,7 +106,7 @@ bad.utils.makeId = opt_length => {
  * @return {!Element}
  */
 bad.utils.getIconString = (string, icon) =>
-  goog.dom.createDom('span', {}, goog.dom.createDom('i', icon), string);
+    goog.dom.createDom('span', {}, goog.dom.createDom('i', icon), string);
 
 
 
@@ -122,10 +119,12 @@ bad.utils.getIconString = (string, icon) =>
 bad.utils.getRawFormElements = form => {
   const formElements = [];
   if (form && form.elements) {
-    Array.from(/** @type {!Iterable<HTMLElement>} */(form.elements))
+    Array.from(/** @type {!Iterable<HTMLElement>} */ (form.elements))
         .forEach(el => {
-          if (el.type && el.type !== 'fieldset') { formElements.push(el);}
-    });
+          if (el.type && el.type !== 'fieldset') {
+            formElements.push(el);
+          }
+        });
   }
   return formElements;
 };
