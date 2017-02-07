@@ -136,8 +136,9 @@ bad.ui.Form.prototype.enterDocument = function() {
  * @private
  */
 bad.ui.Form.prototype.formIdElementToForm_ = function() {
-  this.form_ = this.interceptFormSubmit(this.getFormFromId(this.formElId_));
+  this.form_ = this.getFormFromId(this.formElId_);
   if (this.form_) {
+    this.interceptFormSubmit(this.form_);
     this.form_.addEventListener(
         'change', e => {this.fieldErr_.validateOnChange(e)}, false);
     this.form_.addEventListener('invalid', e => {
@@ -256,13 +257,33 @@ bad.ui.Form.prototype.onSubmitSuccess = function(func) {
  * @param {!string} reply
  */
 bad.ui.Form.prototype.replaceForm = function(reply) {
+
+  console.log(reply);
+
+  console.log('This reply is from a redirected url...', this.redirected);
+
   this.responseObject = splitScripts(reply);
-  let newForm = goog.dom.getElementsByTagName(
-      goog.dom.TagName.FORM,
-      /** @type {!Element} */ (this.responseObject.html))[0];
-  goog.dom.replaceNode(newForm, this.form_);
-  this.enterDocument();
-  this.evalScripts(this.responseObject.scripts);
+
+  console.log(this.responseObject);
+
+  if (this.responseObject.html) {
+    if (this.redirected) {
+      const el = this.getElement();
+      // Replace the whole innards of the panel.
+      el.replaceChild(this.responseObject.html, el.firstElementChild);
+    } else {
+      // Just replace the form component.
+      let newForm = goog.dom.getElementsByTagName(
+          goog.dom.TagName.FORM,
+          /** @type {!Element} */ (this.responseObject.html))[0];
+      goog.dom.replaceNode(newForm, this.form_);
+    }
+    this.enterDocument();
+  }
+  if (this.responseObject.scripts) {
+    this.evalScripts(this.responseObject.scripts);
+  }
+
 };
 
 

@@ -142,7 +142,15 @@
 }
 
 .tst_actionbar > .tst_tool_group > .tst_button {
-  margin: 5px;
+  margin: 24px;
+}
+
+.tst_actionbar > .tst_action_group_left > .tst_button {
+  margin-right: 0;
+}
+
+.tst_actionbar > .tst_action_group_right > .tst_button {
+  margin-left: 0;
 }
 
 .tst_tabbar > .tst_button {
@@ -196,7 +204,6 @@
     justify-content: flex-start;
 }
 
-
 .bottom_right-absolute-fab {
   position: absolute;
   bottom: 1rem;
@@ -245,7 +252,7 @@
 
 /* A modal */
 body > .pan-wrapper {
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.75);
   justify-content: center;
   align-items: center;
   flex-flow: row wrap;

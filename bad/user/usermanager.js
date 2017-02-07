@@ -1,4 +1,5 @@
 goog.provide('bad.UserManager');
+goog.require('goog.uri.utils');
 
 
 /**
@@ -6,7 +7,25 @@ goog.provide('bad.UserManager');
  * @return {!Promise}
  */
 const checkStatus = response => {
-  if (response.status >= 200 && response.status < 300) {
+  console.warn('This is a redirected response!!!', response.redirected);
+  console.warn('This is the final url', response.url);
+  if (response.ok) {
+    return Promise.resolve(response);
+  } else {
+    return Promise.reject(new Error(
+        `${response.url} ${response.status} (${response.statusText})`));
+  }
+};
+
+
+/**
+ * @param {!bad.ui.Panel} panel
+ * @return {!function(!Response):!Promise}
+ */
+const checkStatusTwo = panel => response => {
+  const b = panel.getUri().toString() === goog.uri.utils.getPath(response.url);
+  panel.setIsRedirected(!b);
+  if (response.ok) {
     return Promise.resolve(response);
   } else {
     return Promise.reject(new Error(
@@ -70,6 +89,7 @@ const formPostInit = (jwt, formPanel) => {
     cache: 'no-cache',
     method: 'POST',
     headers: h,
+    redirect: 'follow', // This is anyway the default.
     body: new FormData(formPanel.getForm()),
     credentials: 'include'
   };
@@ -213,7 +233,7 @@ bad.UserManager.prototype.formSubmit = function(formPanel) {
   const req = new Request(formPanel.getUri().toString());
   const processSubmitReply = goog.bind(formPanel.processSubmitReply, formPanel);
   fetch(req, formPostInit(this.jwt, formPanel))
-      .then(checkStatus)
+      .then(checkStatusTwo(formPanel))
       .then(getText)
       .then(processSubmitReply)
       .catch(err => console.error('Form submit error', err));
@@ -271,5 +291,4 @@ bad.UserManager.prototype.login = function(cred, formPanel, onSuccess) {
   Promise.all([f1, f2])
       .then(bothRes => onSuccess && onSuccess())
       .catch(err => console.error(`Some requests failed: ${err}`));
-
 };

@@ -54,6 +54,14 @@ bad.ui.Panel = function(opt_domHelper) {
    */
   this.uri_ = new goog.Uri();
 
+
+  /**
+   * Set to true if we can detect that the response from the fetch was
+   * redirected. Useful form managing form redirects.
+   * @type {!boolean}
+   */
+  this.redirected = false;
+
   /**
    * @type {?Object}
    * @private
@@ -91,6 +99,14 @@ goog.inherits(bad.ui.Panel, bad.ui.Component);
  */
 bad.ui.Panel.prototype.initDom = goog.nullFunction;
 
+
+/**
+ * @param {!boolean} bool
+ */
+bad.ui.Panel.prototype.setIsRedirected = function(bool) {
+  this.redirected = bool;
+  console.log('The request has been redirected...', this.redirected);
+}
 
 /**
  * Expects HTML data from a call to the back.
