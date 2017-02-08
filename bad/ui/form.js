@@ -115,7 +115,7 @@ bad.ui.Form = function(id, opt_domHelper) {
   this.fieldErr_ = new bad.ui.FieldErrs();
 
   /**
-   * @type {!function(!bad.ui.Form):?|null}
+   * @type {!function(!bad.ui.Form):(?|null|Promise<?>)}
    */
   this.onSubmitSucFunc = panel => null;
 
@@ -157,7 +157,7 @@ bad.ui.Form.prototype.formIdElementToForm_ = function() {
  */
 bad.ui.Form.prototype.getFormFromId = function(string) {
   let form = null;
-  const el = goog.dom.getElement(string);
+  const el = goog.dom.getElement(string) || this.getElement().querySelector('form');
   if (el && el.tagName == goog.dom.TagName.FORM) {
     form = /** @type {!HTMLFormElement} */ (el);
   }
@@ -232,9 +232,10 @@ bad.ui.Form.prototype.showErrs = function(obj) {
  */
 bad.ui.Form.prototype.clearErrs = function() {
   let fields = this.form_ ? this.form_.elements : [];
-  Array.from(
-    /** @type {!HTMLFormControlsCollection<!HTMLElement>} */(fields))
-    .forEach(field => this.fieldErr_.clearAlertOnField(field));
+  Array
+      .from(
+          /** @type {!HTMLFormControlsCollection<!HTMLElement>} */ (fields))
+      .forEach(field => this.fieldErr_.clearAlertOnField(field));
 
   let nonFieldErrs = goog.dom.getElementByClass(
       'zform_alert__non-field-errors', this.getElement());
@@ -244,7 +245,7 @@ bad.ui.Form.prototype.clearErrs = function() {
 
 //--------------------------------------------------------------[ Round Trip ]--
 /**
- * @param {?function(!bad.ui.Form):?|null} func
+ * @param {!function(!bad.ui.Form):(?|null|Promise<?>)} func
  */
 bad.ui.Form.prototype.onSubmitSuccess = function(func) {
   this.onSubmitSucFunc = func;

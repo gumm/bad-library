@@ -103,16 +103,17 @@ bad.ui.Panel.prototype.initDom = goog.nullFunction;
 /**
  * @param {!boolean} bool
  */
-bad.ui.Panel.prototype.setIsRedirected = function(bool) {
+bad.ui.Panel.prototype.setIsRedirected =
+    function(bool) {
   this.redirected = bool;
   console.log('The request has been redirected...', this.redirected);
 }
 
-/**
+    /**
  * Expects HTML data from a call to the back.
  * @return {!Promise} Returns a promise with this panel as value.
  */
-bad.ui.Panel.prototype.renderWithTemplate = function() {
+    bad.ui.Panel.prototype.renderWithTemplate = function() {
   const usr = this.getUser();
   if (usr) {
     return usr.fetch(this.uri_).then(s => this.onRenderWithTemplateReply(s));
@@ -191,32 +192,58 @@ bad.ui.Panel.prototype.createDom = function() {
  */
 bad.ui.Panel.prototype.enterDocument = function() {
 
-  this.dom_ = goog.dom.getDomHelper(this.getElement());
+  const panel = this.getElement();
+  this.dom_ = goog.dom.getDomHelper(panel);
   this.initDom();
   this.evalScripts(this.responseObject.scripts);
 
   // Activate buttons
-  const tst = this.dom_.getElementsByClass('tst_button', this.getElement());
+  const tst = panel.querySelectorAll('.tst_button');
   Array.from(tst).forEach(el => {
     const ev = el.classList.contains('mdc-icon-toggle') ?
         'MDCIconToggle:change' :
         'click';
-    this.listenToThis(el, ev, function(e) {
-      this.dispatchCompEvent(
-          e.target.getAttribute('data-zv'),
-          {custom: e.event_['detail'], trigger: e.target});
+    this.listenToThis(el, ev, e => {
+      e.stopPropagation();
+      const trg = e.currentTarget;
+      this.dispatchCompEvent(trg.getAttribute('data-zv'), {
+        custom: e.event_['detail'],
+        trigger: trg,
+        href: trg.href || trg.getAttribute('data-href')
+        });
     });
   });
 
   // Activate Menu items
-  const ms = this.dom_.getElementsByClass('mdc-simple-menu', this.getElement());
+  const ms = panel.querySelectorAll('.mdc-simple-menu');
   Array.from(ms).forEach(el => {
-    this.listenToThis(el, 'MDCSimpleMenu:selected', function(e) {
+    this.listenToThis(el, 'MDCSimpleMenu:selected', e => {
+      e.stopPropagation();
+      const trg = e.currentTarget;
       let v = e.event_['detail']['item'].getAttribute('data-zv');
-      this.dispatchCompEvent(
-          v, {custom: e.event_['detail'], trigger: e.event_['detail']['item']});
+      this.dispatchCompEvent(v, {
+        custom: e.event_['detail'],
+        trigger: e.event_['detail']['item'],
+        href: trg.href || trg.getAttribute('data-href')
+      });
     });
   });
+
+  const links = panel.querySelectorAll('[href]');
+  Array.from(links).forEach(el => {
+    this.listenToThis(el, 'click', e => {
+      const trg = e.currentTarget;
+      e.preventDefault();
+      e.stopPropagation();
+      this.dispatchCompEvent('href', {
+        custom: e.event_['detail'],
+        trigger: e.target,
+        href: trg.href || trg.getAttribute('data-href')
+      });
+    })
+  });
+  console.log(links);
+
 
   // Calling this last makes sure that the final PANEL-READY event really is
   // dispatched right at the end of all of the enterDocument calls.

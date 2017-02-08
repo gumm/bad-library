@@ -89,7 +89,7 @@ const formPostInit = (jwt, formPanel) => {
     cache: 'no-cache',
     method: 'POST',
     headers: h,
-    redirect: 'follow', // This is anyway the default.
+    redirect: 'follow',  // This is anyway the default.
     body: new FormData(formPanel.getForm()),
     credentials: 'include'
   };
@@ -277,15 +277,15 @@ bad.UserManager.prototype.login = function(cred, formPanel, onSuccess) {
 
   // Get a JWT token
   const f1 = fetch(this.JWTTokenRequest, jsonPostInit(this.jwt, cred))
-      .then(checkStatus)
-      .then(getJson)
-      .then(processJWTResponse);
+                 .then(checkStatus)
+                 .then(getJson)
+                 .then(processJWTResponse);
 
   // Log into Django
   const f2 = fetch(this.loginRequest, formPostInit(this.jwt, formPanel))
-      .then(checkStatus)
-      .then(getText)
-      .then(processAsFormPanel);
+                 .then(checkStatus)
+                 .then(getText)
+                 .then(processAsFormPanel);
 
   // Only fire OK if both those came back OK
   Promise.all([f1, f2])
