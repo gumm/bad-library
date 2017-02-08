@@ -157,7 +157,8 @@ bad.ui.Form.prototype.formIdElementToForm_ = function() {
  */
 bad.ui.Form.prototype.getFormFromId = function(string) {
   let form = null;
-  const el = goog.dom.getElement(string) || this.getElement().querySelector('form');
+  const el =
+      goog.dom.getElement(string) || this.getElement().querySelector('form');
   if (el && el.tagName == goog.dom.TagName.FORM) {
     form = /** @type {!HTMLFormElement} */ (el);
   }

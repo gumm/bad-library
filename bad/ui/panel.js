@@ -210,7 +210,7 @@ bad.ui.Panel.prototype.enterDocument = function() {
         custom: e.event_['detail'],
         trigger: trg,
         href: trg.href || trg.getAttribute('data-href')
-        });
+      });
     });
   });
 
@@ -240,10 +240,8 @@ bad.ui.Panel.prototype.enterDocument = function() {
         trigger: e.target,
         href: trg.href || trg.getAttribute('data-href')
       });
-    })
+    });
   });
-  console.log(links);
-
 
   // Calling this last makes sure that the final PANEL-READY event really is
   // dispatched right at the end of all of the enterDocument calls.
