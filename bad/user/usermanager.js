@@ -7,8 +7,8 @@ goog.require('goog.uri.utils');
  * @return {!Promise}
  */
 const checkStatus = response => {
-  console.warn('This is a redirected response!!!', response.redirected);
-  console.warn('This is the final url', response.url);
+  //  console.warn('This is a redirected response!!!', response.redirected);
+  //  console.warn('This is the final url', response.url);
   if (response.ok) {
     return Promise.resolve(response);
   } else {
@@ -23,8 +23,10 @@ const checkStatus = response => {
  * @return {!function(!Response):!Promise}
  */
 const checkStatusTwo = panel => response => {
-  const b = panel.getUri().toString() === goog.uri.utils.getPath(response.url);
-  panel.setIsRedirected(!b);
+  const panelUri = panel.getUri().getPath().toString();
+  const responseUri = goog.uri.utils.getPath(response.url);
+  const isRedirected = panelUri !== responseUri;
+  panel.setIsRedirected(isRedirected, responseUri);
   if (response.ok) {
     return Promise.resolve(response);
   } else {

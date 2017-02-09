@@ -88,19 +88,19 @@ bad.ui.FieldErrs = class {
 
 
 /**
- * @param {!string} id The form element id.
+ * @param {!string=} opt_id The form element id.
  * @param {?goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  * @extends {bad.ui.Panel}
  * @constructor
  */
-bad.ui.Form = function(id, opt_domHelper) {
+bad.ui.Form = function(opt_id, opt_domHelper) {
   bad.ui.Panel.call(this, opt_domHelper);
 
   /**
    * @type {!string}
    * @private
    */
-  this.formElId_ = id;
+  this.formElId_ = opt_id || '';
 
   /**
    * @type {?HTMLFormElement}
@@ -260,14 +260,7 @@ bad.ui.Form.prototype.onSubmitSuccess = function(func) {
  */
 bad.ui.Form.prototype.replaceForm = function(reply) {
 
-  console.log(reply);
-
-  console.log('This reply is from a redirected url...', this.redirected);
-
   this.responseObject = splitScripts(reply);
-
-  console.log(this.responseObject);
-
   if (this.responseObject.html) {
     if (this.redirected) {
       const el = this.getElement();
@@ -315,13 +308,20 @@ bad.ui.Form.prototype.processSubmitReply = function(reply) {
 
   if (reply === 'success') {
     success = true;
+  } else if (reply === 'redirected_success\n') {
+    success = true;
+    this.redirected = false;
   } else {
     this.replaceForm(reply);
     let hasErrors = goog.dom.getElementsByClass('alert-error', this.form_);
     success = !hasErrors.length
   }
 
-  if (success) {
+  if (success && this.redirected) {
+    // Just return the promise - we are not done yet.
+    this.redirected = false;
+    return Promise.resolve(this);
+  } else if (success) {
     return Promise.resolve(this).then(p => {
       this.onSubmitSucFunc(this);
       this.dispatchCompEvent(bad.EventType.FORM_SUBMIT_SUCCESS);

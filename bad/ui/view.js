@@ -137,7 +137,8 @@ bad.ui.View.prototype.onPanelAction = function(e) {
       ePanel.dispose();
       break;
     default:
-      console.debug('This event is not handled:', eventValue, eventData);
+      (() => [eventValue, eventData, ePanel])();
+      // console.debug('This event is not handled:', eventValue, eventData);
   }
 };
 

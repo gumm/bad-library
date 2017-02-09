@@ -102,18 +102,20 @@ bad.ui.Panel.prototype.initDom = goog.nullFunction;
 
 /**
  * @param {!boolean} bool
+ * @param {?string} url
  */
-bad.ui.Panel.prototype.setIsRedirected =
-    function(bool) {
+bad.ui.Panel.prototype.setIsRedirected = function(bool, url) {
   this.redirected = bool;
-  console.log('The request has been redirected...', this.redirected);
-}
+  if (this.redirected && url) {
+    this.uri_ = new goog.Uri(url);
+  }
+};
 
-    /**
+/**
  * Expects HTML data from a call to the back.
  * @return {!Promise} Returns a promise with this panel as value.
  */
-    bad.ui.Panel.prototype.renderWithTemplate = function() {
+bad.ui.Panel.prototype.renderWithTemplate = function() {
   const usr = this.getUser();
   if (usr) {
     return usr.fetch(this.uri_).then(s => this.onRenderWithTemplateReply(s));
