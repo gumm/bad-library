@@ -133,6 +133,27 @@ bad.ui.View.prototype.onPanelAction = function(e) {
   const ePanel = /** @type {!bad.ui.Panel} */ (e.target);
 
   switch (eventValue) {
+    case 'toggle_tree':
+      const isOn = eventData.custom.isOn;
+      console.log('isOn:', isOn)
+      let children = ePanel.getElement().querySelectorAll(
+        '.children');
+      let revealIcons = ePanel.getElement().querySelectorAll(
+        '.tst_reveal_icon');
+      Array.from(children).forEach(e =>
+        goog.dom.classlist.enable(e, 'tst_tree-children__hidden', !isOn)
+      );
+      Array.from(revealIcons).forEach(e =>
+        goog.dom.classlist.enable(e, 'tst_icon_rotated', !isOn)
+      );
+      break;
+    case 'tree_reveal':
+      let revealIcon = eventData.trigger;
+      let child = revealIcon.parentElement.parentElement.querySelector(
+          '.children');
+      goog.dom.classlist.toggle(child, 'tst_tree-children__hidden');
+      goog.dom.classlist.toggle(revealIcon, 'tst_icon_rotated');
+      break;
     case 'destroy_me':
       ePanel.dispose();
       break;
@@ -140,7 +161,7 @@ bad.ui.View.prototype.onPanelAction = function(e) {
       let view = eventData.trigger.getAttribute('data-view');
       let href = eventData.trigger.getAttribute('data-href');
       let pk = eventData.trigger.getAttribute('data-pk');
-      this.dispatchViewEvent(`switch_view_${view}`, {pk:pk, href:href});
+      this.dispatchViewEvent(`switch_view_${view}`, {pk: pk, href: href});
       break;
     default:
       (() => [eventValue, eventData, ePanel])();
