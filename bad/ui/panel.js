@@ -195,7 +195,6 @@ bad.ui.Panel.prototype.createDom = function() {
 bad.ui.Panel.prototype.enterDocument = function() {
 
   const panel = this.getElement();
-  this.dom_ = goog.dom.getDomHelper(panel);
   this.initDom();
   this.evalScripts(this.responseObject.scripts);
 
@@ -231,6 +230,9 @@ bad.ui.Panel.prototype.enterDocument = function() {
     });
   });
 
+  // Hijack elements with a straight-up "href" attribute.
+  // Make them emit a 'href' event with the original
+  // href or a href data attribute.
   const links = panel.querySelectorAll('[href]');
   Array.from(links).forEach(el => {
     this.listenToThis(el, 'click', e => {

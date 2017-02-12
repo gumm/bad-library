@@ -136,9 +136,15 @@ bad.ui.View.prototype.onPanelAction = function(e) {
     case 'destroy_me':
       ePanel.dispose();
       break;
+    case 'switch_view':
+      let view = eventData.trigger.getAttribute('data-view');
+      let href = eventData.trigger.getAttribute('data-href');
+      let pk = eventData.trigger.getAttribute('data-pk');
+      this.dispatchViewEvent(`switch_view_${view}`, {pk:pk, href:href});
+      break;
     default:
       (() => [eventValue, eventData, ePanel])();
-      // console.debug('This event is not handled:', eventValue, eventData);
+      console.debug('This event is not handled:', eventValue, eventData);
   }
 };
 

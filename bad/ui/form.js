@@ -307,11 +307,20 @@ bad.ui.Form.prototype.processSubmitReply = function(reply) {
   let success = false;
 
   if (reply === 'success') {
+    // We are done.
+    // Nothing further to do here.
     success = true;
   } else if (reply === 'redirected_success\n') {
+    // Indicate that we were redirected, but are done.
+    // Nothing further to do here. Set the 'redirected' flag to false,
+    // and we will fall through to the correct response below.
     success = true;
     this.redirected = false;
   } else {
+    // We received something other than a simple "we are done".
+    // Replace the form (there may be server side error messages in it)
+    // and look for the error objects.
+    // Our success depends on finding error objects.
     this.replaceForm(reply);
     let hasErrors = goog.dom.getElementsByClass('alert-error', this.form_);
     success = !hasErrors.length
@@ -322,11 +331,15 @@ bad.ui.Form.prototype.processSubmitReply = function(reply) {
     this.redirected = false;
     return Promise.resolve(this);
   } else if (success) {
+    // We are done. Execute any 'onSuccess' directives, and
+    // then fire the 'FORM_SUBMIT_SUCCESS' event.
     return Promise.resolve(this).then(p => {
       this.onSubmitSucFunc(this);
       this.dispatchCompEvent(bad.EventType.FORM_SUBMIT_SUCCESS);
     });
   } else {
+    // 'success' flag is not set. The form probably has errors.
+    // Reject the promise.
     return Promise.reject('Form has errors');
   }
 };
