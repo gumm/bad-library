@@ -126,6 +126,36 @@ bad.ui.Panel.prototype.renderWithTemplate = function() {
 
 
 /**
+ * @return {!Promise}
+ */
+bad.ui.Panel.prototype.refreshTemplateFromServer = function() {
+  const usr = this.getUser();
+  const uri = this.getUri();
+  if (usr && uri) {
+    return usr.fetch(uri).then(s => this.replacePanelContent(s));
+  } else {
+    return Promise.reject('No user or no uri')
+  }
+};
+
+
+/**
+ * @param {!string} reply
+ */
+bad.ui.Panel.prototype.replacePanelContent = function(reply) {
+  this.responseObject = splitScripts(reply);
+  if (this.responseObject.html) {
+    const el = this.getElement();
+    el.replaceChild(this.responseObject.html, el.firstElementChild);
+    this.enterDocument();
+  }
+  if (this.responseObject.scripts) {
+    this.evalScripts(this.responseObject.scripts);
+  }
+};
+
+
+/**
  * Equivalent to the @code{renderWithTemplate} method in that it is guaranteed
  * that a reply from the callback is received before @code{render} is called.
  * @param {!function(?goog.events.EventLike)} callback The callback function

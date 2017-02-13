@@ -12,16 +12,21 @@ goog.require('goog.events.EventTarget');
  * @param {!{custom:{isOn:!boolean}}} eventData
  */
 const toggleTree = (panel, eventData) => {
-  const isOn = /**@type {!boolean} */(eventData.custom.isOn);
+  // The first level children. From a pure usability perspective
+  // its nicer if we don't to close these. If we did, the tree *always* ends
+  // up with only one element revealed. So we keep the first level children
+  // open at all times.
+  const fc = panel.getElement().querySelector('.children');
+  const isOn = /**@type {!boolean} */ (eventData.custom.isOn);
   const children = panel.getElement().querySelectorAll('.children');
-  const revealIcons = panel.getElement().querySelectorAll(
-    '.tst_reveal_icon');
-  Array.from(children).forEach(e =>
-    goog.dom.classlist.enable(e, 'tst_tree-children__hidden', !isOn)
-  );
-  Array.from(revealIcons).forEach(e =>
-    goog.dom.classlist.enable(e, 'tst_icon_rotated', !isOn)
-  );
+  const revealIcons = panel.getElement().querySelectorAll('.tst_reveal_icon');
+  Array.from(children).forEach(
+      e => goog.dom.classlist.enable(
+          e, 'tst_tree-children__hidden', e !== fc && !isOn));
+  Array.from(revealIcons)
+      .forEach(
+          e => goog.dom.classlist.enable(
+              e, 'tst_icon_rotated', e !== fc && !isOn));
 };
 
 
@@ -166,20 +171,20 @@ bad.ui.View.prototype.onPanelAction = function(e) {
 
   switch (eventValue) {
     case 'toggle_tree':
-      toggleTree(ePanel, /**@type {!{custom:{isOn:boolean}}}*/(eventData));
+      toggleTree(ePanel, /**@type {!{custom:{isOn:boolean}}}*/ (eventData));
       break;
     case 'tree_toggle-children':
-      toggleTreeChildren(ePanel,
-        /**@type {!{trigger:!HTMLElement}}*/(eventData));
+      toggleTreeChildren(
+          ePanel,
+          /**@type {!{trigger:!HTMLElement}}*/ (eventData));
       break;
     case 'destroy_me':
       ePanel.dispose();
       break;
     case 'switch_view':
       let view = eventData.trigger.getAttribute('data-view');
-      let href = eventData.trigger.getAttribute('data-href');
       let pk = eventData.trigger.getAttribute('data-pk');
-      this.dispatchViewEvent(`switch_view_${view}`, {pk: pk, href: href});
+      this.dispatchViewEvent(`switch_view_${view}`, pk);
       break;
     default:
       (() => [eventValue, eventData, ePanel])();
