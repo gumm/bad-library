@@ -7,6 +7,38 @@ goog.require('goog.events.EventTarget');
 
 
 /**
+ * Toggle the whole tree display either open or closed
+ * @param {!bad.ui.Panel} panel
+ * @param {!{custom:{isOn:!boolean}}} eventData
+ */
+const toggleTree = (panel, eventData) => {
+  const isOn = /**@type {!boolean} */(eventData.custom.isOn);
+  const children = panel.getElement().querySelectorAll('.children');
+  const revealIcons = panel.getElement().querySelectorAll(
+    '.tst_reveal_icon');
+  Array.from(children).forEach(e =>
+    goog.dom.classlist.enable(e, 'tst_tree-children__hidden', !isOn)
+  );
+  Array.from(revealIcons).forEach(e =>
+    goog.dom.classlist.enable(e, 'tst_icon_rotated', !isOn)
+  );
+};
+
+
+/**
+ * @param {!bad.ui.Panel} panel
+ * @param {!{trigger:!HTMLElement}} eventData
+ */
+const toggleTreeChildren = (panel, eventData) => {
+  const revealIcon = eventData.trigger;
+  const elId = revealIcon.getAttribute('data-child-id');
+  let child = panel.getElement().querySelector(`#${elId}`);
+  goog.dom.classlist.toggle(child, 'tst_tree-children__hidden');
+  goog.dom.classlist.toggle(revealIcon, 'tst_icon_rotated');
+};
+
+
+/**
  * @constructor
  * @extends {goog.events.EventTarget}
  */
@@ -134,25 +166,11 @@ bad.ui.View.prototype.onPanelAction = function(e) {
 
   switch (eventValue) {
     case 'toggle_tree':
-      const isOn = eventData.custom.isOn;
-      console.log('isOn:', isOn)
-      let children = ePanel.getElement().querySelectorAll(
-        '.children');
-      let revealIcons = ePanel.getElement().querySelectorAll(
-        '.tst_reveal_icon');
-      Array.from(children).forEach(e =>
-        goog.dom.classlist.enable(e, 'tst_tree-children__hidden', !isOn)
-      );
-      Array.from(revealIcons).forEach(e =>
-        goog.dom.classlist.enable(e, 'tst_icon_rotated', !isOn)
-      );
+      toggleTree(ePanel, /**@type {!{custom:{isOn:boolean}}}*/(eventData));
       break;
-    case 'tree_reveal':
-      let revealIcon = eventData.trigger;
-      let child = revealIcon.parentElement.parentElement.querySelector(
-          '.children');
-      goog.dom.classlist.toggle(child, 'tst_tree-children__hidden');
-      goog.dom.classlist.toggle(revealIcon, 'tst_icon_rotated');
+    case 'tree_toggle-children':
+      toggleTreeChildren(ePanel,
+        /**@type {!{trigger:!HTMLElement}}*/(eventData));
       break;
     case 'destroy_me':
       ePanel.dispose();
