@@ -61,21 +61,43 @@ const getText = response => {
 /**
  * @param {!string} jwt A JWT token
  * @param {!Object} obj
+ * @param {!string} method One of PATCH, PUT, POST etc.
  * @return {!Object}
  */
-const jsonPostInit = (jwt, obj) => {
+const jsonInit = (jwt, obj, method='POST') => {
   const h = new Headers();
   h.append('Content-type', 'application/json');
   h.append('X-Requested-With', 'XMLHttpRequest');
   jwt && jwt !== '' && h.append('Authorization', `bearer ${jwt}`);
   return {
     cache: 'no-cache',
-    method: 'POST',
+    method: method,
     headers: h,
     credentials: 'include',
     body: JSON.stringify(obj),
   };
 };
+
+/**
+ * @param {!string} jwt A JWT token
+ * @param {!Object} obj
+ * @return {!Object}
+ */
+const jsonPostInit = (jwt, obj) => jsonInit(jwt, obj, 'POST');
+
+/**
+ * @param {!string} jwt A JWT token
+ * @param {!Object} obj
+ * @return {!Object}
+ */
+const jsonPatchInit = (jwt, obj) => jsonInit(jwt, obj, 'PATCH');
+
+/**
+ * @param {!string} jwt A JWT token
+ * @param {!Object} obj
+ * @return {!Object}
+ */
+const jsonPutInit = (jwt, obj) => jsonInit(jwt, obj, 'PUT');
 
 
 /**
@@ -106,7 +128,11 @@ const basicGetInit = jwt => {
   const h = new Headers();
   h.append('Authorization', `bearer ${jwt}`);
   h.append('X-Requested-With', 'XMLHttpRequest');
-  return {cache: 'no-cache', headers: h, credentials: 'include'};
+  return {
+    cache: 'no-cache',
+    headers: h,
+    credentials: 'include'
+  };
 };
 
 
@@ -265,6 +291,18 @@ bad.UserManager.prototype.fetchJson = function(uri) {
       .then(checkStatus)
       .then(getJson)
       .catch(err => console.error('UMan Json Fetch:', err));
+};
+
+/**
+ * @param {!goog.Uri} uri
+ * @return {!Promise}
+ */
+bad.UserManager.prototype.patchJson = function(uri, payload) {
+  const req = new Request(uri.toString());
+  return fetch(req, jsonPatchInit(this.jwt, payload))
+    .then(checkStatus)
+    .then(getJson)
+    .catch(err => console.error('UMan Json Patch Fetch:', err));
 };
 
 

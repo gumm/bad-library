@@ -231,10 +231,25 @@ bad.ui.Panel.prototype.enterDocument = function() {
   // Activate buttons
   const tst = panel.querySelectorAll('.tst_button');
   Array.from(tst).forEach(el => {
-    const ev = el.classList.contains('mdc-icon-toggle') ?
-        'MDCIconToggle:change' :
-        'click';
-    this.listenToThis(el, ev, e => {
+    this.listenToThis(el, 'click', e => {
+      e.stopPropagation();
+      const trg = e.currentTarget;
+      this.dispatchCompEvent(trg.getAttribute('data-zv'), {
+        custom: e.event_['detail'],
+        trigger: trg,
+        href: trg.href || trg.getAttribute('data-href')
+      });
+    });
+  });
+
+  // Activate toggle icons
+  // We intercept the click on these as well, as we want to stop its
+  // propagation.
+  const togIcons = panel.querySelectorAll('.mdc-icon-toggle');
+  Array.from(togIcons).forEach(el =>
+    this.listenToThis(el, 'click', e => e.stopPropagation()));
+  Array.from(togIcons).forEach(el => {
+    this.listenToThis(el, 'MDCIconToggle:change', e => {
       e.stopPropagation();
       const trg = e.currentTarget;
       this.dispatchCompEvent(trg.getAttribute('data-zv'), {
