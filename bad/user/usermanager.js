@@ -64,7 +64,7 @@ const getText = response => {
  * @param {!string} method One of PATCH, PUT, POST etc.
  * @return {!Object}
  */
-const jsonInit = (jwt, obj, method='POST') => {
+const jsonInit = (jwt, obj, method = 'POST') => {
   const h = new Headers();
   h.append('Content-type', 'application/json');
   h.append('X-Requested-With', 'XMLHttpRequest');
@@ -128,11 +128,7 @@ const basicGetInit = jwt => {
   const h = new Headers();
   h.append('Authorization', `bearer ${jwt}`);
   h.append('X-Requested-With', 'XMLHttpRequest');
-  return {
-    cache: 'no-cache',
-    headers: h,
-    credentials: 'include'
-  };
+  return {cache: 'no-cache', headers: h, credentials: 'include'};
 };
 
 
@@ -300,9 +296,9 @@ bad.UserManager.prototype.fetchJson = function(uri) {
 bad.UserManager.prototype.patchJson = function(uri, payload) {
   const req = new Request(uri.toString());
   return fetch(req, jsonPatchInit(this.jwt, payload))
-    .then(checkStatus)
-    .then(getJson)
-    .catch(err => console.error('UMan Json Patch Fetch:', err));
+      .then(checkStatus)
+      .then(getJson)
+      .catch(err => console.error('UMan Json Patch Fetch:', err));
 };
 
 

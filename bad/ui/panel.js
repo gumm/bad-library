@@ -246,8 +246,8 @@ bad.ui.Panel.prototype.enterDocument = function() {
   // We intercept the click on these as well, as we want to stop its
   // propagation.
   const togIcons = panel.querySelectorAll('.mdc-icon-toggle');
-  Array.from(togIcons).forEach(el =>
-    this.listenToThis(el, 'click', e => e.stopPropagation()));
+  Array.from(togIcons).forEach(
+      el => this.listenToThis(el, 'click', e => e.stopPropagation()));
   Array.from(togIcons).forEach(el => {
     this.listenToThis(el, 'MDCIconToggle:change', e => {
       e.stopPropagation();

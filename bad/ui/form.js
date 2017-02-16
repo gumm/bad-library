@@ -307,19 +307,19 @@ bad.ui.Form.prototype.processSubmitReply = function(reply) {
   let success = false;
 
   if (reply === 'success') {
-//    console.log(`REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
+    //    console.log(`REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
     // We are done.
     // Nothing further to do here.
     success = true;
   } else if (reply === 'redirected_success\n') {
-//    console.log(`REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
+    //    console.log(`REDIRECTED: ${this.redirected}\nREPLY: ${reply}`);
     // Indicate that we were redirected, but are done.
     // Nothing further to do here. Set the 'redirected' flag to false,
     // and we will fall through to the correct response below.
     success = true;
     this.redirected = false;
   } else {
-//    console.log(`REDIRECTED: ${this.redirected}\nREPLY: Some form HTML`);
+    //    console.log(`REDIRECTED: ${this.redirected}\nREPLY: Some form HTML`);
     // We received something other than a simple "we are done".
     // Replace the form (there may be server side error messages in it)
     // and look for the error objects.
@@ -330,12 +330,12 @@ bad.ui.Form.prototype.processSubmitReply = function(reply) {
   }
 
   if (success && this.redirected) {
-//    console.log(`REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
+    //    console.log(`REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
     // Just return the promise - we are not done yet.
     this.redirected = false;
     return Promise.resolve(this);
   } else if (success) {
-//    console.log(`REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
+    //    console.log(`REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
     // We are done. Execute any 'onSuccess' directives, and
     // then fire the 'FORM_SUBMIT_SUCCESS' event.
     return Promise.resolve(this).then(p => {
@@ -343,7 +343,7 @@ bad.ui.Form.prototype.processSubmitReply = function(reply) {
       this.dispatchCompEvent(bad.EventType.FORM_SUBMIT_SUCCESS);
     });
   } else {
-//    console.log(`REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
+    //    console.log(`REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);
     // 'success' flag is not set. The form probably has errors.
     // Reject the promise.
     return Promise.reject('Form has errors');
