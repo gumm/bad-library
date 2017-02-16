@@ -17,7 +17,7 @@ const toggleTree = (panel, eventData) => {
   // up with only one element revealed. So we keep the first level children
   // open at all times.
   const fc = panel.getElement().querySelector('.children');
-  const isOn = /**@type {!boolean} */ (eventData.custom.isOn);
+  const isOn = /**@type {!boolean} */ (eventData.custom['isOn']);
   const children = panel.getElement().querySelectorAll('.children');
   const revealIcons = panel.getElement().querySelectorAll('.tst_reveal_icon');
   Array.from(children).forEach(
