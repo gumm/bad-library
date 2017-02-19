@@ -2,6 +2,7 @@ goog.provide('bad.ui.FieldErrs');
 goog.provide('bad.ui.Form');
 
 goog.require('bad.ui.Panel');
+goog.require('bad.utils');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.dom.classlist');
@@ -260,7 +261,7 @@ bad.ui.Form.prototype.onSubmitSuccess = function(func) {
  */
 bad.ui.Form.prototype.replaceForm = function(reply) {
 
-  this.responseObject = splitScripts(reply);
+  this.responseObject = bad.utils.splitScripts(reply);
   if (this.responseObject.html) {
     if (this.redirected) {
       const el = this.getElement();

@@ -7,6 +7,37 @@ goog.require('goog.string');
 
 
 /**
+ * A function to split scripts out of an HTML response string.
+ * @param {!string} data The original HTML string returned from the server.
+ * @return {{html:?Element, scripts:?NodeList}} An object literal with two
+ * key value pairs:
+ *  html: The the scrubbed HTML string - without any <script> tags.
+ *  scripts: An array with the script nodes that was removed from the response,
+ *  in order that they were found.
+ */
+bad.utils.splitScripts = data => {
+  const DF = new DOMParser().parseFromString(data, 'text/html');
+  const df = /** @type {!Document} */ (DF);
+  return {
+    html: goog.dom.getFirstElementChild(df.body),
+    scripts: goog.dom.getElementsByTagName(goog.dom.TagName.SCRIPT, df)
+  };
+};
+
+/**
+ * Evaluates each of the scripts in the ajaxScriptsStrings_ map in turn.
+ * The scripts are evaluated in the scope of this panel.
+ * @param {!bad.ui.Panel} comp
+ * @return {!function(?NodeList)}
+ */
+bad.utils.evalScripts = comp => arr => {
+  arr && Array.from(arr).forEach(s => {
+    goog.bind(function() { eval(s.text); }, comp)();
+  });
+};
+
+
+/**
  * @param {!bad.ui.Panel} panel
  * @param {!bad.ui.View} view
  * @param {!string} name
