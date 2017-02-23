@@ -1,5 +1,9 @@
 goog.provide('bad.UserManager');
+
+goog.require('goog.net.cookies');
 goog.require('goog.uri.utils');
+
+const cookies = goog.net.cookies;
 
 
 /**
@@ -101,22 +105,70 @@ const jsonPutInit = (jwt, obj) => jsonInit(jwt, obj, 'PUT');
 
 
 /**
+ * @param {!string} method PUT, POST, PATCH
+ * @param {!string} jwt A JWT token
+ * @param {!boolean} useDocumentCookies If set to true, we look for cookies
+ *    in the document. In almost all cases where we are posting a form, this
+ *    should be 'false' as the form itself carries the CSRF token.
+ *    In cases where we are using AJAX, we need to grab the cookie from
+ *    the document, so set this to 'true'
+ * @return {!Object}
+ */
+const basicPutPostPatchInit = (method, jwt, useDocumentCookies=false) => {
+  const h = new Headers();
+  jwt && jwt !== '' && h.append('Authorization', `bearer ${jwt}`);
+  h.append('X-Requested-With', 'XMLHttpRequest');
+  if (useDocumentCookies) {
+    const token = cookies.get('csrftoken');
+    token && useDocumentCookies && h.append('X-CSRFToken', token);
+  }
+  return {
+    cache: 'no-cache',
+    method: method,
+    headers: h,
+    redirect: 'follow',  // This is anyway the default.
+    credentials: 'include'
+  };
+};
+
+
+/**
+ * @param {!string} jwt A JWT token
+ * @param {!boolean} useDocumentCookies
+ * @return {!Object}
+ */
+const basicPostInit = (jwt, useDocumentCookies=true) => basicPutPostPatchInit(
+  'POST', jwt, useDocumentCookies);
+
+
+/**
+ * @param {!string} jwt A JWT token
+ * @param {!boolean} useDocumentCookies
+ * @return {!Object}
+ */
+const basicPutInit = (jwt, useDocumentCookies=true) => basicPutPostPatchInit(
+  'PUT', jwt, useDocumentCookies);
+
+
+/**
+ * @param {!string} jwt A JWT token
+ * @param {!boolean} useDocumentCookies
+ * @return {!Object}
+ */
+const basicPatchInit = (jwt, useDocumentCookies=true) => basicPutPostPatchInit(
+  'PATCH', jwt, useDocumentCookies);
+
+
+/**
  * @param {!string} jwt A JWT token
  * @param {!bad.ui.Form} formPanel
  * @return {!Object}
  */
 const formPostInit = (jwt, formPanel) => {
-  const h = new Headers();
-  jwt && jwt !== '' && h.append('Authorization', `bearer ${jwt}`);
-  h.append('X-Requested-With', 'XMLHttpRequest');
-  return {
-    cache: 'no-cache',
-    method: 'POST',
-    headers: h,
-    redirect: 'follow',  // This is anyway the default.
-    body: new FormData(formPanel.getForm()),
-    credentials: 'include'
-  };
+  const useDocumentCookies = false;
+  const resp = basicPostInit(jwt, useDocumentCookies);
+  resp['body'] = new FormData(formPanel.getForm());
+  return resp;
 };
 
 
@@ -263,6 +315,27 @@ bad.UserManager.prototype.formSubmit = function(formPanel) {
       .catch(err => console.error('Form submit error', err));
 };
 
+
+/**
+ * @param {!goog.Uri} uri
+ * @return {!Promise}
+ */
+bad.UserManager.prototype.putPostPatchNobody = function(uri, init) {
+  const req = new Request(uri.toString());
+  return fetch(req, init)
+    .then(checkStatus)
+    .then(getText)
+    .catch(err => console.error('Form submit error', err));
+};
+
+
+/**
+ * @param {!goog.Uri} uri
+ * @return {!Promise}
+ */
+bad.UserManager.prototype.putNoBody = function(uri) {
+  return this.putPostPatchNobody(uri, basicPutInit(''))
+};
 
 /**
  * @param {!goog.Uri} uri
