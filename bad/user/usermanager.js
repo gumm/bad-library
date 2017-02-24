@@ -349,6 +349,15 @@ bad.UserManager.prototype.fetch = function(uri) {
       .catch(err => console.error('UMan Text Fetch:', err));
 };
 
+/**
+ * Use this if you want to directly get a parsed template that does not go
+ * through panel logic.
+ * @param {!goog.Uri} uri
+ * @return {!Promise}
+ */
+bad.UserManager.prototype.fetchAndSplit = function(uri) {
+  return this.fetch(uri).then(bad.utils.handleTemplateProm)
+};
 
 /**
  * @param {!goog.Uri} uri

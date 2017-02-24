@@ -253,10 +253,14 @@ bad.ui.Panel.prototype.enterDocument = function() {
     this.listenToThis(el, 'MDCIconToggle:change', e => {
       e.stopPropagation();
       const trg = e.currentTarget;
+      const isOn = e.event_['detail']['isOn'];
+      const hrefAt = isOn ? '__on' : '__off';
+      const hrefTog = trg.getAttribute(`data-href${hrefAt}`);
       this.dispatchCompEvent(trg.getAttribute('data-zv'), {
         custom: e.event_['detail'],
         trigger: trg,
-        href: trg.href || trg.getAttribute('data-href')
+        href: trg.href || trg.getAttribute('data-href'),
+        hrefTog: hrefTog
       });
     });
   });

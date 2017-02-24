@@ -24,6 +24,12 @@ bad.utils.splitScripts = data => {
   };
 };
 
+
+/**
+ * @param {!string} t
+ */
+bad.utils.handleTemplateProm = t => Promise.resolve(bad.utils.splitScripts(t));
+
 /**
  * Evaluates each of the scripts in the ajaxScriptsStrings_ map in turn.
  * The scripts are evaluated in the scope of this panel.
