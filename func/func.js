@@ -488,3 +488,22 @@ const splitOnCharChange = s => {
 };
 let r = splitOnCharChange(`gHHH5YY++///\\`);
 r.forEach(e => console.log(e));
+
+
+//------------------------------------------------------------------------------
+// Rosetta Code: Calculate the Shannon entropy H of a given input string.
+// http://rosettacode.org/wiki/Entropy
+// Measure the entropy of a string in bits per symbol.
+const shannon = s =>
+  [...s.split('').reduce((p, c) => p.set(c, p.has(c) ? p.get(c) + 1 : 1),
+    new Map()
+  ).values()]
+  .map(v => v/s.length)
+  .reduce((p, c) => p -= c * Math.log(c) / Math.log(2), 0);
+
+// Log the Shannon entropy of a string.
+const log = s => {
+  console.log(`Entropy of ${s} in bits per symbol: ${shannon(s)}`);
+};
+
+['1223334444', '0', '01', '0123', '01234567', '0123456789abcdef'].forEach(log);

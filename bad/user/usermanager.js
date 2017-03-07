@@ -5,14 +5,52 @@ goog.require('goog.uri.utils');
 
 const cookies = goog.net.cookies;
 
+/**
+ * The spinner should not be started or stopped by fetch calls while there
+ * are other longer fetch calls in flight. To do that, we create a spinner
+ * that only acts when it changes to and from 0
+ * @return {function(!number)}
+ */
+const spinner = id => {
+  /**
+   * @type {!number}
+   */
+  let wrapped = 0;
+
+  /**
+   * {?Element|undefined}
+   */
+  let e;
+
+  /**
+   * @param {!number} v
+   * @return {boolean}
+   */
+  const change = v => {
+    const inc = v > 0;
+    inc ? wrapped += 1 : wrapped -= 1;
+    return inc ? wrapped === 1 : wrapped === 0;
+  };
+
+  return val => {
+    e = e || document.getElementById(id);
+    e && change(val) && e.classList.toggle('viz', wrapped > 0);
+  };
+};
+
+const spin = spinner('the_loader');
+const startSpin = () => Promise.resolve(spin(1));
+const stopSpin = x => {
+  spin(0);
+  return Promise.resolve(x);
+};
+
 
 /**
  * @param {!Response} response
  * @return {!Promise}
  */
 const checkStatus = response => {
-  //  console.warn('This is a redirected response!!!', response.redirected);
-  //  console.warn('This is the final url', response.url);
   if (response.ok) {
     return Promise.resolve(response);
   } else {
@@ -31,12 +69,7 @@ const checkStatusTwo = panel => response => {
   const responseUri = goog.uri.utils.getPath(response.url);
   const isRedirected = panelUri !== responseUri;
   panel.setIsRedirected(isRedirected, responseUri);
-  if (response.ok) {
-    return Promise.resolve(response);
-  } else {
-    return Promise.reject(new Error(
-        `${response.url} ${response.status} (${response.statusText})`));
-  }
+  return checkStatus(response);
 };
 
 
@@ -214,7 +247,7 @@ bad.UserManager = function(data) {
   this.loginRequest = new Request('/accounts/login/');
 
   if (data) {
-    this.updateProfile_(data);
+    this.updateProfileFromJwt(data).then(() => {});
   }
 };
 
@@ -238,7 +271,7 @@ bad.UserLike;
  * @return {!Promise}
  * @private
  */
-bad.UserManager.prototype.updateProfile_ = function(data) {
+bad.UserManager.prototype.updateProfileFromJwt = function(data) {
   if (data['non_field_errors']) {
     return Promise.reject(new Error(`JWT ${data['non_field_errors']}`));
   } else {
@@ -304,15 +337,18 @@ bad.UserManager.prototype.getSalutation = function() {
 
 /**
  * @param {!bad.ui.Form} formPanel
+ * @return {!Promise}
  */
 bad.UserManager.prototype.formSubmit = function(formPanel) {
   const req = new Request(formPanel.getUri().toString());
   const processSubmitReply = goog.bind(formPanel.processSubmitReply, formPanel);
-  fetch(req, formPostInit(this.jwt, formPanel))
-      .then(checkStatusTwo(formPanel))
-      .then(getText)
-      .then(processSubmitReply)
-      .catch(err => console.error('Form submit error', err));
+  return startSpin()
+    .then(() => fetch(req, formPostInit(this.jwt, formPanel)))
+    .then(checkStatusTwo(formPanel))
+    .then(stopSpin)
+    .then(getText)
+    .then(processSubmitReply)
+    .catch(err => console.error('Form submit error', err));
 };
 
 
@@ -343,10 +379,12 @@ bad.UserManager.prototype.putNoBody = function(uri) {
  */
 bad.UserManager.prototype.fetch = function(uri) {
   const req = new Request(uri.toString());
-  return fetch(req, basicGetInit(this.jwt))
-      .then(checkStatus)
-      .then(getText)
-      .catch(err => console.error('UMan Text Fetch:', err));
+  return startSpin()
+    .then(() => fetch(req, basicGetInit(this.jwt)))
+    .then(checkStatus)
+    .then(stopSpin)
+    .then(getText)
+    .catch(err => console.error('UMan Text Fetch:', err));
 };
 
 /**
@@ -365,10 +403,12 @@ bad.UserManager.prototype.fetchAndSplit = function(uri) {
  */
 bad.UserManager.prototype.fetchJson = function(uri) {
   const req = new Request(uri.toString());
-  return fetch(req, basicGetInit(this.jwt))
-      .then(checkStatus)
-      .then(getJson)
-      .catch(err => console.error('UMan Json Fetch:', err));
+  return startSpin()
+    .then(() => fetch(req, basicGetInit(this.jwt)))
+    .then(checkStatus)
+    .then(stopSpin)
+    .then(getJson)
+    .catch(err => console.error('UMan Json Fetch:', err));
 };
 
 /**
@@ -381,32 +421,4 @@ bad.UserManager.prototype.patchJson = function(uri, payload) {
       .then(checkStatus)
       .then(getJson)
       .catch(err => console.error('UMan Json Patch Fetch:', err));
-};
-
-
-/**
- * @param {!Object} cred
- * @param {!bad.ui.Form} formPanel
- * @param {!Function} onSuccess
- */
-bad.UserManager.prototype.login = function(cred, formPanel, onSuccess) {
-  let processAsFormPanel = goog.bind(formPanel.processSubmitReply, formPanel);
-  let processJWTResponse = goog.bind(this.updateProfile_, this);
-
-  // Get a JWT token
-  const f1 = fetch(this.JWTTokenRequest, jsonPostInit(this.jwt, cred))
-                 .then(checkStatus)
-                 .then(getJson)
-                 .then(processJWTResponse);
-
-  // Log into Django
-  const f2 = fetch(this.loginRequest, formPostInit(this.jwt, formPanel))
-                 .then(checkStatus)
-                 .then(getText)
-                 .then(processAsFormPanel);
-
-  // Only fire OK if both those came back OK
-  Promise.all([f1, f2])
-      .then(bothRes => onSuccess && onSuccess())
-      .catch(err => console.error(`Some requests failed: ${err}`));
 };

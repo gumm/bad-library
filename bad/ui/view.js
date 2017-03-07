@@ -43,6 +43,20 @@ const toggleTreeChildren = (panel, eventData) => {
 };
 
 
+const treeNodeSelect = panel => eventData => {
+  const allNodes = panel.getElement().querySelectorAll('.tree-node');
+  let href = eventData.trigger.getAttribute('data-href');
+  Array.from(allNodes).forEach(n => {
+    if (n.getAttribute('data-href') == href) {
+      goog.dom.classlist.add(n, 'selected')
+    }
+    else {
+      goog.dom.classlist.remove(n, 'selected')
+    }
+  });
+};
+
+
 /**
  * @constructor
  * @extends {goog.events.EventTarget}
@@ -206,13 +220,7 @@ bad.ui.View.prototype.setNests = function(nests) {
  */
 bad.ui.View.prototype.setUser = function(user) {
   this.user_ = user;
-
-  // Steps through each of the panels and makes sure their user is set
-  // to the same.
-  // goog.object.forEach(this.panelMap, panel => panel.setUser(user), this);
-
   this.panelMap.forEach(panel => panel.setUser(user));
-
 };
 
 

@@ -7,39 +7,6 @@ goog.require('goog.Uri');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 
-//------------------------------------------------------------[ Ajax Control ]--
-
-///**
-// * A function to split scripts out of an HTML response string.
-// * @param {!string} data The original HTML string returned from the server.
-// * @return {{html:?Element, scripts:?NodeList}} An object literal with two
-// * key value pairs:
-// *  html: The the scrubbed HTML string - without any <script> tags.
-// *  scripts: An array with the script nodes that was removed from the response,
-// *  in order that they were found.
-// */
-//const splitScripts = data => {
-//  const DF = new DOMParser().parseFromString(data, 'text/html');
-//  const df = /** @type {!Document} */ (DF);
-//  return {
-//    html: goog.dom.getFirstElementChild(df.body),
-//    scripts: goog.dom.getElementsByTagName(goog.dom.TagName.SCRIPT, df)
-//  };
-//};
-//
-///**
-// * Evaluates each of the scripts in the ajaxScriptsStrings_ map in turn.
-// * The scripts are evaluated in the scope of this panel.
-// * @param {!bad.ui.Panel} comp
-// * @return {!function(?NodeList)}
-// */
-//const evalScripts = comp => arr => {
-//  arr && Array.from(arr).forEach(s => {
-//    goog.bind(function() { eval(s.text); }, comp)();
-//  });
-//};
-
-
 
 /**
  * @param {?goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
