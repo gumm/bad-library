@@ -49,8 +49,7 @@ const treeNodeSelect = panel => eventData => {
   Array.from(allNodes).forEach(n => {
     if (n.getAttribute('data-href') == href) {
       goog.dom.classlist.add(n, 'selected')
-    }
-    else {
+    } else {
       goog.dom.classlist.remove(n, 'selected')
     }
   });

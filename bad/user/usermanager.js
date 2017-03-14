@@ -147,7 +147,7 @@ const jsonPutInit = (jwt, obj) => jsonInit(jwt, obj, 'PUT');
  *    the document, so set this to 'true'
  * @return {!Object}
  */
-const basicPutPostPatchInit = (method, jwt, useDocumentCookies=false) => {
+const basicPutPostPatchInit = (method, jwt, useDocumentCookies = false) => {
   const h = new Headers();
   jwt && jwt !== '' && h.append('Authorization', `bearer ${jwt}`);
   h.append('X-Requested-With', 'XMLHttpRequest');
@@ -170,8 +170,8 @@ const basicPutPostPatchInit = (method, jwt, useDocumentCookies=false) => {
  * @param {!boolean} useDocumentCookies
  * @return {!Object}
  */
-const basicPostInit = (jwt, useDocumentCookies=true) => basicPutPostPatchInit(
-  'POST', jwt, useDocumentCookies);
+const basicPostInit = (jwt, useDocumentCookies = true) =>
+    basicPutPostPatchInit('POST', jwt, useDocumentCookies);
 
 
 /**
@@ -179,8 +179,8 @@ const basicPostInit = (jwt, useDocumentCookies=true) => basicPutPostPatchInit(
  * @param {!boolean} useDocumentCookies
  * @return {!Object}
  */
-const basicPutInit = (jwt, useDocumentCookies=true) => basicPutPostPatchInit(
-  'PUT', jwt, useDocumentCookies);
+const basicPutInit = (jwt, useDocumentCookies = true) =>
+    basicPutPostPatchInit('PUT', jwt, useDocumentCookies);
 
 
 /**
@@ -188,8 +188,8 @@ const basicPutInit = (jwt, useDocumentCookies=true) => basicPutPostPatchInit(
  * @param {!boolean} useDocumentCookies
  * @return {!Object}
  */
-const basicPatchInit = (jwt, useDocumentCookies=true) => basicPutPostPatchInit(
-  'PATCH', jwt, useDocumentCookies);
+const basicPatchInit = (jwt, useDocumentCookies = true) =>
+    basicPutPostPatchInit('PATCH', jwt, useDocumentCookies);
 
 
 /**
@@ -343,12 +343,15 @@ bad.UserManager.prototype.formSubmit = function(formPanel) {
   const req = new Request(formPanel.getUri().toString());
   const processSubmitReply = goog.bind(formPanel.processSubmitReply, formPanel);
   return startSpin()
-    .then(() => fetch(req, formPostInit(this.jwt, formPanel)))
-    .then(checkStatusTwo(formPanel))
-    .then(stopSpin)
-    .then(getText)
-    .then(processSubmitReply)
-    .catch(err => console.error('Form submit error', err));
+      .then(() => fetch(req, formPostInit(this.jwt, formPanel)))
+      .then(checkStatusTwo(formPanel))
+      .then(stopSpin)
+      .then(getText)
+      .then(processSubmitReply)
+      .catch(err => {
+        stopSpin('');
+        console.error('Form submit error', err)
+      });
 };
 
 
@@ -359,9 +362,9 @@ bad.UserManager.prototype.formSubmit = function(formPanel) {
 bad.UserManager.prototype.putPostPatchNobody = function(uri, init) {
   const req = new Request(uri.toString());
   return fetch(req, init)
-    .then(checkStatus)
-    .then(getText)
-    .catch(err => console.error('Form submit error', err));
+      .then(checkStatus)
+      .then(getText)
+      .catch(err => console.error('Form submit error', err));
 };
 
 
@@ -380,11 +383,14 @@ bad.UserManager.prototype.putNoBody = function(uri) {
 bad.UserManager.prototype.fetch = function(uri) {
   const req = new Request(uri.toString());
   return startSpin()
-    .then(() => fetch(req, basicGetInit(this.jwt)))
-    .then(checkStatus)
-    .then(stopSpin)
-    .then(getText)
-    .catch(err => console.error('UMan Text Fetch:', err));
+      .then(() => fetch(req, basicGetInit(this.jwt)))
+      .then(checkStatus)
+      .then(stopSpin)
+      .then(getText)
+      .catch(err => {
+        stopSpin('');
+        console.error('UMan Text Fetch:', err)
+      });
 };
 
 /**
@@ -404,11 +410,14 @@ bad.UserManager.prototype.fetchAndSplit = function(uri) {
 bad.UserManager.prototype.fetchJson = function(uri) {
   const req = new Request(uri.toString());
   return startSpin()
-    .then(() => fetch(req, basicGetInit(this.jwt)))
-    .then(checkStatus)
-    .then(stopSpin)
-    .then(getJson)
-    .catch(err => console.error('UMan Json Fetch:', err));
+      .then(() => fetch(req, basicGetInit(this.jwt)))
+      .then(checkStatus)
+      .then(stopSpin)
+      .then(getJson)
+      .catch(err => {
+        stopSpin('');
+        console.error('UMan Json Fetch:', err)
+      });
 };
 
 /**

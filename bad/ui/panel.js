@@ -264,6 +264,58 @@ bad.ui.Panel.prototype.enterDocument = function() {
     });
   });
 
+  //-------------------------------------------------------------[ Drag Drop ]--
+  const dropEls = Array.from(panel.querySelectorAll('.folder_drop_zone'));
+  const dragEls = Array.from(panel.querySelectorAll('[draggable]'));
+
+  const activate = e => {
+    e.preventDefault();
+    e.target.classList.add('drag_over');
+  };
+  const onDragOver = e => { e.preventDefault(); };
+  const onDragLeave = e => {
+    e.preventDefault();
+    e.target.classList.remove('drag_over');
+  };
+  const onDragExit = e => {
+    e.preventDefault();
+    e.target.classList.remove('drag_over');
+  };
+  const deactivate = e => {
+    e.preventDefault();
+    e.target.classList.remove('drag_over');
+  };
+  const onDragStart = e => {
+    e.dataTransfer.dropEffect = 'move';
+    let o = bad.utils.getElDataMap(e.target);
+    e.dataTransfer.setData('text/plain', JSON.stringify(o));
+  };
+  const justLog = e => {
+    //    console.log(e)
+  };
+  const onDrop = e => {
+    deactivate(e);
+    e.stopPropagation();
+    let data = JSON.parse(e.dataTransfer.getData('text/plain'));
+    let o = bad.utils.getElDataMap(e.target);
+    this.dispatchCompEvent('drop_on', {custom: {'on': o, 'from': data}});
+    return false;
+  };
+
+  dropEls.forEach(el => {
+    el.addEventListener('dragover', onDragOver, false);
+    el.addEventListener('dragenter', activate, false);
+    el.addEventListener('dragexit', onDragExit, false);
+    el.addEventListener('dragleave', onDragLeave, false);
+    el.addEventListener('drop', onDrop, false);
+  }, false);
+
+  dragEls.forEach(el => {
+    el.addEventListener('dragstart', onDragStart, false);
+    el.addEventListener('dragend', justLog, false);
+
+  }, false);
+
   // Calling this last makes sure that the final PANEL-READY event really is
   // dispatched right at the end of all of the enterDocument calls.
   bad.ui.Panel.superClass_.enterDocument.call(this);

@@ -264,7 +264,6 @@ const imeisvToImei = n => {
   return r.valid ? t + r.luhn : n.toString();
 };
 
-
 exports = {
   identity: identity,
   toLowerCase: toLowerCase,

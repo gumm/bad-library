@@ -5,6 +5,20 @@ goog.require('goog.dom');
 goog.require('goog.object');
 goog.require('goog.string');
 
+bad.utils.getElDataMap = el => {
+  let attr = el.attributes;
+  let o = {};
+  for (let i = 0; i < attr.length; i++) {
+    let a = attr[i];
+    let b = a.name.split('data-');
+    if (b[0] == '') {
+      o[b[1]] = a.value;
+    }
+  }
+  return o;
+};
+
+
 
 /**
  * A function to split scripts out of an HTML response string.
