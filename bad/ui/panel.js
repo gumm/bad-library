@@ -256,7 +256,8 @@ bad.ui.Panel.prototype.enterDocument = function() {
       const trg = e.currentTarget;
       e.preventDefault();
       e.stopPropagation();
-      this.dispatchCompEvent('href', {
+      let v = trg.getAttribute('data-zv') || 'href';
+      this.dispatchCompEvent(v, {
         custom: e.event_['detail'],
         trigger: e.target,
         href: trg.href || trg.getAttribute('data-href')
