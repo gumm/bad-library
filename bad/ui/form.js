@@ -272,7 +272,9 @@ bad.ui.Form.prototype.replaceForm = function(reply) {
       let newForm = goog.dom.getElementsByTagName(
           goog.dom.TagName.FORM,
           /** @type {!Element} */ (this.responseObject.html))[0];
-      goog.dom.replaceNode(newForm, this.form_);
+      if (newForm) {
+        goog.dom.replaceNode(newForm, this.form_);
+      }
     }
     this.enterDocument();
   }

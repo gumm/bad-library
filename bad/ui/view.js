@@ -130,10 +130,20 @@ bad.ui.View.prototype.dispose = function() {
  */
 bad.ui.View.prototype.addPanelToView = function(name, panel) {
 
-  this.panelMap.has(name) && this.panelMap.get(name).dispose();
+  this.removePanelFromView(name);
   this.panelMap.set(name, panel);
   this.initListenersForPanel_(panel);
 };
+
+
+/**
+ * Remove a panel from the view by name.
+ * @param {!string} name The name of the panel - used as a key in the panel map.
+ */
+bad.ui.View.prototype.removePanelFromView = function(name) {
+  this.panelMap.has(name) && this.panelMap.get(name).dispose();
+};
+
 
 
 /**

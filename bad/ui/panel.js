@@ -6,6 +6,8 @@ goog.require('bad.utils');
 goog.require('goog.Uri');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
+goog.require('goog.format.JsonPrettyPrinter');
+
 
 
 /**
@@ -58,6 +60,7 @@ bad.ui.Panel = function(opt_domHelper) {
    * @type {{html:?Element, scripts:?NodeList}}
    */
   this.responseObject = {html: null, scripts: null};
+
 };
 goog.inherits(bad.ui.Panel, bad.ui.Component);
 
@@ -81,12 +84,21 @@ bad.ui.Panel.prototype.setIsRedirected = function(bool, url) {
 
 /**
  * Expects HTML data from a call to the back.
+ * @param {Function=} opt_callback An optional callback to call before rendering
+ * the panel. This is useful for when you only want to attach the new panel to
+ * the view right before you render it - meaning the existing panel stays in
+ * place on the DOM for the duration of the fetch call.
  * @return {!Promise} Returns a promise with this panel as value.
  */
-bad.ui.Panel.prototype.renderWithTemplate = function() {
+bad.ui.Panel.prototype.renderWithTemplate = function(opt_callback) {
   const usr = this.getUser();
   if (usr) {
-    return usr.fetch(this.uri_).then(s => this.onRenderWithTemplateReply(s));
+    return usr.fetch(this.uri_).then(s => {
+      if (opt_callback) {
+        opt_callback();
+      }
+      this.onRenderWithTemplateReply(s)
+    });
   } else {
     return Promise.reject('No user')
   }
@@ -170,6 +182,15 @@ bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
     this.render();
     return res(this);
   })
+};
+
+
+/**
+ * @param {!string} zCode
+ * @param {!Object} json
+ */
+bad.ui.Panel.prototype.onAsyncJsonReply = function(zCode, json) {
+  // Stub
 };
 
 
@@ -317,6 +338,32 @@ bad.ui.Panel.prototype.enterDocument = function() {
 
   }, false);
 
+
+  //--------------------------------------------------------[ Async Populate ]--
+  // Grab all elements with a 'zoo_async_json' class.
+  // Call the given url, and then dispatch a panel event with the results.
+  const async_json_els = panel.querySelectorAll('.zoo_async_json');
+  Array.from(async_json_els).forEach(el => {
+    let href = el.getAttribute('data-href');
+    let event_value = el.getAttribute('data-zv');
+    let onReply = goog.bind(this.onAsyncJsonReply, this, event_value);
+    this.getUser().fetchJson(new goog.Uri(href)).then(onReply);
+  });
+
+  // Grab all elements with a 'zoo_async_html' class.
+  // Call the given url, and then dispatch a panel event with the results.
+  const async_html_els = panel.querySelectorAll('.zoo_async_html');
+  Array.from(async_html_els).forEach(el => {
+    let href = el.getAttribute('data-href');
+    let event_value = el.getAttribute('data-zv');
+    this.dispatchCompEvent(event_value, {
+      trigger: el,
+      href: href
+    });
+  });
+
+
+
   // Calling this last makes sure that the final PANEL-READY event really is
   // dispatched right at the end of all of the enterDocument calls.
   bad.ui.Panel.superClass_.enterDocument.call(this);
@@ -438,4 +485,26 @@ bad.ui.Panel.prototype.isOpen = function() {
 bad.ui.Panel.prototype.listenToThis = function(
     src, type, opt_fn, opt_capture = false) {
   return this.getHandler().listen(src, type, opt_fn, opt_capture);
+};
+
+
+/**
+ * @return {!goog.format.JsonPrettyPrinter}
+ */
+bad.ui.Panel.prototype.getPrettyPrinter = function() {
+  return new goog.format.JsonPrettyPrinter(
+    new goog.format.JsonPrettyPrinter.SafeHtmlDelimiters());
+};
+
+
+/**
+ * @param {*} val
+ * @param {!Node|!Element} el The element
+ *    where this is added to.
+ */
+bad.ui.Panel.prototype.parsePrettyJson = function(val, el) {
+
+  let pre = goog.dom.createDom('pre');
+  pre.innerHTML = this.getPrettyPrinter().format(val);
+  goog.dom.append(el, pre);
 };
