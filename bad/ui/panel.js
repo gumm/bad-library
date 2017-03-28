@@ -219,7 +219,9 @@ bad.ui.Panel.prototype.enterDocument = function() {
 
   // Activate buttons
   const tst = panel.querySelectorAll('.tst_button');
-  Array.from(tst).forEach(el => {
+  const tstZv = panel.querySelectorAll('.tst_zv');
+  const allBut = [...Array.from(tst), ...Array.from(tstZv)];
+  allBut.forEach(el => {
     this.listenToThis(el, 'click', e => {
       e.stopPropagation();
       const trg = e.currentTarget;

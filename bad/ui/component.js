@@ -29,6 +29,7 @@ bad.ui.Component = function(opt_domHelper) {
    */
   this.target_ = null;
 
+  // We need this to be able to get to the panel element from a template.
   goog.exportProperty(this, 'getElement', this.getElement);
 };
 goog.inherits(bad.ui.Component, goog.ui.Component);
