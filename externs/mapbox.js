@@ -2,7 +2,7 @@
  * Created by gumm on 2017/03/27.
  */
 
-var L = {
+const L = {
   "version": {},
   "noConflict": function () {},
   "Util": {
