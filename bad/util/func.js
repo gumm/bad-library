@@ -146,6 +146,21 @@ const interleave = j => s => s.split('').map(v => `${j}${v}`).join('');
 
 
 /**
+ * Concatenate a series of strings with the separator if the string is not empty
+ * example:
+ *    const cat = catWithSep('|')
+ *    cat('a', 'b', 'c')  # 'a|b|c'
+ *    cat('', 'b', 'c')   # 'b|c'
+ *    cat('a', '', 'c')   # 'a|c'
+ *    cat('', '', 'c')    # 'c'
+ *    cat(1, 'a', false, 'b', null, 'c', new Date())  # 'a|b|c'
+ * @param sep
+ */
+const catWithSep = sep => (...str) => str.filter(
+  s => typeof s === 'string' && s !== '').join(sep);
+
+
+/**
  * A generator function that returns an iterator over the specified range of
  * numbers. By default the step size is 1, but this can optionally be passed
  * in as well. A negative step size is silently converted to a positive number.
@@ -287,6 +302,7 @@ exports = {
   repeat,
   both,
   interleave,
+  catWithSep,
   rangeGen,
   range,
   countOck,
