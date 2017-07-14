@@ -154,8 +154,8 @@ const interleave = j => s => s.split('').map(v => `${j}${v}`).join('');
  * It does not matter which of the 2 values are larger, the generator will
  * always step from the first towards the second.
  * Example:
- *    const rangeArr = (b, e, s) => [...(rangeGen(b, e, s))];
- *    console.log(rangeArr(1, -1));
+ *    const range = (b, e, s) => [...(rangeGen(b, e, s))];
+ *    console.log(range(1, -1));
  * @param {!number} b Begin here - First element in array
  * @param {!number} e End here - Last element in array
  * @param {!number} s Step this size
@@ -165,12 +165,16 @@ function* rangeGen(b, e, s = 1) {
   if (!isNumber(s) || s === 0) {
     throw `Invalid step size: ${s}`;
   }
+  if (!(isNumber(b) && isNumber(e))) {
+    throw new TypeError('Arguments to range must be numbers');
+  }
   let up = e >= b;
   for (let i = b; up ? i <= e : i >= e;
        up ? i += Math.abs(s) : i -= Math.abs(s)) {
     yield i;
   }
 }
+const range = (b, e, s) => [...(rangeGen(b, e, s))];
 
 
 /**
@@ -265,29 +269,30 @@ const imeisvToImei = n => {
 };
 
 exports = {
-  identity: identity,
-  toLowerCase: toLowerCase,
-  whatType: whatType,
-  isNumber: isNumber,
-  isEven: isEven,
-  isDivisibleBy: isDivisibleBy,
-  isString: isString,
-  toUpperCase: toUpperCase,
-  split: split,
-  replace: replace,
-  join: join,
-  append: append,
-  reverse: reverse,
-  head: head,
-  negate: negate,
-  repeat: repeat,
-  both: both,
-  interleave: interleave,
-  rangeGen: rangeGen,
-  countOck: countOck,
-  countByFunc: countByFunc,
-  sameArr: sameArr,
-  sameEls: sameEls,
-  luhn: luhn,
-  imeisvToImei: imeisvToImei
+  identity,
+  toLowerCase,
+  whatType,
+  isNumber,
+  isEven,
+  isDivisibleBy,
+  isString,
+  toUpperCase,
+  split,
+  replace,
+  join,
+  append,
+  reverse,
+  head,
+  negate,
+  repeat,
+  both,
+  interleave,
+  rangeGen,
+  range,
+  countOck,
+  countByFunc,
+  sameArr,
+  sameEls,
+  luhn,
+  imeisvToImei
 };

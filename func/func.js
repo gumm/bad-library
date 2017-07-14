@@ -197,7 +197,10 @@ const anyToLowerCase = compose(toLowerCase, toString);
  */
 function* rangeGen(b, e, s = 1) {
   if (!isNumber(s) || s === 0) {
-    throw `Invalid step size: ${s}`;
+    throw new TypeError(`Invalid step size: ${s}`);
+  }
+  if (!(isNumber(b) && isNumber(e))) {
+    throw new TypeError('Arguments to range must be numbers');
   }
   let up = e >= b;
   for (let i = b; up ? i <= e : i >= e;
@@ -205,8 +208,8 @@ function* rangeGen(b, e, s = 1) {
     yield i;
   }
 }
-const rangeArr = (b, e, s) => [...(rangeGen(b, e, s))];
-console.log(rangeArr(1, -1));
+const range = (b, e, s) => [...(rangeGen(b, e, s))];
+console.log(range(1, -1));
 
 
 const stringReverse = compose(join(''), reverse);
@@ -260,7 +263,7 @@ const f = n => dividesBy3(n) ? 'Fizz' : n;
 const b = n => dividesBy5(n) ? 'Buzz' : n;
 const fb = n => dividesBy15(n) ? 'FizzBuzz' : n;
 const c = compose(f, b, fb);
-rangeArr(1, 100).forEach(e => console.log(c(e)));
+range(1, 101).forEach(e => console.log(c(e)));
 
 
 // -----------------------------------------------------------------------------
