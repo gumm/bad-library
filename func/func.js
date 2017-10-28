@@ -590,3 +590,25 @@ ludicResult.forEach(e => {
     console.log([e, e + 2, e + 6].join(', '));
   }
 });
+
+
+
+//------------------------------------------------------------------------------
+// Rosetta Code: Leonardo Numbers
+// http://rosettacode.org/wiki/Leonardo_numbers
+// const leoNum = (count, l0=1, l1=1, add=1) => {
+//   let i = 2;
+//   const r = [l0, l1];
+//   while(i < count) {
+//     r.push(r[i-1] + r[i-2] + add);
+//     i++;
+//   }
+//   return r;
+// };
+
+const leoNum =  (c, l0=1, l1=1, add=1) => new Array(c).fill(add).reduce(
+  (p, c, i) => i > 1 ? p.push(p[i-1] + p[i-2] + c) && p : p, [l0, l1]
+);
+
+console.log(leoNum(25));
+console.log(leoNum(25, 0, 1, 0));
