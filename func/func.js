@@ -606,7 +606,7 @@ ludicResult.forEach(e => {
 //   return r;
 // };
 
-const leoNum =  (c, l0=1, l1=1, add=1) => new Array(c).fill(add).reduce(
+const leoNum = (n, l0=1, l1=1, s=1) => new Array(n).fill(s).reduce(
   (p, c, i) => i > 1 ? p.push(p[i-1] + p[i-2] + c) && p : p, [l0, l1]
 );
 
