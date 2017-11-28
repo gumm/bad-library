@@ -134,7 +134,37 @@ const trace = t => partial(logInline, t);
 
 
 const flatten = arr =>
-    arr.reduce((a, b) => a.concat(Array.isArray(b) ? flatten(b) : b), []);
+    arr.reduce((p, c) => p.concat(Array.isArray(c) ? flatten(c) : c), []);
+console.log(flatten([[1], 2, [[3, 4], 5], [[[]]], [[[6]]], 7, 8, []]));
+
+/**
+ * Flatten multi-dimensional array to single dimension.
+ * Example:
+ * [[1], 2, [[3, 4], 5], [[[]]], [[[6]]], 7, 8, []] -> [1, 2, 3, 4, 5, 6, 7, 8]
+ * @param {*} t
+ * @return {!Array<*>}
+ */
+const flattenB = t => t.reduce ? t.reduce((p,c) => p.concat(flattenB(c)), []) : t;
+console.log(flattenB([[1], 2, [[3, 4], 5], [[[]]], [[[6]]], 7, 8, []]));
+
+/**
+ * Given an index number, return a function that takes an array and returns the
+ * element at the given index
+ * @param {!number} i
+ * @return {function(!Array): *}
+ */
+const elAt = i => arr => arr[i];
+
+/**
+ * Transpose an array of arrays:
+ * Example:
+ * [['a', 'b', 'c'], ['A', 'B', 'C'], [1, 2, 3]] ->
+ * [['a', 'A', 1], ['b', 'B', 2], ['c', 'C', 3]]
+ * @param {!Array<*>} a
+ * @return {!Array<*>}
+ */
+const transpose = a => a[0].map((e,i) => a.map(elAt(i)));
+console.log(transpose([['a', 'b', 'c'], ['A', 'B', 'C'], [1, 2, 3]]));
 
 /**
  * @type {function(function(*, !number, !Array) : *) : function(!Array<*>): ?}
@@ -236,7 +266,7 @@ console.log(`Number of Arrays: ${countArr([[],[], NaN, {}, 1, {length:1}])}`);
  * @param {!Array.<*>} a
  * @param {!Array.<*>} b
  */
-const sameArr = (a, b) => a.length == b.length && a.every((c, i) => b[i] === c);
+const sameArr = (a, b) => a.length === b.length && a.every((c, i) => b[i] === c);
 console.log('Same Arrays:', sameArr([1, 2], [1, 2]));
 console.log('Same Arrays:', sameArr([2, 1], [1, 2]));
 
@@ -246,7 +276,7 @@ console.log('Same Arrays:', sameArr([2, 1], [1, 2]));
  * @param {!Array.<*>} a
  * @param {!Array.<*>} b
  */
-const sameEls = (a, b) => a.length == b.length &&
+const sameEls = (a, b) => a.length === b.length &&
     a.every((c, i) => b.includes(c)) && b.every((c, i) => a.includes(c));
 console.log('Same Elements:', sameEls([1, 2], [1, 2]));
 console.log('Same Elements:', sameEls([2, 1], [1, 2]));
@@ -393,7 +423,7 @@ const topoSort = input => {
   // an array of packages on which it depends.
   const D =
       input.split('\n')
-          .map(e => e.split(' ').filter(e => e != ''))
+          .map(e => e.split(' ').filter(e => e !== ''))
           .reduce(
               (p, c) => p.set(
                   c[0], c.filter((e, i) => i > 0 && e !== c[0] ? e : null)),
@@ -412,7 +442,7 @@ const topoSort = input => {
       new Map());
 
   // An array of leaf nodes; nodes with 0 in degrees.
-  const Q = [...D.keys()].filter(e => D.get(e).length == 0);
+  const Q = [...D.keys()].filter(e => D.get(e).length === 0);
 
   // The result array.
   const S = [];
@@ -421,7 +451,7 @@ const topoSort = input => {
     S.push(u);
     G.get(u).forEach(v => {
       D.set(v, D.get(v).filter(e => e !== u));
-      if (D.get(v).length == 0) {
+      if (D.get(v).length === 0) {
         Q.push(v);
       }
     });
@@ -466,7 +496,7 @@ function* filterGen(gS, gC, skip = 0) {
   while (1) {
     s = gS.next().value;
     s > c && (c = gC.next().value);
-    s == c ? c = gC.next().value : n++ && n > skip && (yield s);
+    s === c ? c = gC.next().value : n++ && n > skip && (yield s);
   }
 }
 
@@ -489,7 +519,7 @@ const splitOnCharChange = s => {
       tail(p[0]).push(c) && [p[0], c] :
       p[0].push([c]) && [p[0], c],
     [[], ''])[0]
-  .map(e => e.join(''));;
+  .map(e => e.join(''));
 };
 let r = splitOnCharChange(`gHHH5YY++///\\`);
 r.forEach(e => console.log(e));
