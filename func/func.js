@@ -163,7 +163,9 @@ const elAt = i => arr => arr[i];
  * @param {!Array<*>} a
  * @return {!Array<*>}
  */
-const transpose = a => a[0].map((e,i) => a.map(elAt(i)));
+const transpose = a => a[0].map((e,i) => {
+  const fun = elAt(i);
+  return a.map(fun)});
 console.log(transpose([['a', 'b', 'c'], ['A', 'B', 'C'], [1, 2, 3]]));
 
 /**
