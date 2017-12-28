@@ -147,6 +147,9 @@ console.log(flatten([[1], 2, [[3, 4], 5], [[[]]], [[[6]]], 7, 8, []]));
 const flattenB = t => t.reduce ? t.reduce((p,c) => p.concat(flattenB(c)), []) : t;
 console.log(flattenB([[1], 2, [[3, 4], 5], [[[]]], [[[6]]], 7, 8, []]));
 
+const flattenC = a => a.reduce((p,c) => c.reduce ? flattenC([...p, ...c]) : [...p, c], []);
+console.log(flattenC([[1], 2, [[3, 4], 5], [[[]]], [[[6]]], 7, 8, []]));
+
 /**
  * Given an index number, return a function that takes an array and returns the
  * element at the given index
@@ -172,6 +175,15 @@ console.log(transpose([['a', 'b', 'c'], ['A', 'B', 'C'], [1, 2, 3]]));
  * @type {function(function(*, !number, !Array) : *) : function(!Array<*>): ?}
  */
 const map = func => x => x.map(func);
+
+/**
+ * Factorize a function of the form Ax^2 + Bx + C = 0 finding the value of x
+ * @param {!number} a
+ * @param {!number} b
+ * @param {!number} c
+ * @return {number} The value of x
+ */
+const fac = (a, b, c) => (-b + Math.sqrt(b**2 - 4 * a * (-c))) / (2 * a);
 
 
 const filter = func => n => n.filter(func);
@@ -644,3 +656,58 @@ const leoNum = (n, l0=1, l1=1, s=1) => new Array(n).fill(s).reduce(
 
 console.log(leoNum(25));
 console.log(leoNum(25, 0, 1, 0));
+
+
+//------------------------------------------------------------------------------
+// Rosetta Code: Number names
+// http://rosettacode.org/wiki/Number_names
+// Show how to spell out a number in English.
+// You can use a preexisting implementation or roll your own, but you should
+// support inputs up to at least one million (or the maximum value of your
+// language's default bounded integer type, if that's less).
+// Support for inputs other than positive integers (like zero, negative
+// integers, and floating-point numbers) is optional.
+const divMod = y => x => [Math.floor(y/x), y % x];
+
+const sayNumber = value => {
+  let name = '';
+  let quotient, remainder;
+  const dm = divMod(value);
+  const units = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven',
+    'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen',
+    'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+  const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty',
+    'seventy', 'eighty', 'ninety'];
+  const big = [...['', 'thousand'], ...['m', 'b', 'tr', 'quadr', 'quint',
+    'sext', 'sept', 'oct', 'non', 'dec'].map(e => `${e}illion`)];
+
+  if (value < 0) {
+    name = `negative ${sayNumber(-value)}`
+  } else if (value < 20) {
+    name = units[value]
+  } else if (value < 100) {
+    [quotient, remainder] = dm(10);
+    name = `${tens[quotient]} ${units[remainder]}`.replace(' zero', '');
+  } else if (value < 1000) {
+    [quotient, remainder] = dm(100);
+    name = `${sayNumber(quotient)} hundred and ${sayNumber(remainder)}`.replace(' and zero', '')
+  } else {
+    const chunks = [];
+    const text = [];
+    while (value !== 0) {
+      [value, remainder] = divMod(value)(1000);
+      chunks.push(remainder);
+    }
+    chunks.forEach((e,i) => {
+      if (e > 0) {
+        text.push(`${sayNumber(e)}${i === 0 ? '' : ' ' + big[i]}`);
+        if (i === 0 && e < 100) {
+          text.push('and');
+        }
+      }
+    });
+    name = text.reverse().join(', ').replace(', and,', ' and');
+  }
+
+  return name;
+};
