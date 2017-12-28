@@ -669,7 +669,7 @@ console.log(leoNum(25, 0, 1, 0));
 // integers, and floating-point numbers) is optional.
 const divMod = y => x => [Math.floor(y/x), y % x];
 
-const sayNumber = value => {
+const say = value => {
   let name = '';
   let quotient, remainder;
   const dm = divMod(value);
@@ -682,7 +682,7 @@ const sayNumber = value => {
     'sext', 'sept', 'oct', 'non', 'dec'].map(e => `${e}illion`)];
 
   if (value < 0) {
-    name = `negative ${sayNumber(-value)}`
+    name = `negative ${say(-value)}`
   } else if (value < 20) {
     name = units[value]
   } else if (value < 100) {
@@ -690,7 +690,7 @@ const sayNumber = value => {
     name = `${tens[quotient]} ${units[remainder]}`.replace(' zero', '');
   } else if (value < 1000) {
     [quotient, remainder] = dm(100);
-    name = `${sayNumber(quotient)} hundred and ${sayNumber(remainder)}`.replace(' and zero', '')
+    name = `${say(quotient)} hundred and ${say(remainder)}`.replace(' and zero', '')
   } else {
     const chunks = [];
     const text = [];
@@ -700,7 +700,7 @@ const sayNumber = value => {
     }
     chunks.forEach((e,i) => {
       if (e > 0) {
-        text.push(`${sayNumber(e)}${i === 0 ? '' : ' ' + big[i]}`);
+        text.push(`${say(e)}${i === 0 ? '' : ' ' + big[i]}`);
         if (i === 0 && e < 100) {
           text.push('and');
         }
@@ -708,6 +708,5 @@ const sayNumber = value => {
     });
     name = text.reverse().join(', ').replace(', and,', ' and');
   }
-
   return name;
 };
