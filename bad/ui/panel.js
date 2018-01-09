@@ -327,16 +327,16 @@ bad.ui.Panel.prototype.enterDocument = function() {
   };
 
   dropEls.forEach(el => {
-    el.addEventListener('dragover', onDragOver, false);
-    el.addEventListener('dragenter', activate, false);
-    el.addEventListener('dragexit', onDragExit, false);
-    el.addEventListener('dragleave', onDragLeave, false);
-    el.addEventListener('drop', onDrop, false);
+    el.addEventListener('dragover', onDragOver, {passive: true});
+    el.addEventListener('dragenter', activate, {passive: true});
+    el.addEventListener('dragexit', onDragExit, {passive: true});
+    el.addEventListener('dragleave', onDragLeave, {passive: true});
+    el.addEventListener('drop', onDrop, {passive: true});
   }, false);
 
   dragEls.forEach(el => {
-    el.addEventListener('dragstart', onDragStart, false);
-    el.addEventListener('dragend', justLog, false);
+    el.addEventListener('dragstart', onDragStart, {passive: true});
+    el.addEventListener('dragend', justLog, {passive: true});
 
   }, false);
 

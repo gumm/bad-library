@@ -22,10 +22,9 @@
     "url": "https://github.com/gumm/bad-library/issues"
   },
   "homepage": "https://github.com/gumm/bad-library#readme",
-  "dependencies": {
-    "material-components-web": "^0.28.0"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "material-components-web": "^0.28.0",
     "be-sert": "*",
     "google-closure-compiler": "^20180101.0.0",
     "google-closure-library": "^20171203.0.0",

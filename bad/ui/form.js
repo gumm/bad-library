@@ -27,7 +27,7 @@ bad.ui.FieldErrs = class {
    */
   displayAlert(field, msg, css) {
     const alertDom =
-        goog.dom.createDom('p', 'mdc-textfield-helptext ' + css, msg);
+        goog.dom.createDom('p', 'mdc-text-field-helper-text ' + css, msg);
     let parent = goog.dom.getParentElement(field);
     goog.dom.insertSiblingAfter(alertDom, parent);
     this.fMap.set(field, alertDom);
@@ -141,13 +141,13 @@ bad.ui.Form.prototype.formIdElementToForm_ = function() {
   if (this.form_) {
     this.interceptFormSubmit(this.form_);
     this.form_.addEventListener(
-        'change', e => {this.fieldErr_.validateOnChange(e)}, false);
+        'change', e => {this.fieldErr_.validateOnChange(e)}, {passive: true});
     this.form_.addEventListener('invalid', e => {
       e.preventDefault();
       const field = /** @type {!HTMLInputElement} */ (e.target);
       this.fieldErr_.clearAlertOnField(field);
       this.fieldErr_.displayError(field);
-    }, true);
+    }, {passive: true});
   }
 };
 
