@@ -315,7 +315,6 @@ java -jar node_modules/google-closure-compiler/compiler.jar \
     --jscomp_warning checkRegExp \
     --jscomp_warning checkTypes \
     --jscomp_warning checkVars \
-    --jscomp_warning commonJsModuleLoad \
     --jscomp_warning conformanceViolations \
     --jscomp_warning const \
     --jscomp_warning constantProperty \

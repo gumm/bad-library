@@ -22,15 +22,17 @@
     "url": "https://github.com/gumm/bad-library/issues"
   },
   "homepage": "https://github.com/gumm/bad-library#readme",
-  "dependencies": {},
+  "dependencies": {
+    "material-components-web": "^0.28.0"
+  },
   "devDependencies": {
     "be-sert": "*",
-    "google-closure-compiler": "*",
-    "google-closure-library": "*",
-    "mocha": "*",
-    "less": "*",
-    "less-middleware": "*",
+    "google-closure-compiler": "^20180101.0.0",
+    "google-closure-library": "^20171203.0.0",
+    "less": "^2.7.3",
+    "less-middleware": "^2.2.1",
     "less-plugin-clean-css": "*",
+    "mocha": "^4.1.0",
     "ramda": "^0.23.0"
   }
 }

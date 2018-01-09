@@ -422,6 +422,7 @@ bad.UserManager.prototype.fetchJson = function(uri) {
 
 /**
  * @param {!goog.Uri} uri
+ * @param {!Object} payload
  * @return {!Promise}
  */
 bad.UserManager.prototype.patchJson = function(uri, payload) {

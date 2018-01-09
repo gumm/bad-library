@@ -135,7 +135,7 @@ bad.ui.Component.prototype.show = function() {
  * Views may listen just to this event, and act on the supplied value or
  * data payload.
  * @param {!string} value
- * @param {(string|number|?IObject)=} opt_data
+ * @param {(string|number|?IObject|?Object)=} opt_data
  * @return {boolean} If anyone called preventDefault on the event object (or
  *     if any of the handlers returns false this will also return false.
  */

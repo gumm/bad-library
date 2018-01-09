@@ -9,7 +9,7 @@ goog.require('goog.events.Event');
 /**
  * @param {!bad.ui.Component} target
  * @param {!string} value
- * @param {?(string|number|IObject)=} opt_data
+ * @param {?(string|number|IObject|Object)=} opt_data
  * @constructor
  * @extends {goog.events.Event}
  */
@@ -23,7 +23,7 @@ bad.CompEvent = function(target, value, opt_data) {
   this.value_ = value;
 
   /**
-   * @type {null|string|number|IObject|undefined}
+   * @type {string|number|IObject|Object}
    * @private
    */
   this.data_ = opt_data || {};
@@ -40,7 +40,7 @@ bad.CompEvent.prototype.getValue = function() {
 
 
 /**
- * @return {null|string|number|IObject|undefined}
+ * @return {string|number|IObject|Object}
  */
 bad.CompEvent.prototype.getData = function() {
   return this.data_;
