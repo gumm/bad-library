@@ -444,6 +444,8 @@ const topoSort = input => {
               new Map());
   [].concat(...D.values()).forEach(e => {D.set(e, D.get(e) || [])});
 
+  console.log('\nMAP: D', D);
+
   // The above map rotated so that it represents a DAG of the form
   // Map {
   //    A => [ A, B, C],
@@ -455,8 +457,12 @@ const topoSort = input => {
       (p, c) => p.set(c, [...D.keys()].filter(e => D.get(e).includes(c))),
       new Map());
 
+  console.log('\nGRAPH: G', G);
+
   // An array of leaf nodes; nodes with 0 in degrees.
   const Q = [...D.keys()].filter(e => D.get(e).length === 0);
+
+  console.log('\nLeaf Nodes: Q', Q);
 
   // The result array.
   const S = [];
@@ -474,7 +480,7 @@ const topoSort = input => {
 };
 
 console.log(
-    'Solution:',
+    '\nSolution:',
     topoSort(
         `des_system_lib   std synopsys std_cell_lib des_system_lib dw02 dw01 ramlib ieee
   dw01             ieee dw01 dware gtech
