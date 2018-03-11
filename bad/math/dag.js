@@ -66,12 +66,6 @@ const topoSort = G => {
   return S;
 };
 
-function* idGen(n) {
-  let i = n ? n : 0;
-  while (true)
-    yield i++;
-}
-
 const Node = class {
 
   constructor(id, name, json = undefined) {
@@ -156,6 +150,12 @@ const Node = class {
 
 };
 
+function* idGen(n) {
+  let i = n ? n + 1 : 0;
+  while (true)
+    yield i++;
+}
+
 const nodeMaker = idMaker => name => new Node(idMaker.next().value, name);
 
 
@@ -163,7 +163,7 @@ const DAG = class {
 
   constructor() {
     this.G = new Map();
-    this._nodeMaker = nodeMaker(idGen(0));
+    this._nodeMaker = nodeMaker(idGen());
     this._rootNode = this.create('ROOT');
     this._rootNode.setSolve('this.args[0].solve()')
   }
@@ -225,6 +225,10 @@ const DAG = class {
     if (this.G.has(n)) { return n; }
     if (this.ids.includes(n.id)) { return false; }
     this.G.set(n, []);
+
+    // Biggest ID
+    this._nodeMaker = nodeMaker(idGen(Math.max.apply(undefined, this.ids)));
+
     return n;
   }
 
@@ -309,11 +313,14 @@ const DAG = class {
 
   read(json) {
     this.G = new Map();
+    this._rootNode = undefined;
+
     const j = JSON.parse(json);
 
     // Create a list of true nodes
     const n = j.N.map(e => new Node(undefined, undefined, e));
-    const findNode = id => n.find(e => e.id === id);
+    const matchId = id => e => e.id === id;
+    const findNode = id => n.find(matchId(id));
 
     // Create a map that directly mirrors the original, but with IDs only.
     const g = new Map(j.G);
@@ -333,27 +340,9 @@ const DAG = class {
     // Make sure that the order of each of the nodes args is the same as the
     // original.
     this.nodes.forEach(n => {
-      const targetArgs = j.N.find(e => e.id === n.id).args;
-      n._args = targetArgs.map(id => n._args.find(e => e.id === id));
+      const targetArgs = j.N.find(matchId(n.id)).args;
+      n._args = targetArgs.map(id => n._args.find(matchId(id)));
     });
-
-
-    // console.log('---_>>', g);
-    // console.log(g.keys());
-    // this.G = new Map();
-    // [...g.keys()].forEach(k => this.add(n.find(e => e.id === k)));
-    // this._rootNode = [...this.G.keys()][0];
-    //
-    // j.N.forEach(e => {
-    //   const node = n.find(ne => ne.id === e.id);
-    //   e.args.forEach(a => {
-    //     const argNode = n.find(ae => ae.id === a);
-    //     this.connect(argNode, node);
-    //   })
-    // });
-    // [...g.keys()].forEach(id => this.G.set(n.find(e => e.id === id), []));
-    // n.forEach(e => this.G.set(e, []));
-    // this._rootNode = this.G.keys()[0];
 
 
   }
@@ -381,6 +370,8 @@ g.disconnect(B, A).connect(B, A).compute()
 s = g.dump()
 g2 = new d.DAG()
 g2.read(s)
+g2.compute() === g.compute();
+g2.dump() === s;
 
 
 
