@@ -60,7 +60,6 @@ describe('The funcMaker function', () => {
 
 });
 
-
 describe('When creating a DAG', () => {
 
   describe('a root node is automatically created', () => {
@@ -456,6 +455,63 @@ describe('When creating a DAG', () => {
       assert.strictEqual(g.compute(), 20);
       be.equalsArrays(g.nodes, [g.root, A, C]);
     })
+
+  });
+
+  describe('A DAG can be serialized and de-serialized', () => {
+    const g = new DAG.DAG();
+    const A = g.create('A');
+    const B = g.create('B');
+    const C = g.create('C');
+    const D = g.create('D');
+    g.connect(C, B).connect(B, A).connect(D, A).connect(A, g.root);
+    D.setSolve(10);
+    C.setSolve(15);
+    B.setSolve('$1 * 2');
+    A.setSolve('($1 + 1) / $2');
+
+    const g2 = new DAG.DAG();
+    let s;
+
+    it('it can be dumped to a JSON string.', () => {
+      // First we make sure the DAG is sensitive to connection order.
+      assert.strictEqual(g.compute(), 3.1);
+      assert.strictEqual(g.disconnect(B, A).connect(B, A).compute(), 0.36666666666666664);
+
+      // Dump the DAG to a string.
+      s = g.dump();
+      assert.strictEqual(typeof s, 'string');
+    });
+
+    it('it can be recreated from the JSON', () => {
+      // Create a 2nd DAG, and read the string in.
+      g2.read(s);
+    });
+
+    it('The 2 DAGs should compute to the same thing.', () => {
+      assert.deepStrictEqual(g2.compute(), g.compute());
+    });
+
+    it('Have the same dump string.', () => {
+      assert.deepStrictEqual(g2.dump(), g.dump());
+    });
+
+    it('Have the same IDs in the same order', () => {
+      assert.deepStrictEqual(g2.ids, g.ids);
+    });
+
+    it('Nodes have the same names in the same order', () => {
+      assert.deepStrictEqual(g2.names, g.names);
+    });
+
+    it('however, they are not strictly the same objects', () => {
+      assert.notDeepStrictEqual(g2, g);
+    });
+
+    it('nor are the nodes the same objects', () => {
+      assert.notDeepStrictEqual(g2.root, g.root);
+      assert.notDeepStrictEqual(g2.nodes, g.nodes);
+    });
 
   });
 
