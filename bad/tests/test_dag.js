@@ -296,11 +296,20 @@ describe('When creating a DAG', () => {
 
       // Modify the order in which the nodes are connected to B
       // The B node now has its 2 inputs swapped around.
-      g.disconnect(C, B);
-      g.connect(C, B);
+      g.disconnect(C, B).connect(C, B);
       assert.strictEqual(g.compute(), 40);
 
+      // Reorganizing the graph to have orphaned nodes.
+      g.disconnect(B, A).connect(C, A);
+      assert.strictEqual(g.compute(), 20);
+      // Even though the nodes are still there...
+      be.equalsArrays(g.nodes, [g.root, A, B, C, E]);
 
+      // We can clean the graph (deleting the orphaned nodes) and the graph
+      // produces the same output.
+      g.clean();
+      assert.strictEqual(g.compute(), 20);
+      be.equalsArrays(g.nodes, [g.root, A, C]);
     })
 
   });

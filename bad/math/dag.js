@@ -73,12 +73,22 @@ function* idGen(n) {
 }
 
 const Node = class {
-  constructor(id, name) {
+
+  constructor(id, name, json = undefined) {
     this._id = id;
     this._name = name;
     this._args = [];
     this._solve = '';
-    this._isClean = false;
+    this._isClean = false; // We have to keep state so edits are propagated.
+
+    // We overwrite *some* elements, but we keep the _args and _isClean both
+    // as default, because the Graph will populate those.
+    if (json) {
+      // const j = JSON.parse(json);
+      this.id = json.id;
+      this.name = json.name;
+      this.setSolve(json.solve);
+    }
   }
 
   get id() {
@@ -91,6 +101,10 @@ const Node = class {
 
   get name() {
     return this._name;
+  }
+
+  set name(n) {
+    this._name = n;
   }
 
   get args() {
@@ -117,7 +131,6 @@ const Node = class {
     this._solve = this.args.reduce(
         (p, c, i) => p.split(`$${i + 1}`).join(`this.args[${i}].solve()`), this._solve);
     this._isClean = !Array.from(this._solve).includes('$');
-    console.log(this.name, this._isClean, this._solve);
   }
 
   solve() {
@@ -132,9 +145,18 @@ const Node = class {
     throw new Error(this._solve + ' contains unknown input...')
   }
 
+  dump() {
+    return {
+      id: this.id,
+      name: this.name,
+      solve: this._solve,
+      args: this._args.map(e => e.id)
+    };
+  }
+
 };
 
-const nodeMaker = (idMaker, g) => name => new Node(idMaker.next().value, name);
+const nodeMaker = idMaker => name => new Node(idMaker.next().value, name);
 
 
 const DAG = class {
@@ -274,6 +296,68 @@ const DAG = class {
     return this.root.solve();
   }
 
+  dump() {
+    const m = new Map();
+    for (const [n, arr] of this.G) {
+      m.set(n.id, arr.map(e => e.id))
+    }
+    return JSON.stringify({
+      G: [...m],
+      N: this.topo.map(e => e.dump())
+    });
+  }
+
+  read(json) {
+    this.G = new Map();
+    const j = JSON.parse(json);
+
+    // Create a list of true nodes
+    const n = j.N.map(e => new Node(undefined, undefined, e));
+    const findNode = id => n.find(e => e.id === id);
+
+    // Create a map that directly mirrors the original, but with IDs only.
+    const g = new Map(j.G);
+    this._rootNode = undefined;
+    for (const k of g.keys()) {
+      this.add(findNode(k))
+    }
+    this._rootNode = this.nodes[0];
+    for (const [k, arr] of g.entries()) {
+      const node = findNode(k);
+      arr.forEach(id => {
+        const toNode = findNode(id);
+        this.connect(node, toNode);
+      })
+    }
+
+    // Make sure that the order of each of the nodes args is the same as the
+    // original.
+    this.nodes.forEach(n => {
+      const targetArgs = j.N.find(e => e.id === n.id).args;
+      n._args = targetArgs.map(id => n._args.find(e => e.id === id));
+    });
+
+
+    // console.log('---_>>', g);
+    // console.log(g.keys());
+    // this.G = new Map();
+    // [...g.keys()].forEach(k => this.add(n.find(e => e.id === k)));
+    // this._rootNode = [...this.G.keys()][0];
+    //
+    // j.N.forEach(e => {
+    //   const node = n.find(ne => ne.id === e.id);
+    //   e.args.forEach(a => {
+    //     const argNode = n.find(ae => ae.id === a);
+    //     this.connect(argNode, node);
+    //   })
+    // });
+    // [...g.keys()].forEach(id => this.G.set(n.find(e => e.id === id), []));
+    // n.forEach(e => this.G.set(e, []));
+    // this._rootNode = this.G.keys()[0];
+
+
+  }
+
 };
 
 const testme = {
@@ -290,12 +374,15 @@ g.connect(C, B).connect(B, A).connect(D, A).connect(A, g.root)
 g.clean()
 D.setSolve(10)
 C.setSolve(15)
-B.setSolve('$0 * 2')
-A.setSolve('($0 + 1) / $1')
+B.setSolve('$1 * 2')
+A.setSolve('($1 + 1) / $2')
 g.compute()
+g.disconnect(B, A).connect(B, A).compute()
+s = g.dump()
+g2 = new d.DAG()
+g2.read(s)
 
 
-   g.connect(A, g.root).connect(B,A).connect(C,A).connect(F,B).connect(D,C).connect(E,C).connect(D,A).connect(D,B).connect(D,C).connect(D,F).connect(A,E);
 
    */
 
