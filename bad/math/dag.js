@@ -72,12 +72,70 @@ function* idGen(n) {
     yield i++;
 }
 
-const nodeMaker = idMaker => {
-  return (name) => ({
-    id: idMaker.next().value,
-    name: name
-  })
+const Node = class {
+  constructor(id, name) {
+    this._id = id;
+    this._name = name;
+    this._args = [];
+    this._solve = '';
+    this._isClean = false;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  set id(id) {
+    this._id = id;
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  get args() {
+    return this._args;
+  }
+
+  addArg(n) {
+    this._args.push(n);
+    this._isClean = false;
+  }
+
+  delArg(n) {
+    this._args = this._args.filter(e => e !== n);
+    this._isClean = false;
+  }
+
+  setSolve(s) {
+    this._solve = s;
+    this._isClean = false;
+    return this;
+  }
+
+  clean() {
+    this._solve = this.args.reduce(
+        (p, c, i) => p.split(`$${i + 1}`).join(`this.args[${i}].solve()`), this._solve);
+    this._isClean = !Array.from(this._solve).includes('$');
+    console.log(this.name, this._isClean, this._solve);
+  }
+
+  solve() {
+    if(this._isClean) {
+      return eval(this._solve);
+    } else {
+      this.clean()
+    }
+    if(this._isClean) {
+      return this.solve();
+    }
+    throw new Error(this._solve + ' contains unknown input...')
+  }
+
 };
+
+const nodeMaker = (idMaker, g) => name => new Node(idMaker.next().value, name);
+
 
 const DAG = class {
 
@@ -85,6 +143,7 @@ const DAG = class {
     this.G = new Map();
     this._nodeMaker = nodeMaker(idGen(0));
     this._rootNode = this.create('ROOT');
+    this._rootNode.setSolve('this.args[0].solve()')
   }
 
   get size() {
@@ -130,15 +189,11 @@ const DAG = class {
     return this.nodes.map(e => e.id);
   }
 
-  getNodeByName(name) {
-    return this.nodes.find(e => e.name === name);
+  getAllByName(name) {
+    return this.nodes.filter(e => e.name === name);
   }
 
   create(name) {
-    const xNode = this.getNodeByName(name);
-    if (xNode) {
-      return xNode;
-    }
     const n = this._nodeMaker(name);
     this.G.set(n, []);
     return n;
@@ -146,6 +201,7 @@ const DAG = class {
 
   add(n) {
     if (this.G.has(n)) { return n; }
+    if (this.ids.includes(n.id)) { return false; }
     this.G.set(n, []);
     return n;
   }
@@ -165,17 +221,26 @@ const DAG = class {
   }
 
   connect(a, b) {
+    // Root is not allowed to be connected to anything else
     if (a === this.root) { return this; }
+
+    // Root already has something connected
     if (b === this.root && this.indegrees(b).length > 0) { return this; }
+
+    // Either a or b is not a member of this graph.
+    if (!this.G.has(a) || !this.G.has(b)) { return this; }
+
+    // A is already connected to B
     if (this.G.get(a).includes(b)) { return this; }
 
     this.G.get(a).push(b);
+
+    // The connection formed a cycle. Undo it.
     if (this.topo.length < this.nodes.length) {
-      console.log('This connection creates a cycle');
-      // This creates a cycle! This is not allowed.
       this.disconnect(a, b);
-      return this;
     }
+
+    b.addArg(a);
     return this;
   }
 
@@ -183,15 +248,17 @@ const DAG = class {
     const arr = this.G.get(a) || [];
     const arr2 = arr.filter(e => e !== b);
     this.G.set(a, arr2);
+    b.delArg(a);
     return this
   }
 
-  clean(arr = []) {
-    this.orphans.forEach(e => this.del(e) && arr.push(e));
+  clean() {
+    this.orphans.forEach(e => this.del(e));
     if (this.orphans.length) {
-      this.clean(arr);
+      this.clean();
     }
-    return arr;
+    this.nodes.forEach(n => n.clean());
+    return this;
   }
 
   indegrees(n) {
@@ -201,6 +268,10 @@ const DAG = class {
 
   outdegrees(n) {
     return this.G.get(n);
+  }
+
+  compute() {
+    return this.root.solve();
   }
 
 };
@@ -215,7 +286,16 @@ const C = g.create('C');
 const D = g.create('D');
 const E = g.create('E');
 const F = g.create('F');
-g.connect(A, g.root).connect(B,A).connect(C,A).connect(F,B).connect(D,C).connect(E,C).connect(D,A).connect(D,B).connect(D,C).connect(D,F).connect(A,E);
+g.connect(C, B).connect(B, A).connect(D, A).connect(A, g.root)
+g.clean()
+D.setSolve(10)
+C.setSolve(15)
+B.setSolve('$0 * 2')
+A.setSolve('($0 + 1) / $1')
+g.compute()
+
+
+   g.connect(A, g.root).connect(B,A).connect(C,A).connect(F,B).connect(D,C).connect(E,C).connect(D,A).connect(D,B).connect(D,C).connect(D,F).connect(A,E);
 
    */
 
