@@ -158,6 +158,8 @@ function* idGen(n) {
 
 const nodeMaker = idMaker => name => new Node(idMaker.next().value, name);
 
+const biggest = arr => Math.max.apply(undefined, arr);
+
 
 const DAG = class {
 
@@ -227,7 +229,7 @@ const DAG = class {
     this.G.set(n, []);
 
     // Biggest ID
-    this._nodeMaker = nodeMaker(idGen(Math.max.apply(undefined, this.ids)));
+    this._nodeMaker = nodeMaker(idGen(biggest(this.ids)));
 
     return n;
   }
@@ -344,7 +346,6 @@ const DAG = class {
       n._args = targetArgs.map(id => n._args.find(matchId(id)));
     });
 
-
   }
 
 };
@@ -370,10 +371,11 @@ g.disconnect(B, A).connect(B, A).compute()
 s = g.dump()
 g2 = new d.DAG()
 g2.read(s)
-g2.compute() === g.compute();
-g2.dump() === s;
-
-
+const assert = require('assert');
+assert.deepStrictEqual(g2.compute(), g.compute())
+assert.deepStrictEqual(g2.dump(), g.dump())
+assert.deepStrictEqual(g2.ids, g.ids)
+assert.deepStrictEqual(g2.names, g.names)
 
    */
 
