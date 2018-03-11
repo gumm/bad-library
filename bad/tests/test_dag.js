@@ -1,7 +1,64 @@
-const R = require('ramda');
+const rewire = require('rewire');
 const be = require('be-sert');
 const assert = require('assert');
-const DAG = require('../math/dag.js');
+const DAG = rewire('../math/dag.js');
+
+describe('The mathCleaner function', () => {
+  const mathCleaner = DAG.__get__('mathCleaner');
+  it('allows simple math strings', () => {
+    assert.strictEqual(mathCleaner('1 + 1'), '1 + 1');
+  });
+  it('allows complex math strings', () => {
+    const m = '((1.23 ** -1.06) / (12 % 5)) / (2 * 6.1)';
+    assert.strictEqual(mathCleaner(m), m);
+  });
+  it('allows references to variables via the "$"-notation', () => {
+    const m = '(($1 ** -$2) / ($3 % $4)) / ($5 * $6)';
+    assert.strictEqual(mathCleaner(m), m);
+  });
+  it('strips anything that is not math', () => {
+    const m = 'No Math + here = there';
+    const r = '  +   ';
+    assert.strictEqual(mathCleaner(m), r);
+  });
+});
+
+describe('The funcMaker function', () => {
+  const funcMaker = DAG.__get__('funcMaker');
+  it('when given a value, returns a function that returns that value', () => {
+    const [err, f] = funcMaker(10);
+    assert.strictEqual(err, null);
+    assert.strictEqual(f(), 10);
+  });
+
+  it('when given a valid math string, returns a function ' +
+      'that resolves the math', () => {
+    const [err, f] = funcMaker('10 * 2 + 5');
+    assert.strictEqual(err, null);
+    assert.strictEqual(f(), 25);
+  });
+
+  it('when given a invalid input, returns a function ' +
+      'that returns undefined', () => {
+    const [err, f] = funcMaker('blah');
+    assert.strictEqual(err, null);
+    assert.strictEqual(f(), undefined);
+  });
+
+  it('even if the input is legal it may not be valid.', () => {
+    const [err, f] = funcMaker('++ - *');
+    assert.strictEqual(err, 'Could not make a function with "++ - *"');
+    assert.strictEqual(f(), undefined);
+  });
+
+  it('If you want it to return a string, your string ' +
+      'should be double quoted', () => {
+    const [err, f] = funcMaker("'hello'");
+    assert.strictEqual(err, null);
+    assert.strictEqual(f(), 'hello');
+  });
+
+});
 
 
 describe('When creating a DAG', () => {
@@ -37,19 +94,19 @@ describe('When creating a DAG', () => {
     const E = g.create('E');
     const F = g.create('F');
     let A1, A2, A3; // Placeholders for nodes we will create later.
-    it('Nodes are created with the "create" method',
+    it('nodes are created with the "create" method',
         () => be.equalsArrays(g.nodes, [root, A, B, C, D, E, F]));
-    it('Nodes have names',
+    it('nodes have names',
         () => be.equalsArrays(g.names, ['ROOT', 'A', 'B', 'C', 'D', 'E', 'F']));
-    it('Nodes have unique IDs',
+    it('nodes have unique IDs',
         () => be.equalsArrays(g.ids, [0, 1, 2, 3, 4, 5, 6]));
     it('nodes are created as orphans',
         () => be.equalsArrays(g.orphans, [A, B, C, D, E, F]));
-    it('the are also leaf nodes on creation',
+    it('they are also leaf nodes on creation',
         () => be.equalsArrays(g.leafs, [root, A, B, C, D, E, F]));
     it('nodes can be acceded by name',
         () => assert.deepStrictEqual(g.getAllByName('A'), [ A ]));
-    it('creating nodes arn *not* idempotent. multiple nodes can have ' +
+    it('creating nodes arn *not* idempotent. Multiple nodes can have ' +
         'the same name', () => {
       A1 = g.create('A');
       A2 = g.create('A');
@@ -65,7 +122,7 @@ describe('When creating a DAG', () => {
       be.aFalse(A2 === A3);
     });
 
-    it('non-existent names are undefined',
+    it('non-existent names is the empty array',
         () => assert.deepStrictEqual(g.getAllByName('Dummy'), []));
   });
 
@@ -85,7 +142,7 @@ describe('When creating a DAG', () => {
     it('and B has A in its outdegrees', () => {
       be.equalsArrays(g.outdegrees(B), [A])
     });
-    it('connecting nodes are idempotent.Creating the same connection ' +
+    it('connecting nodes are idempotent. Creating the same connection ' +
         'multiple times makes no difference', () => {
       g.connect(B, A);
       g.connect(B, A);
@@ -94,7 +151,8 @@ describe('When creating a DAG', () => {
       be.equalsArrays(g.outdegrees(B), [A]);
       be.equalsArrays(g.indegrees(A), [B]);
     });
-    it('a connection that will result in a loop is illegal, and will not be honoured', () => {
+    it('a connection that will result in a loop is illegal, ' +
+        'and will not be honoured', () => {
       g.connect(A, B);
       be.equalsArrays(g.outdegrees(B), [A]);
       be.equalsArrays(g.indegrees(A), [B]);
@@ -122,6 +180,10 @@ describe('When creating a DAG', () => {
       be.equalsArrays(g.outdegrees(E), [F, C]);
       be.equalsArrays(g.outdegrees(F), [C, B]);
     });
+    it('a node can have multiple out degrees', () => {
+      be.equalsArrays(g.outdegrees(F), [C, B]);
+    });
+
 
   });
 
@@ -278,11 +340,94 @@ describe('When creating a DAG', () => {
 
     });
 
-    it('can solve for itself', () => {
-      const g = new DAG.DAG();
-      const A = g.create('A').setSolve('$1 * 2');
-      const B = g.create('B').setSolve('$1 + 5');
-      const C = g.create('C').setSolve(10);
+  });
+
+  describe('Nodes can carry a solution formula', () => {
+    const g = new DAG.DAG();
+    const A = g.create('A');
+    const B = g.create('B');
+    const C = g.create('C');
+
+    it('A solution formula can be a raw number', () => {
+      A.setSolve(14);
+      assert.strictEqual(g.connect(A, g.root).compute(), 14)
+    });
+
+    it('A solution formula can be a a string formula', () => {
+      A.setSolve('17 - 3');
+      assert.strictEqual(g.compute(), 14)
+    });
+
+    it('The string may only contain arithmetic operators, numbers, ' +
+        'grouping brackets, spaces and the $-glyph.' +
+        'Anything else will be stripped.', () => {
+      A.setSolve('balh-blah(17 - 3)');
+      assert.strictEqual(g.compute(), -14);
+    });
+
+    it('If the cleaned string results in nonsensical math, ' +
+        'the DAG returns undefined', () => {
+      A.setSolve('blah - blah * blah');
+      assert.strictEqual(g.compute(), undefined);
+    });
+
+    it('If the cleaned string results the empty string ' +
+        'the DAG returns undefined', () => {
+      A.setSolve('blah');
+      assert.strictEqual(g.compute(), undefined);
+    });
+
+    it('A solution formula can reference a connecting node', () => {
+      B.setSolve(17);
+      g.connect(B, A);
+      A.setSolve('$1 - 3');
+      assert.strictEqual(g.compute(), 14)
+    });
+
+    it('It references its connecting node in order of addition', () => {
+      C.setSolve(3);
+      g.connect(C, A);
+      A.setSolve('$1 - $2');
+      assert.strictEqual(g.compute(), 14)
+    });
+
+    it('If the order of connections change, the order of reference changes', () => {
+      C.setSolve(3);
+      g.disconnect(B, A).connect(B, A);
+      assert.strictEqual(g.compute(), -14)
+    });
+
+    it('If the solutions references a node that does not exist, the DAG returns undefined', () => {
+      g.disconnect(B, A);
+      assert.strictEqual(g.compute(),);
+    });
+
+    it('When the solution is fixed, it computes', () => {
+      A.setSolve('$1');
+      assert.equal(g.compute(), 3);
+    });
+
+  });
+
+  describe('When DAG computes,', () => {
+    const g = new DAG.DAG();
+    const A = g.create('A');
+    const B = g.create('B');
+    const C = g.create('C');
+
+    it('If nothing connects to the root node, the DAG computes to undefined', () => {
+      assert.strictEqual(g.compute(), undefined)
+    });
+
+    it('If any of the connected nodes in the DAG does not have its solution ' +
+        'formula, the DAG computes to undefined', () => {
+      assert.strictEqual(g.connect(A, g.root).compute(), undefined)
+    });
+
+    it('it can solve itself', () => {
+      A.setSolve('$1 * 2');
+      B.setSolve('$1 + 5');
+      C.setSolve(10);
       // The required result is (10 + 5) * 2 = 30
       const sol1 = g.connect(C, B).connect(B, A).connect(A, g.root).compute();
       assert.strictEqual(sol1, 30);

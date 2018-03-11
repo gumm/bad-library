@@ -66,13 +66,31 @@ const topoSort = G => {
   return S;
 };
 
+const funcMaker = fn => {
+  try {
+    return [null, new Function(`try { return ${fn}; } catch(e) { return; }`)];
+  } catch(err) {
+    console.log();
+    return [`Could not make a function with "${fn}"`, () => undefined];
+  }
+};
+
+const mathCleaner = s => {
+  const arithmeticOperators = ['+', '-', '*', '/', '%', '(', ')'];
+  const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'];
+  const ref = ['$', ' '];
+  const combined = [...arithmeticOperators, ...numbers, ...ref];
+  return Array.from(s).filter(e => combined.includes(e)).join('');
+};
+
 const Node = class {
 
   constructor(id, name, json = undefined) {
     this._id = id;
     this._name = name;
     this._args = [];
-    this._solve = '';
+    this._solve = undefined;
+    this._func = () => undefined;
     this._isClean = false; // We have to keep state so edits are propagated.
 
     // We overwrite *some* elements, but we keep the _args and _isClean both
@@ -122,21 +140,42 @@ const Node = class {
   }
 
   clean() {
-    this._solve = this.args.reduce(
-        (p, c, i) => p.split(`$${i + 1}`).join(`this.args[${i}].solve()`), this._solve);
-    this._isClean = !Array.from(this._solve).includes('$');
+    let err;
+    if (typeof this._solve === 'string') {
+      const s = this.args.reduce(
+          (p, c, i) => p.split(`$${i + 1}`).join(`this.args[${i}].solve()`),
+          mathCleaner(this._solve)
+      );
+      this._isClean = !Array.from(s).includes('$');
+      if (this._isClean) {
+        [err, this._func] = funcMaker(s);
+        if(err) {
+          this._isClean = false;
+          console.log(`Node ${this.name}: "${s}" is not valid: ${err}`);
+        }
+      }
+    }
+     else {
+      [err, this._func] = funcMaker(this._solve);
+      if (err) {
+        this._isClean = false;
+        console.log(`Node ${this.name}: "${s}" is not valid: ${err}`);
+      } else {
+        this._isClean = true;
+      }
+    }
   }
 
   solve() {
     if(this._isClean) {
-      return eval(this._solve);
+      return this._func();
     } else {
       this.clean()
     }
     if(this._isClean) {
       return this.solve();
     }
-    throw new Error(this._solve + ' contains unknown input...')
+    throw(`The node "${this.name}", with formula "${this._solve}" can not be solved`);
   }
 
   dump() {
@@ -167,7 +206,7 @@ const DAG = class {
     this.G = new Map();
     this._nodeMaker = nodeMaker(idGen());
     this._rootNode = this.create('ROOT');
-    this._rootNode.setSolve('this.args[0].solve()')
+    this._rootNode.setSolve('$1')
   }
 
   get size() {
@@ -299,7 +338,11 @@ const DAG = class {
   }
 
   compute() {
-    return this.root.solve();
+    try {
+      return this.root.solve()
+    } catch(err) {
+      console.log(err);
+    }
   }
 
   dump() {
