@@ -126,6 +126,10 @@ const safeJsonParse = json => {
   return parsed;
 };
 
+const enumSet = (arr, kv) => [...new Map(arr).set(...kv).entries()];
+
+const enumUnSet = (arr, k) => arr.filter(e => e[0] !== k);
+
 
 const Node = class {
 
@@ -147,7 +151,7 @@ const Node = class {
       this.name = json.name;
       this.setFallback(json.fallback);
       this.setMath(json.math);
-      json.enum.forEach(this.addEnum);
+      json.enum.forEach(e => this.addEnum(e));
     }
   }
 
@@ -207,12 +211,12 @@ const Node = class {
 
   // -----------------------------------------------------------------[ Enum ]--
   /**
-   * @param {!Array<*>} twoTup
+   * @param {!Array<*>} t
    * @returns {Node}
    */
-  addEnum(twoTup) {
-    if (Array.isArray(twoTup) && twoTup.length === 2) {
-      this._enum = [...new Map(this._enum).set(twoTup[0], twoTup[1]).entries()];
+  addEnum(t) {
+    if (Array.isArray(t) && t.length === 2) {
+      this._enum = enumSet(this._enum, t);
       this._math = undefined;
       this._isClean = false;
     }
@@ -220,7 +224,7 @@ const Node = class {
   }
 
   delEnum(key) {
-    this._enum = this._enum.filter(e => e[0] !== key);
+    this._enum = enumUnSet(this._enum, key);
     this._isClean = false;
     return this;
   }
@@ -236,9 +240,6 @@ const Node = class {
       [err, this._func] = mathFunc(this._math, this.args);
     } else if (this._enum.length) {
       const m = new Map(this._enum);
-      // // We do this instead of new Map([enum]), because
-      // // that disallows undefined as a key, but this does.
-      // this._enum.forEach(e = m.add(e[0], e[1]));
       this._func = () => m.get(this._args[0].solve());
       err = false;
     }
@@ -486,9 +487,12 @@ const A = g.create('A');
 const B = g.create('B');
 g.connect(B, A).connect(A, g.root)
 B.setMath(10)
-A.addEnum([10, 'wow!']).setFallback('nope! not 10')
+A.addEnum([10, 'wow!']).addEnum([11, 'fuckit']).setFallback('nope! not 10')
 g.compute()
-
+s = g.dump()
+g2 = new d.DAG();
+g2.read(s)
+g2.compute()
 
    */
 
