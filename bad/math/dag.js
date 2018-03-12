@@ -126,7 +126,7 @@ const safeJsonParse = json => {
   return parsed;
 };
 
-const enumSet = (arr, kv) => [...new Map(arr).set(...kv).entries()];
+const enumSet = (arr, k, v) => [...new Map(arr).set(k, v).entries()];
 
 const enumUnSet = (arr, k) => arr.filter(e => e[0] !== k);
 
@@ -151,7 +151,7 @@ const Node = class {
       this.name = json.name;
       this.setFallback(json.fallback);
       this.setMath(json.math);
-      json.enum.forEach(e => this.addEnum(e));
+      json.enum.forEach(e => this.addEnum(...e));
     }
   }
 
@@ -211,20 +211,20 @@ const Node = class {
 
   // -----------------------------------------------------------------[ Enum ]--
   /**
-   * @param {!Array<*>} t
+   * @param {*} k
+   * @param {*} v
    * @returns {Node}
    */
-  addEnum(t) {
-    if (Array.isArray(t) && t.length === 2) {
-      this._enum = enumSet(this._enum, t);
-      this._math = undefined;
-      this._isClean = false;
-    }
+  addEnum(k, v) {
+    if (k === undefined) { return this };
+    this._enum = enumSet(this._enum, k, v);
+    this._math = undefined;
+    this._isClean = false;
     return this;
   }
 
-  delEnum(key) {
-    this._enum = enumUnSet(this._enum, key);
+  delEnum(k) {
+    this._enum = enumUnSet(this._enum, k);
     this._isClean = false;
     return this;
   }
@@ -479,17 +479,22 @@ const DAG = class {
   }
 };
 
+
 const testme = {
   /**
 d = require('./bad/math/dag.js');
 const g = new d.DAG();
 const A = g.create('A');
 const B = g.create('B');
-g.connect(B, A).connect(A, g.root)
-B.setMath(10)
-A.addEnum([10, 'wow!']).addEnum([11, 'fuckit']).setFallback('nope! not 10')
-g.compute()
-s = g.dump()
+const C = g.create('C');
+const D = g.create('D');
+g.connect(C, B).connect(B, A).connect(D, A).connect(A, g.root);
+D.setMath(10);
+C.setMath(3);
+B.addEnum(3, 2.5).addEnum('A', 'B');
+A.setMath('($1 + 2.5) / $2');
+g.compute();
+s = g.dump();
 g2 = new d.DAG();
 g2.read(s)
 g2.compute()

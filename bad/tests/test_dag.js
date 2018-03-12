@@ -409,18 +409,18 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
     it('An enum is a collection of 2-element arrays', () => {
       B.setMath(1);
-      A.addEnum([1, 'Hello String']);
+      A.addEnum(1, 'Hello String');
       assert.strictEqual(g.compute(), 'Hello String')
     });
 
     it('Multiple enum elements can be added', () => {
-      A.addEnum([1, 'A']).addEnum([2, 'B']).addEnum([3, 'C']);
+      A.addEnum(1, 'A').addEnum(2, 'B').addEnum(3, 'C');
       assert.strictEqual(g.compute(), 'A')
     });
 
     it('An enum element is overwritten when its fist member ' +
         'already exists', () => {
-      A.addEnum([1, 'A']).addEnum([1, 'B']).addEnum([1, 'C']);
+      A.addEnum(1, 'A').addEnum(1, 'B').addEnum(1, 'C');
       assert.strictEqual(g.compute(), 'C')
     });
 
@@ -434,11 +434,11 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.strictEqual(g.compute(), undefined);
     });
 
-    it('The enum values can even be undefined', () => {
-      A.addEnum([undefined, null]);
-      assert.deepStrictEqual(A.enum, [[ 2, 'B' ], [ 3, 'C' ],  [ undefined, null ]]);
-      B.setMath();
-      assert.strictEqual(g.compute(), null);
+    it('The enum keys *not* be undefined. ' +
+        'Attempting to do so does nothing', () => {
+      A.addEnum(undefined, 'something');
+      assert.deepStrictEqual(A.enum, [ [ 2, 'B' ], [ 3, 'C' ] ]);
+      assert.strictEqual(g.compute(), undefined);
     });
 
 
@@ -503,17 +503,17 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
     const D = g.create('D');
     g.connect(C, B).connect(B, A).connect(D, A).connect(A, g.root);
     D.setMath(10);
-    C.setMath(15);
-    B.setMath('$1 * 2');
-    A.setMath('($1 + 1) / $2');
+    C.setMath(3);
+    B.addEnum(3, 2.5).addEnum('A', 'B');
+    A.setMath('($1 + 2.5) / $2');
 
     const g2 = new DAG.DAG();
     let s;
 
     it('it can be dumped to a JSON string.', () => {
       // First we make sure the DAG is sensitive to connection order.
-      assert.strictEqual(g.compute(), 3.1);
-      assert.strictEqual(g.disconnect(B, A).connect(B, A).compute(), 0.36666666666666664);
+      assert.strictEqual(g.compute(), 0.5);
+      assert.strictEqual(g.disconnect(B, A).connect(B, A).compute(), 5);
 
       // Dump the DAG to a string.
       s = g.dump();
