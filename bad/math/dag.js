@@ -143,14 +143,16 @@ const Node = class {
     // as default, because the Graph will populate those.
     if (json) {
       // const j = JSON.parse(json);
-      this.fallback = json.fallback;
       this.id = json.id;
       this.name = json.name;
+      this.setFallback(json.fallback);
       this.setMath(json.math);
       json.enum.forEach(this.addEnum);
     }
   }
 
+
+  // -------------------------------------------------------------[ Identity ]--
   get id() {
     return this._id;
   }
@@ -167,18 +169,7 @@ const Node = class {
     this._name = n;
   }
 
-  get fallback() {
-    return this._fallback;
-  }
-
-  set fallback(n) {
-    this._fallback = n;
-  }
-
-  get args() {
-    return this._args;
-  }
-
+  // -----------------------------------------------------------------[ Args ]--
   addArg(n) {
     this._args.push(n);
     this._isClean = false;
@@ -189,6 +180,20 @@ const Node = class {
     this._isClean = false;
   }
 
+  get args() {
+    return this._args;
+  }
+
+  // -------------------------------------------------------------[ Fallback ]--
+  setFallback(n) {
+    this._fallback = n;
+  }
+
+  get fallback() {
+    return this._fallback;
+  }
+
+  // -----------------------------------------------------------------[ Math ]--
   setMath(s) {
     this._math = s;
     this._isClean = false;
@@ -196,31 +201,44 @@ const Node = class {
     return this;
   }
 
+  get math() {
+    return this._math;
+  }
+
+  // -----------------------------------------------------------------[ Enum ]--
+  /**
+   * @param {!Array<*>} twoTup
+   * @returns {Node}
+   */
   addEnum(twoTup) {
-    // TODO: Do type check here. twoTup should be ab array of two values.
-    this._enum.push(twoTup);
-    this._math = undefined;
-    this._isClean = false;
-
-    console.log('-------->>', this._enum);
-    console.log('-------->>', this._math);
-
+    if (Array.isArray(twoTup) && twoTup.length === 2) {
+      this._enum = [...new Map(this._enum).set(twoTup[0], twoTup[1]).entries()];
+      this._math = undefined;
+      this._isClean = false;
+    }
     return this;
-
   }
 
-  delEnum(index) {
-    this._enum = this._enum.filter((_, i) => i !== index);
+  delEnum(key) {
+    this._enum = this._enum.filter(e => e[0] !== key);
     this._isClean = false;
     return this;
   }
 
+  get enum() {
+    return this._enum;
+  }
+
+  // ----------------------------------------------------------------[ Solve ]--
   clean() {
     let err;
     if (this._math) {
       [err, this._func] = mathFunc(this._math, this.args);
     } else if (this._enum.length) {
       const m = new Map(this._enum);
+      // // We do this instead of new Map([enum]), because
+      // // that disallows undefined as a key, but this does.
+      // this._enum.forEach(e = m.add(e[0], e[1]));
       this._func = () => m.get(this._args[0].solve());
       err = false;
     }
@@ -229,7 +247,9 @@ const Node = class {
 
   solve() {
     if(this._isClean) {
-      return this._func() || this.fallback;
+      const result = this._func();
+      // Make sure things like false, null, 0 don't trigger the fallback.
+      return  result === undefined ? this._fallback : result;
     } else {
       this.clean()
     }
@@ -239,6 +259,7 @@ const Node = class {
     throw(`The node "${this.name}", with formula "${this._math}" can not be solved`);
   }
 
+  // ----------------------------------------------------------------[ Store ]--
   dump() {
     return {
       id: this.id,
@@ -465,7 +486,7 @@ const A = g.create('A');
 const B = g.create('B');
 g.connect(B, A).connect(A, g.root)
 B.setMath(10)
-A.addEnum([10, 'wow!'])
+A.addEnum([10, 'wow!']).setFallback('nope! not 10')
 g.compute()
 
 

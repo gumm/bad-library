@@ -51,13 +51,6 @@ describe('The funcMaker function', () => {
     assert.strictEqual(f(), undefined);
   });
 
-  it('If you want it to return a string, your string ' +
-      'should be double quoted', () => {
-    const [err, f] = funcMaker("'hello'");
-    assert.strictEqual(err, null);
-    assert.strictEqual(f(), 'hello');
-  });
-
 });
 
 describe('DAG Class creates a Directed-Acyclic-Graph', () => {
@@ -341,18 +334,18 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
   });
 
-  describe('Nodes can carry a solution formula', () => {
+  describe('Nodes can carry a mathematical formula', () => {
     const g = new DAG.DAG();
     const A = g.create('A');
     const B = g.create('B');
     const C = g.create('C');
 
-    it('A solution formula can be a raw number', () => {
+    it('A mathematical formula can be a raw number', () => {
       A.setMath(14);
       assert.strictEqual(g.connect(A, g.root).compute(), 14)
     });
 
-    it('A solution formula can be a a string formula', () => {
+    it('A mathematical formula can be a a string formula', () => {
       A.setMath('17 - 3');
       assert.strictEqual(g.compute(), 14)
     });
@@ -376,7 +369,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.strictEqual(g.compute(), undefined);
     });
 
-    it('A solution formula can reference a connecting node', () => {
+    it('A mathematical formula can reference a connecting node', () => {
       B.setMath(17);
       g.connect(B, A);
       A.setMath('$1 - 3');
@@ -396,15 +389,59 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.strictEqual(g.compute(), -14)
     });
 
-    it('If the solutions references a node that does not exist, the DAG returns undefined', () => {
+    it('If the formula references a node that does not exist, the DAG returns undefined', () => {
       g.disconnect(B, A);
       assert.strictEqual(g.compute(),);
     });
 
-    it('When the solution is fixed, it computes', () => {
+    it('When the formula is fixed, it computes', () => {
       A.setMath('$1');
       assert.equal(g.compute(), 3);
     });
+
+  });
+
+  describe('Nodes can carry an enumerator', () => {
+    const g = new DAG.DAG();
+    const A = g.create('A');
+    const B = g.create('B');
+    g.connect(B, A).connect(A, g.root);
+
+    it('An enum is a collection of 2-element arrays', () => {
+      B.setMath(1);
+      A.addEnum([1, 'Hello String']);
+      assert.strictEqual(g.compute(), 'Hello String')
+    });
+
+    it('Multiple enum elements can be added', () => {
+      A.addEnum([1, 'A']).addEnum([2, 'B']).addEnum([3, 'C']);
+      assert.strictEqual(g.compute(), 'A')
+    });
+
+    it('An enum element is overwritten when its fist member ' +
+        'already exists', () => {
+      A.addEnum([1, 'A']).addEnum([1, 'B']).addEnum([1, 'C']);
+      assert.strictEqual(g.compute(), 'C')
+    });
+
+    it('An enum can be read out', () => {
+      assert.deepStrictEqual(A.enum, [[ 1, 'C' ], [ 2, 'B' ], [ 3, 'C' ]])
+    });
+
+    it('An item can be deleted by its first member', () => {
+      A.delEnum(1);
+      assert.deepStrictEqual(A.enum, [[ 2, 'B' ], [ 3, 'C' ]]);
+      assert.strictEqual(g.compute(), undefined);
+    });
+
+    it('The enum values can even be undefined', () => {
+      A.addEnum([undefined, null]);
+      assert.deepStrictEqual(A.enum, [[ 2, 'B' ], [ 3, 'C' ],  [ undefined, null ]]);
+      B.setMath();
+      assert.strictEqual(g.compute(), null);
+    });
+
+
 
   });
 
@@ -418,7 +455,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.strictEqual(g.compute(), undefined)
     });
 
-    it('If any of the connected nodes in the DAG does not have its solution ' +
+    it('If any of the connected nodes do not have a mathematical ' +
         'formula, the DAG computes to undefined', () => {
       assert.strictEqual(g.connect(A, g.root).compute(), undefined)
     });
