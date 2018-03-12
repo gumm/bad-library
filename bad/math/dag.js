@@ -1,6 +1,28 @@
+/**
+ * Convert a mathematical string, into  a function that returns the
+ * solution.
+ * @param {!string|number} m
+ * @param {!Array<!Node>} a
+ * @returns {[boolean, !Function]}
+ */
+const mathFunc = (m, a) => {
+  let err;
+  let f = () => undefined;
+  if (typeof m === 'string') {
+    const s = a.reduce(
+        (p, c, i) => p.split(`$${i + 1}`).join(`this.args[${i}].solve()`),
+        mathCleaner(m)
+    );
+    if (!s.includes('$')) {
+      [err, f] = funcMaker(s);
+    }
+  }
+  else {
+    [err, f] = funcMaker(m);
+  }
+  return [err, f];
+};
 
-
-const isIn = n => (p, c) => c[1].includes(n) ? (p.push(c[0]) && p) : p;
 
 /**
  * Given a map of a dag in the form below, return an array of leaf nodes, that
@@ -70,7 +92,6 @@ const funcMaker = fn => {
   try {
     return [null, new Function(`try { return ${fn}; } catch(e) { return; }`)];
   } catch(err) {
-    console.log();
     return [`Could not make a function with "${fn}"`, () => undefined];
   }
 };
@@ -83,23 +104,50 @@ const mathCleaner = s => {
   return Array.from(s).filter(e => combined.includes(e)).join('');
 };
 
+const isIn = n => (p, c) => c[1].includes(n) ? (p.push(c[0]) && p) : p;
+
+function* idGen(n) {
+  let i = n ? n + 1 : 0;
+  while (true)
+    yield i++;
+}
+
+const nodeMaker = idMaker => name => new Node(idMaker.next().value, name);
+
+const biggest = arr => Math.max.apply(undefined, arr);
+
+const safeJsonParse = json => {
+  // This function cannot be optimised, it's best to
+  // keep it small!
+  let parsed;
+  try {
+    parsed = JSON.parse(json);
+  } catch (e) {}
+  return parsed;
+};
+
+
 const Node = class {
 
   constructor(id, name, json = undefined) {
     this._id = id;
     this._name = name;
     this._args = [];
-    this._solve = undefined;
+    this._math = undefined;
+    this._enum = [];
     this._func = () => undefined;
-    this._isClean = false; // We have to keep state so edits are propagated.
+    this._isClean = false;
+    this._fallback = undefined;
 
     // We overwrite *some* elements, but we keep the _args and _isClean both
     // as default, because the Graph will populate those.
     if (json) {
       // const j = JSON.parse(json);
+      this.fallback = json.fallback;
       this.id = json.id;
       this.name = json.name;
-      this.setSolve(json.solve);
+      this.setMath(json.math);
+      json.enum.forEach(this.addEnum);
     }
   }
 
@@ -119,6 +167,14 @@ const Node = class {
     this._name = n;
   }
 
+  get fallback() {
+    return this._fallback;
+  }
+
+  set fallback(n) {
+    this._fallback = n;
+  }
+
   get args() {
     return this._args;
   }
@@ -133,71 +189,68 @@ const Node = class {
     this._isClean = false;
   }
 
-  setSolve(s) {
-    this._solve = s;
+  setMath(s) {
+    this._math = s;
+    this._isClean = false;
+    this._enum = [];
+    return this;
+  }
+
+  addEnum(twoTup) {
+    // TODO: Do type check here. twoTup should be ab array of two values.
+    this._enum.push(twoTup);
+    this._math = undefined;
+    this._isClean = false;
+
+    console.log('-------->>', this._enum);
+    console.log('-------->>', this._math);
+
+    return this;
+
+  }
+
+  delEnum(index) {
+    this._enum = this._enum.filter((_, i) => i !== index);
     this._isClean = false;
     return this;
   }
 
   clean() {
     let err;
-    if (typeof this._solve === 'string') {
-      const s = this.args.reduce(
-          (p, c, i) => p.split(`$${i + 1}`).join(`this.args[${i}].solve()`),
-          mathCleaner(this._solve)
-      );
-      this._isClean = !Array.from(s).includes('$');
-      if (this._isClean) {
-        [err, this._func] = funcMaker(s);
-        if(err) {
-          this._isClean = false;
-          console.log(`Node ${this.name}: "${s}" is not valid: ${err}`);
-        }
-      }
+    if (this._math) {
+      [err, this._func] = mathFunc(this._math, this.args);
+    } else if (this._enum.length) {
+      const m = new Map(this._enum);
+      this._func = () => m.get(this._args[0].solve());
+      err = false;
     }
-     else {
-      [err, this._func] = funcMaker(this._solve);
-      if (err) {
-        this._isClean = false;
-        console.log(`Node ${this.name}: "${s}" is not valid: ${err}`);
-      } else {
-        this._isClean = true;
-      }
-    }
+    this._isClean = !err;
   }
 
   solve() {
     if(this._isClean) {
-      return this._func();
+      return this._func() || this.fallback;
     } else {
       this.clean()
     }
     if(this._isClean) {
       return this.solve();
     }
-    throw(`The node "${this.name}", with formula "${this._solve}" can not be solved`);
+    throw(`The node "${this.name}", with formula "${this._math}" can not be solved`);
   }
 
   dump() {
     return {
       id: this.id,
       name: this.name,
-      solve: this._solve,
-      args: this._args.map(e => e.id)
+      math: this._math,
+      args: this._args.map(e => e.id),
+      enum: this._enum,
+      fallback: this._fallback
     };
   }
 
 };
-
-function* idGen(n) {
-  let i = n ? n + 1 : 0;
-  while (true)
-    yield i++;
-}
-
-const nodeMaker = idMaker => name => new Node(idMaker.next().value, name);
-
-const biggest = arr => Math.max.apply(undefined, arr);
 
 
 const DAG = class {
@@ -206,7 +259,7 @@ const DAG = class {
     this.G = new Map();
     this._nodeMaker = nodeMaker(idGen());
     this._rootNode = this.create('ROOT');
-    this._rootNode.setSolve('$1')
+    this._rootNode.setMath('$1')
   }
 
   get size() {
@@ -357,40 +410,51 @@ const DAG = class {
   }
 
   read(json) {
-    this.G = new Map();
-    this._rootNode = undefined;
+    // Read the string
+    const j = safeJsonParse(json);
 
-    const j = JSON.parse(json);
+    // Store a valid rollback image of the current config.
+    const rollback = this.dump();
 
-    // Create a list of true nodes
-    const n = j.N.map(e => new Node(undefined, undefined, e));
-    const matchId = id => e => e.id === id;
-    const findNode = id => n.find(matchId(id));
+    if (j) {
+      try {
+        // Destroy the current config
+        this.G = new Map();
+        this._rootNode = undefined;
 
-    // Create a map that directly mirrors the original, but with IDs only.
-    const g = new Map(j.G);
-    this._rootNode = undefined;
-    for (const k of g.keys()) {
-      this.add(findNode(k))
+        // Create a list of true nodes
+        const n = j.N.map(e => new Node(undefined, undefined, e));
+        const matchId = id => e => e.id === id;
+        const findNode = id => n.find(matchId(id));
+
+        // Create a map that directly mirrors the original, but with IDs only.
+        const g = new Map(j.G);
+        this._rootNode = undefined;
+        for (const k of g.keys()) {
+          this.add(findNode(k))
+        }
+        this._rootNode = this.nodes[0];
+        for (const [k, arr] of g.entries()) {
+          const node = findNode(k);
+          arr.forEach(id => {
+            const toNode = findNode(id);
+            this.connect(node, toNode);
+          })
+        }
+
+        // Make sure that the order of each of the nodes args is the same as the
+        // original.
+        this.nodes.forEach(n => {
+          const targetArgs = j.N.find(matchId(n.id)).args;
+          n._args = targetArgs.map(id => n._args.find(matchId(id)));
+        });
+        return true;
+      }
+      catch (e) {
+        this.read(rollback);
+      }
     }
-    this._rootNode = this.nodes[0];
-    for (const [k, arr] of g.entries()) {
-      const node = findNode(k);
-      arr.forEach(id => {
-        const toNode = findNode(id);
-        this.connect(node, toNode);
-      })
-    }
-
-    // Make sure that the order of each of the nodes args is the same as the
-    // original.
-    this.nodes.forEach(n => {
-      const targetArgs = j.N.find(matchId(n.id)).args;
-      n._args = targetArgs.map(id => n._args.find(matchId(id)));
-    });
-
   }
-
 };
 
 const testme = {
@@ -399,26 +463,11 @@ d = require('./bad/math/dag.js');
 const g = new d.DAG();
 const A = g.create('A');
 const B = g.create('B');
-const C = g.create('C');
-const D = g.create('D');
-const E = g.create('E');
-const F = g.create('F');
-g.connect(C, B).connect(B, A).connect(D, A).connect(A, g.root)
-g.clean()
-D.setSolve(10)
-C.setSolve(15)
-B.setSolve('$1 * 2')
-A.setSolve('($1 + 1) / $2')
+g.connect(B, A).connect(A, g.root)
+B.setMath(10)
+A.addEnum([10, 'wow!'])
 g.compute()
-g.disconnect(B, A).connect(B, A).compute()
-s = g.dump()
-g2 = new d.DAG()
-g2.read(s)
-const assert = require('assert');
-assert.deepStrictEqual(g2.compute(), g.compute())
-assert.deepStrictEqual(g2.dump(), g.dump())
-assert.deepStrictEqual(g2.ids, g.ids)
-assert.deepStrictEqual(g2.names, g.names)
+
 
    */
 

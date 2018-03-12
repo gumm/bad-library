@@ -60,9 +60,9 @@ describe('The funcMaker function', () => {
 
 });
 
-describe('When creating a DAG', () => {
+describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
-  describe('a root node is automatically created', () => {
+  describe('Root node is automatically created', () => {
     const g = new DAG.DAG();
     const root = g.root;
     it('its can be accessed with the property getter "root"',
@@ -348,50 +348,50 @@ describe('When creating a DAG', () => {
     const C = g.create('C');
 
     it('A solution formula can be a raw number', () => {
-      A.setSolve(14);
+      A.setMath(14);
       assert.strictEqual(g.connect(A, g.root).compute(), 14)
     });
 
     it('A solution formula can be a a string formula', () => {
-      A.setSolve('17 - 3');
+      A.setMath('17 - 3');
       assert.strictEqual(g.compute(), 14)
     });
 
     it('The string may only contain arithmetic operators, numbers, ' +
         'grouping brackets, spaces and the $-glyph.' +
         'Anything else will be stripped.', () => {
-      A.setSolve('balh-blah(17 - 3)');
+      A.setMath('balh-blah(17 - 3)');
       assert.strictEqual(g.compute(), -14);
     });
 
     it('If the cleaned string results in nonsensical math, ' +
         'the DAG returns undefined', () => {
-      A.setSolve('blah - blah * blah');
+      A.setMath('blah - blah * blah');
       assert.strictEqual(g.compute(), undefined);
     });
 
     it('If the cleaned string results the empty string ' +
         'the DAG returns undefined', () => {
-      A.setSolve('blah');
+      A.setMath('blah');
       assert.strictEqual(g.compute(), undefined);
     });
 
     it('A solution formula can reference a connecting node', () => {
-      B.setSolve(17);
+      B.setMath(17);
       g.connect(B, A);
-      A.setSolve('$1 - 3');
+      A.setMath('$1 - 3');
       assert.strictEqual(g.compute(), 14)
     });
 
     it('It references its connecting node in order of addition', () => {
-      C.setSolve(3);
+      C.setMath(3);
       g.connect(C, A);
-      A.setSolve('$1 - $2');
+      A.setMath('$1 - $2');
       assert.strictEqual(g.compute(), 14)
     });
 
     it('If the order of connections change, the order of reference changes', () => {
-      C.setSolve(3);
+      C.setMath(3);
       g.disconnect(B, A).connect(B, A);
       assert.strictEqual(g.compute(), -14)
     });
@@ -402,7 +402,7 @@ describe('When creating a DAG', () => {
     });
 
     it('When the solution is fixed, it computes', () => {
-      A.setSolve('$1');
+      A.setMath('$1');
       assert.equal(g.compute(), 3);
     });
 
@@ -424,18 +424,18 @@ describe('When creating a DAG', () => {
     });
 
     it('it can solve itself', () => {
-      A.setSolve('$1 * 2');
-      B.setSolve('$1 + 5');
-      C.setSolve(10);
+      A.setMath('$1 * 2');
+      B.setMath('$1 + 5');
+      C.setMath(10);
       // The required result is (10 + 5) * 2 = 30
       const sol1 = g.connect(C, B).connect(B, A).connect(A, g.root).compute();
       assert.strictEqual(sol1, 30);
 
       // Modify the graph by adding a node and connecting it.
-      const E = g.create('E').setSolve('$1 * 3');
+      const E = g.create('E').setMath('$1 * 3');
       g.connect(E, B).connect(C, E);
       // Then modify the solver for node B to take advantage of its new connection
-      B.setSolve('$1 - $2');
+      B.setMath('$1 - $2');
       assert.strictEqual(g.compute(), -40);
 
       // Modify the order in which the nodes are connected to B
@@ -465,10 +465,10 @@ describe('When creating a DAG', () => {
     const C = g.create('C');
     const D = g.create('D');
     g.connect(C, B).connect(B, A).connect(D, A).connect(A, g.root);
-    D.setSolve(10);
-    C.setSolve(15);
-    B.setSolve('$1 * 2');
-    A.setSolve('($1 + 1) / $2');
+    D.setMath(10);
+    C.setMath(15);
+    B.setMath('$1 * 2');
+    A.setMath('($1 + 1) / $2');
 
     const g2 = new DAG.DAG();
     let s;
