@@ -1,16 +1,43 @@
+
+/**
+ * Given a string, sanitize it and only allow numbers and arithmetic
+ * operators
+ * @param {!string} s
+ * @returns {string}
+ */
+const mathCleaner = s => {
+  const arithmeticOperators = ['+', '-', '*', '/', '%', '(', ')'];
+  const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'];
+  const ref = ['$', ' '];
+  const combined = [...arithmeticOperators, ...numbers, ...ref];
+  return Array.from(s).filter(e => combined.includes(e)).join('');
+};
+
+/**
+ * @param {(!string|!number)} fn
+ * @returns {*[]}
+ */
+const funcMaker = fn => {
+  try {
+    return [null, new Function('X', `try { return ${fn}; } catch(e) { return; }`)];
+  } catch(err) {
+    return [`Could not make a function with "${fn}"`, () => undefined];
+  }
+};
+
 /**
  * Convert a mathematical string, into  a function that returns the
  * solution.
- * @param {!string|number} m
+ * @param {(!string|!number)} m
  * @param {!Array<!Node>} a
  * @returns {[boolean, !Function]}
  */
 const mathFunc = (m, a) => {
-  let err;
+  let err = 'Unable to clean math';
   let f = () => undefined;
   if (typeof m === 'string') {
     const s = a.reduce(
-        (p, c, i) => p.split(`$${i + 1}`).join(`this.args[${i}].solve()`),
+        (p, c, i) => p.split(`$${i + 1}`).join(`X[${i}]`),
         mathCleaner(m)
     );
     if (!s.includes('$')) {
@@ -52,7 +79,6 @@ const leafNodes = G => {
   return [C, Q];
 };
 
-
 /**
  * Given the DAG as below, return an array where the nodes of the DAG
  * are topologically sorted.
@@ -88,29 +114,27 @@ const topoSort = G => {
   return S;
 };
 
-const funcMaker = fn => {
-  try {
-    return [null, new Function(`try { return ${fn}; } catch(e) { return; }`)];
-  } catch(err) {
-    return [`Could not make a function with "${fn}"`, () => undefined];
+const removeOrphans = m => {
+  for (const [k, s] of m.entries()) {
+    if (s.size === 0 && k !== 0) {
+      m.delete(k);
+      for (const v of m.values()) { v.delete(k) }
+    }
   }
+  if([...m.entries()].reduce(
+      (p, c) => p || (c[1].size === 0 && c[0] !== 0), false)) {
+    removeOrphans(m);
+  }
+  return m;
 };
-
-const mathCleaner = s => {
-  const arithmeticOperators = ['+', '-', '*', '/', '%', '(', ')'];
-  const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'];
-  const ref = ['$', ' '];
-  const combined = [...arithmeticOperators, ...numbers, ...ref];
-  return Array.from(s).filter(e => combined.includes(e)).join('');
-};
-
-const isIn = n => (p, c) => c[1].includes(n) ? (p.push(c[0]) && p) : p;
 
 function* idGen(n) {
   let i = n ? n + 1 : 0;
   while (true)
     yield i++;
 }
+
+const isIn = n => (p, c) => c[1].includes(n) ? (p.push(c[0]) && p) : p;
 
 const nodeMaker = idMaker => name => new Node(idMaker.next().value, name);
 
@@ -130,28 +154,31 @@ const enumSet = (arr, k, v) => [...new Map(arr).set(k, v).entries()];
 
 const enumUnSet = (arr, k) => arr.filter(e => e[0] !== k);
 
+const grabId = n => n._id;
+
+const tail = arr => arr[arr.length ? arr.length - 1 : undefined];
+
 
 const Node = class {
 
-  constructor(id, name, json = undefined) {
+  constructor(id, name, obj = undefined) {
     this._id = id;
     this._name = name;
     this._args = [];
     this._math = undefined;
     this._enum = [];
     this._func = () => undefined;
-    this._isClean = false;
+    this._errState = 'Not init';
     this._fallback = undefined;
 
-    // We overwrite *some* elements, but we keep the _args and _isClean both
+    // We overwrite *some* elements, but we keep the _args and _errState both
     // as default, because the Graph will populate those.
-    if (json) {
-      // const j = JSON.parse(json);
-      this.id = json.id;
-      this.name = json.name;
-      this.setFallback(json.fallback);
-      this.setMath(json.math);
-      json.enum.forEach(e => this.addEnum(...e));
+    if (obj) {
+      this.id = obj.id;
+      this.name = obj.name;
+      this.setFallback(obj.fallback);
+      this.setMath(obj.math);
+      obj.enum.forEach(e => this.addEnum(...e));
     }
   }
 
@@ -175,13 +202,13 @@ const Node = class {
 
   // -----------------------------------------------------------------[ Args ]--
   addArg(n) {
-    this._args.push(n);
-    this._isClean = false;
+    this._args.push(n._id);
+    this._errState = 'Changed';
   }
 
   delArg(n) {
-    this._args = this._args.filter(e => e !== n);
-    this._isClean = false;
+    this._args = this._args.filter(e => e !== n._id);
+    this._errState = 'Changed';
   }
 
   get args() {
@@ -200,7 +227,7 @@ const Node = class {
   // -----------------------------------------------------------------[ Math ]--
   setMath(s) {
     this._math = s;
-    this._isClean = false;
+    this._errState = 'Changed';
     this._enum = [];
     return this;
   }
@@ -216,16 +243,16 @@ const Node = class {
    * @returns {Node}
    */
   addEnum(k, v) {
-    if (k === undefined) { return this };
+    if (k === undefined) { return this }
     this._enum = enumSet(this._enum, k, v);
     this._math = undefined;
-    this._isClean = false;
+    this._errState = 'Changed';
     return this;
   }
 
   delEnum(k) {
     this._enum = enumUnSet(this._enum, k);
-    this._isClean = false;
+    this._errState = 'Changed';
     return this;
   }
 
@@ -235,29 +262,33 @@ const Node = class {
 
   // ----------------------------------------------------------------[ Solve ]--
   clean() {
-    let err;
     if (this._math) {
-      [err, this._func] = mathFunc(this._math, this.args);
+      [this._errState, this._func] = mathFunc(this._math, this.args);
     } else if (this._enum.length) {
       const m = new Map(this._enum);
-      this._func = () => m.get(this._args[0].solve());
-      err = false;
+      this._func = X => m.get(X[0]);
+      this._errState = null;
     }
-    this._isClean = !err;
+    return this;
   }
 
-  solve() {
-    if(this._isClean) {
-      const result = this._func();
+  solve(p, topoIds) {
+    const argArr = this.args.map(id => {
+      const sI = topoIds.findIndex(e => e === id);
+      return p[sI];
+    });
+
+    if(!this._errState) {
+      const result = this._func(argArr);
       // Make sure things like false, null, 0 don't trigger the fallback.
-      return  result === undefined ? this._fallback : result;
+      return  result === undefined ? [null, this._fallback] : [null, result];
     } else {
       this.clean()
     }
-    if(this._isClean) {
-      return this.solve();
+    if(!this._errState) {
+      return this.solve(p, topoIds);
     }
-    throw(`The node "${this.name}", with formula "${this._math}" can not be solved`);
+    return [this._errState, undefined];
   }
 
   // ----------------------------------------------------------------[ Store ]--
@@ -266,7 +297,7 @@ const Node = class {
       id: this.id,
       name: this.name,
       math: this._math,
-      args: this._args.map(e => e.id),
+      args: this._args,
       enum: this._enum,
       fallback: this._fallback
     };
@@ -375,6 +406,7 @@ const DAG = class {
     // A is already connected to B
     if (this.G.get(a).includes(b)) { return this; }
 
+    // Add the ID of the in-node to the out-node.
     this.G.get(a).push(b);
 
     // The connection formed a cycle. Undo it.
@@ -413,11 +445,25 @@ const DAG = class {
   }
 
   compute() {
-    try {
-      return this.root.solve()
-    } catch(err) {
-      console.log(err);
-    }
+    const m = removeOrphans([...this.G].reduce((p, [k, v]) =>
+        p.set(grabId(k), new Set(v.map(grabId))),
+        new Map())
+    );
+    const validTopoNodes = this.topo.filter(e => m.has(grabId(e)));
+    const validTopoIds = validTopoNodes.map(grabId);
+
+    const errArr = [];
+    const solutionArr = validTopoNodes.reduce((p, n) => {
+          const [err, s] = n.clean().solve(p, validTopoIds);
+          errArr.push(err);
+          p.push(s);
+          return p;
+        }, []);
+
+    console.log(solutionArr);
+    console.log(errArr);
+
+    return tail(solutionArr);
   }
 
   dump() {
@@ -467,8 +513,7 @@ const DAG = class {
         // Make sure that the order of each of the nodes args is the same as the
         // original.
         this.nodes.forEach(n => {
-          const targetArgs = j.N.find(matchId(n.id)).args;
-          n._args = targetArgs.map(id => n._args.find(matchId(id)));
+          n._args = j.N.find(matchId(n.id)).args;
         });
         return true;
       }
@@ -480,28 +525,29 @@ const DAG = class {
 };
 
 
-const testme = {
-  /**
-d = require('./bad/math/dag.js');
-const g = new d.DAG();
-const A = g.create('A');
-const B = g.create('B');
-const C = g.create('C');
-const D = g.create('D');
-g.connect(C, B).connect(B, A).connect(D, A).connect(A, g.root);
-D.setMath(10);
-C.setMath(3);
-B.addEnum(3, 2.5).addEnum('A', 'B');
-A.setMath('($1 + 2.5) / $2');
-g.compute();
-s = g.dump();
-g2 = new d.DAG();
-g2.read(s)
-g2.compute()
+/**
 
-   */
+ d = require('./bad/math/dag.js');
+ const g = new d.DAG();
+ const A = g.create('A');
+ const B = g.create('B');
+ const C = g.create('C');
+ const D = g.create('D');
+ g.connect(C, B).connect(B, A).connect(A, g.root);
+ C.setMath(11);
+ B.addEnum(11, 30).addEnum(12, 20);
+ A.setMath('$1 - 1');
+ g.compute();
+ g.connect(D, A);
+ D.setMath(5);
+ A.setMath('$1 - $2')
+ g.compute();
+ g.disconnect(B, A);
+ g.compute();
 
-};
+
+*/
+
 
 module.exports = {
   DAG
