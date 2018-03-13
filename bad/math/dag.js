@@ -134,7 +134,7 @@ function* idGen(n) {
     yield i++;
 }
 
-const isIn = n => (p, c) => c[1].includes(n) ? (p.push(c[0]) && p) : p;
+const isIn = n => (p, [k, s]) => s.has(n) ? (p.push(k) && p) : p;
 
 const nodeMaker = idMaker => name => new Node(idMaker.next().value, name);
 
@@ -342,8 +342,8 @@ const DAG = class {
 
   get orphans() {
     const orphans = [];
-    for (const [n, arr] of this.G.entries()) {
-      if (!arr.length && n !== this._rootNode) {
+    for (const [n, s] of this.G.entries()) {
+      if (s.size === 0 && n !== this._rootNode) {
         orphans.push(n)
       }
     }
@@ -364,14 +364,14 @@ const DAG = class {
 
   create(name) {
     const n = this._nodeMaker(name);
-    this.G.set(n, []);
+    this.G.set(n, new Set());
     return n;
   }
 
   add(n) {
     if (this.G.has(n)) { return n; }
     if (this.ids.includes(n.id)) { return false; }
-    this.G.set(n, []);
+    this.G.set(n, new Set());
 
     // Biggest ID
     this._nodeMaker = nodeMaker(idGen(biggest(this.ids)));
@@ -384,9 +384,8 @@ const DAG = class {
     if (n && n !== this._rootNode) {
       deleted = this.G.delete(n);
       if (deleted) {
-        for (const [k, arr] of this.G.entries()) {
-          const f = arr.filter(e => e.id !== n.id);
-          this.G.set(k, f);
+        for (const s of this.G.values()) {
+          s.delete(n);
         }
       }
     }
@@ -404,24 +403,25 @@ const DAG = class {
     if (!this.G.has(a) || !this.G.has(b)) { return this; }
 
     // A is already connected to B
-    if (this.G.get(a).includes(b)) { return this; }
+    if (this.G.get(a).has(b)) { return this; }
 
-    // Add the ID of the in-node to the out-node.
-    this.G.get(a).push(b);
+    // Add the in-node to the out-node.
+    this.G.get(a).add(b);
 
     // The connection formed a cycle. Undo it.
     if (this.topo.length < this.nodes.length) {
       this.disconnect(a, b);
     }
 
+    // Add the ID of the in-node to the out-node.
     b.addArg(a);
     return this;
   }
 
   disconnect(a, b) {
-    const arr = this.G.get(a) || [];
-    const arr2 = arr.filter(e => e !== b);
-    this.G.set(a, arr2);
+    // const arr = this.G.get(a) || [];
+    // const arr2 = arr.filter(e => e !== b);
+    this.G.get(a).delete(b);
     b.delArg(a);
     return this
   }
@@ -441,14 +441,18 @@ const DAG = class {
   }
 
   outdegrees(n) {
-    return this.G.get(n);
+    return [...this.G.get(n)];
+  }
+
+  getIdG() {
+    return [...this.G].reduce(
+        (p, [k, s]) => p.set(grabId(k), new Set([...s].map(grabId))),
+        new Map()
+    )
   }
 
   compute() {
-    const m = removeOrphans([...this.G].reduce((p, [k, v]) =>
-        p.set(grabId(k), new Set(v.map(grabId))),
-        new Map())
-    );
+    const m = removeOrphans(this.getIdG());
     const validTopoNodes = this.topo.filter(e => m.has(grabId(e)));
     const validTopoIds = validTopoNodes.map(grabId);
 
@@ -467,12 +471,8 @@ const DAG = class {
   }
 
   dump() {
-    const m = new Map();
-    for (const [n, arr] of this.G) {
-      m.set(n.id, arr.map(e => e.id))
-    }
     return JSON.stringify({
-      G: [...m],
+      G: [...this.getIdG()].map(([k, s]) => [k, [...s]]),
       N: this.topo.map(e => e.dump())
     });
   }
@@ -533,7 +533,7 @@ const DAG = class {
  const B = g.create('B');
  const C = g.create('C');
  const D = g.create('D');
- g.connect(C, B).connect(B, A).connect(A, g.root);
+ g.connect(D, A).connect(C, B).connect(B, A).connect(A, g.root);
  C.setMath(11);
  B.addEnum(11, 30).addEnum(12, 20);
  A.setMath('$1 - 1');
