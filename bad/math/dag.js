@@ -176,6 +176,11 @@ const tail = arr => arr[arr.length ? arr.length - 1 : undefined];
  */
 const Node = class {
 
+  /**
+   * @param {!number} id
+   * @param {!string} name
+   * @param {Object|undefined} obj
+   */
   constructor(id, name, obj = undefined) {
     this._id = id;
     this._name = name;
@@ -200,7 +205,13 @@ const Node = class {
   //------------------------------------------------------------------[ Save ]--
   /**
    * Dump the node to a Json string.
-   * @returns {{id: *, name: *, math: *, args: Array|*, enum: Array|*, fallback: *}}
+   * @returns {{
+   *    id: !number,
+   *    name: !string,
+   *    math: (!number|!string|undefined),
+   *    args: !Array<!number>,
+   *    enum: Array<[*,*]>,
+   *    fallback: *}}
    */
   dump() {
     return {
