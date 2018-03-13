@@ -146,19 +146,29 @@ const removeOrphans = G => {
 /**
  * A generator function to produce consecutive ids, starting from
  * n + 1 of n. If n is not given, use 0.
- * @param {number|undefined} n
+ * @param {=number} opt_n
+ * @return {!Iterator<number>}
  */
-function* idGen(n) {
-  let i = n ? n + 1 : 0;
+function* idGen(opt_n) {
+  let i = opt_n ? opt_n + 1 : 0;
   while (true)
     yield i++;
 }
 
 const isIn = n => (p, [k, s]) => s.has(n) ? (p.push(k) && p) : p;
 
+/**
+ * @param {!Iterator<number>} idMaker
+ * @returns {function(!string):!Node}
+ */
 const nodeMaker = idMaker => name => new Node(idMaker.next().value, name);
 
-const biggest = arr => Math.max.apply(undefined, arr);
+/**
+ * Find the biggest number in a list of numbers
+ * @param {!Array<!number>} arr
+ * @returns {!number}
+ */
+const max = arr => Math.max.apply(undefined, arr);
 
 const safeJsonParse = json => {
   // This function cannot be optimised, it's best to
@@ -206,7 +216,7 @@ const tail = arr => arr[arr.length ? arr.length - 1 : undefined];
 /**
  * @type {Node}
  */
-const Node = class {
+class Node {
 
   /**
    * @param {!number} id
@@ -273,12 +283,12 @@ const Node = class {
   /**
    * Dump the node to a Json string.
    * @returns {{
-   *    id: !number,
-   *    name: !string,
-   *    math: (!number|!string|undefined),
-   *    args: !Array<!number>,
-   *    enum: Array<[*,*]>,
-   *    fallback: *}}
+   *    I: !number,
+   *    N: !string,
+   *    M: (!number|!string|undefined),
+   *    R: !Array<!number>,
+   *    E: Array<[*,*]>,
+   *    D: *}}
    */
   dump() {
     return {
@@ -445,17 +455,31 @@ const Node = class {
     return [this._errState, undefined];
   }
 
-};
+}
 
 
 /**
  * @type {DAG}
  */
-const DAG = class {
+class DAG {
 
   constructor() {
+    /**
+     * The container of our DAG
+     * @type {Map<Node, Set<Node>>}
+     */
     this.G = new Map();
+
+    /**
+     * @type {function(!string): !Node}
+     * @private
+     */
     this._nodeMaker = nodeMaker(idGen());
+
+    /**
+     * @type {!Node}
+     * @private
+     */
     this._rootNode = this.create('ROOT');
     this._rootNode.setMath('$1')
   }
@@ -559,7 +583,7 @@ const DAG = class {
     if (this.G.has(n)) { return n; }
     if (this.ids.includes(n.id)) { return false; }
     this.G.set(n, new Set());
-    this._nodeMaker = nodeMaker(idGen(biggest(this.ids)));
+    this._nodeMaker = nodeMaker(idGen(max(this.ids)));
     return n;
   }
 
@@ -712,6 +736,7 @@ const DAG = class {
     });
   }
 
+  // noinspection JSUnusedGlobalSymbols
   /**
    * @param {!string} json A valid DAG Json String.
    * @returns {boolean}
@@ -761,7 +786,7 @@ const DAG = class {
       }
     }
   }
-};
+}
 
 
 /**
