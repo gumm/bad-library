@@ -56,12 +56,12 @@ const mathFunc = (m, a) => {
  * is, nodes with 0 in degrees / nodes where no edges point to it.
  * @param {!Map} G example:
  *    const G = new Map([
- *      [ 'A', ['B', 'C'] ],
- *      [ 'B', ['C', 'D'] ],
- *      [ 'C', ['D'] ],
- *      [ 'E', ['F'] ],
- *      [ 'F', ['C'] ],
- *      [ 'D', [] ]
+ *      [ 'A', new Set(['B', 'C']) ],
+ *      [ 'B', new Set(['C', 'D']) ],
+ *      [ 'C', new Set(['D']) ],
+ *      [ 'E', new Set(['F']) ],
+ *      [ 'F', new Set(['C']) ],
+ *      [ 'D', new Set([]) ]
  *    ]);
  * @returns {Array}
  */
@@ -72,10 +72,10 @@ const leafNodes = G => {
   // appears as a value. In terms of a DAG, this describes how many edges
   // point to this node.
   const C = [...G.keys()].reduce((p,c) => (p.set(c,0)) || p, new Map());
-  [...G.values()].forEach(arr => arr.forEach(e => C.set(e, C.has(e) ? C.get(e) + 1 : 0)));
-
+  [...G.values()].forEach(
+      arr => arr.forEach(e => C.set(e, C.has(e) ? C.get(e) + 1 : 0))
+  );
   const Q = [...G.keys()].filter(e => C.get(e) === 0);
-
   return [C, Q];
 };
 
@@ -86,12 +86,12 @@ const leafNodes = G => {
  *    [ 'E', 'F', 'A', 'B', 'C', 'D' ]
  * @param {!Map} G example:
  *    const G = new Map([
- *      [ 'A', ['B', 'C'] ],
- *      [ 'B', ['C', 'D'] ],
- *      [ 'C', ['D'] ],
- *      [ 'E', ['F'] ],
- *      [ 'F', ['C'] ],
- *      [ 'D', [] ]
+ *      [ 'A', new Set(['B', 'C']) ],
+ *      [ 'B', new Set(['C', 'D']) ],
+ *      [ 'C', new Set(['D']) ],
+ *      [ 'E', new Set(['F']) ],
+ *      [ 'F', new Set(['C']) ],
+ *      [ 'D', new Set([]) ]
  *    ]);
  * @returns {Array}
  */
@@ -114,18 +114,31 @@ const topoSort = G => {
   return S;
 };
 
-const removeOrphans = m => {
-  for (const [k, s] of m.entries()) {
+/**
+ * Given a map recursively delete all orphan nodes.
+ * @param {!Map} G example:
+ *    const G = new Map([
+ *      [ 'A', new Set(['B', 'C']) ],
+ *      [ 'B', new Set(['C', 'D']) ],
+ *      [ 'C', new Set(['D']) ],
+ *      [ 'E', new Set(['F']) ],
+ *      [ 'F', new Set(['C']) ],
+ *      [ 'D', new Set([]) ]
+ *    ]);
+ * @returns {!Map}
+ */
+const removeOrphans = G => {
+  for (const [k, s] of G.entries()) {
     if (s.size === 0 && k !== 0) {
-      m.delete(k);
-      for (const v of m.values()) { v.delete(k) }
+      G.delete(k);
+      for (const v of G.values()) { v.delete(k) }
     }
   }
-  if([...m.entries()].reduce(
+  if([...G.entries()].reduce(
       (p, c) => p || (c[1].size === 0 && c[0] !== 0), false)) {
-    removeOrphans(m);
+    removeOrphans(G);
   }
-  return m;
+  return G;
 };
 
 function* idGen(n) {
@@ -158,7 +171,9 @@ const grabId = n => n._id;
 
 const tail = arr => arr[arr.length ? arr.length - 1 : undefined];
 
-
+/**
+ * @type {Node}
+ */
 const Node = class {
 
   constructor(id, name, obj = undefined) {
@@ -174,12 +189,28 @@ const Node = class {
     // We overwrite *some* elements, but we keep the _args and _errState both
     // as default, because the Graph will populate those.
     if (obj) {
-      this.id = obj.id;
-      this.name = obj.name;
-      this.setFallback(obj.fallback);
-      this.setMath(obj.math);
-      obj.enum.forEach(e => this.addEnum(...e));
+      this.id = obj.I;
+      this.name = obj.N;
+      this.setFallback(obj.D);
+      this.setMath(obj.M);
+      obj.E.forEach(e => this.addEnum(...e));
     }
+  }
+
+  //------------------------------------------------------------------[ Save ]--
+  /**
+   * Dump the node to a Json string.
+   * @returns {{id: *, name: *, math: *, args: Array|*, enum: Array|*, fallback: *}}
+   */
+  dump() {
+    return {
+      I: this.id,
+      N: this.name,
+      M: this._math,
+      R: this._args,
+      E: this._enum,
+      D: this._fallback
+    };
   }
 
 
@@ -291,21 +322,12 @@ const Node = class {
     return [this._errState, undefined];
   }
 
-  // ----------------------------------------------------------------[ Store ]--
-  dump() {
-    return {
-      id: this.id,
-      name: this.name,
-      math: this._math,
-      args: this._args,
-      enum: this._enum,
-      fallback: this._fallback
-    };
-  }
-
 };
 
 
+/**
+ * @type {DAG}
+ */
 const DAG = class {
 
   constructor() {
@@ -315,31 +337,56 @@ const DAG = class {
     this._rootNode.setMath('$1')
   }
 
-  get size() {
-    return this.G.size;
-  }
-
+  /**
+   * The single root node.
+   * @returns {!Node}
+   */
   get root() {
     return this._rootNode;
   }
 
+  /**
+   * The nodes in the order that they were added.
+   * @returns {!Array<!Node>}
+   */
   get nodes() {
     return [...this.G.keys()];
   }
 
+  /**
+   * The graph description in the form of Node -> Set<Node>
+   * @returns {!Map}
+   */
   get graph() {
     return this.G;
   }
 
+  /**
+   * A topological sorted array of node.
+   * NOTE: This includes orphans, and orphans *may* be sorted after the root
+   * node.
+   * @returns {!Array<!Node>}
+   */
   get topo() {
     return topoSort(this.G);
   }
 
+  /**
+   * Leafs are nodes without any in-degrees. The partake in the solution.
+   * NOTE: The root node *is* considered a leaf if nothing connects to it.
+   * @returns {!Array<!Node>}
+   */
   get leafs() {
     const [, Q] = leafNodes(this.G);
     return Q;
   }
 
+  /**
+   * Orphans are nodes that wont partake in the solution. That is nodes that
+   * don't have an out degree.
+   * NOTE: The root node is *not* treated as an orphan.
+   * @returns {!Array<!Node>}
+   */
   get orphans() {
     const orphans = [];
     for (const [n, s] of this.G.entries()) {
@@ -350,82 +397,121 @@ const DAG = class {
     return orphans;
   }
 
+  /**
+   * A list of the node names
+   * @return {!Array<!string>}
+   */
   get names() {
     return this.nodes.map(e => e.name);
   }
 
+  /**
+   * A list of the node IDs
+   * @return {!Array<!number>}
+   */
   get ids() {
     return this.nodes.map(e => e.id);
   }
 
-  getAllByName(name) {
-    return this.nodes.filter(e => e.name === name);
-  }
-
+  /**
+   * @param {!String} name
+   * @returns {!Node}
+   */
   create(name) {
     const n = this._nodeMaker(name);
     this.G.set(n, new Set());
     return n;
   }
 
+  /**
+   * Add a node the the graph without connecting it.
+   * Adding an already constructed node potentially mutates the DAG's built
+   * in node maker to algorithm to produce nodes with non contiguous ids.
+   * If the given node has a higer ID than any of the existing nodes in the
+   * DAG, new nodes created by the DAG will count from this new highest ID.
+   * @param {!Node} n
+   * @returns {(!Node|!boolean)}
+   */
   add(n) {
     if (this.G.has(n)) { return n; }
     if (this.ids.includes(n.id)) { return false; }
     this.G.set(n, new Set());
-
-    // Biggest ID
     this._nodeMaker = nodeMaker(idGen(biggest(this.ids)));
-
     return n;
   }
 
+  /**
+   * Delete a node. That is completely remove it from the DAG.
+   * The node is disconnected from all its connections, and deleted.
+   * The root node can not be deleted.
+   * @param {!Node} n
+   * @returns {boolean}
+   */
   del(n) {
     let deleted = false;
     if (n && n !== this._rootNode) {
       deleted = this.G.delete(n);
       if (deleted) {
-        for (const s of this.G.values()) {
+        for (const [k, s] of this.G.entries()) {
           s.delete(n);
+          k.delArg(n);
         }
       }
     }
     return deleted;
   }
 
+  /**
+   * Connect node a to node b. That is, make node a an input to node b.
+   * There are restrictions on connecting nodes:
+   *  1) Root is not allowed to be connected to anything else
+   *  2) Root only accepts a single in-degree. Further attempts are ignored.
+   *  3) Only members of the DAG can be connected to each other.
+   *  4) If the nodes are already connected, further attempts are ignored.
+   *  5) It the connection will form a cycle, the nodes won't be connected.
+   *
+   * @param {!Node} a
+   * @param {!Node} b
+   * @returns {DAG}
+   */
   connect(a, b) {
-    // Root is not allowed to be connected to anything else
     if (a === this.root) { return this; }
-
-    // Root already has something connected
     if (b === this.root && this.indegrees(b).length > 0) { return this; }
-
-    // Either a or b is not a member of this graph.
     if (!this.G.has(a) || !this.G.has(b)) { return this; }
-
-    // A is already connected to B
     if (this.G.get(a).has(b)) { return this; }
 
-    // Add the in-node to the out-node.
+    // Fist connect it.
     this.G.get(a).add(b);
+    b.addArg(a);
 
-    // The connection formed a cycle. Undo it.
+    // Then check for cycles.
     if (this.topo.length < this.nodes.length) {
       this.disconnect(a, b);
     }
 
-    // Add the ID of the in-node to the out-node.
-    b.addArg(a);
     return this;
   }
 
+  /**
+   * Disconnect node a from node b.
+   * That is remove node a as an input to node b.
+   * @param {!Node} a
+   * @param {!Node} b
+   * @returns {DAG}
+   */
   disconnect(a, b) {
-    // const arr = this.G.get(a) || [];
-    // const arr2 = arr.filter(e => e !== b);
-    this.G.get(a).delete(b);
-    b.delArg(a);
+    if (this.G.has(a)) {
+      this.G.get(a).delete(b);
+      b.delArg(a);
+    }
     return this
   }
 
+  /**
+   * Recursively delete all the orphaned nodes.
+   * This mutates the DAG Map.
+   * @returns {DAG}
+   */
   clean() {
     this.orphans.forEach(e => this.del(e));
     if (this.orphans.length) {
@@ -435,15 +521,30 @@ const DAG = class {
     return this;
   }
 
+  /**
+   * Return an array of all the nodes that connects to the given node.
+   * @param {!Node} n
+   * @returns {!Array<!Node>}
+   */
   indegrees(n) {
     const hasN = isIn(n);
     return [...this.G.entries()].reduce(hasN, []);
   }
 
+  /**
+   * Return an array of all the nodes that the given node connects to.
+   * @param {!Node} n
+   * @returns {!Array<!Node>}
+   */
   outdegrees(n) {
     return [...this.G.get(n)];
   }
 
+  /**
+   * Return a Map object that describes this DAG, but with only the IDs as
+   * values.
+   * @returns {!Map}
+   */
   getIdG() {
     return [...this.G].reduce(
         (p, [k, s]) => p.set(grabId(k), new Set([...s].map(grabId))),
@@ -451,25 +552,36 @@ const DAG = class {
     )
   }
 
+  /**
+   * Compute the value of the DAG. That is, call the solve function in each
+   * of the nodes. The result is stored in an array, and this array is passed
+   * into the next node's solve function. Nodes are called to be solved in
+   * topological order, meaning it is guaranteed that any input a node needs
+   * will already have been calculated by a previous node.
+   * @returns {*}
+   */
   compute() {
     const m = removeOrphans(this.getIdG());
     const validTopoNodes = this.topo.filter(e => m.has(grabId(e)));
     const validTopoIds = validTopoNodes.map(grabId);
-
-    const errArr = [];
+    const errs = [];
     const solutionArr = validTopoNodes.reduce((p, n) => {
           const [err, s] = n.clean().solve(p, validTopoIds);
-          errArr.push(err);
+          errs.push(err);
           p.push(s);
           return p;
         }, []);
 
-    console.log(solutionArr);
-    console.log(errArr);
+    // console.log(solutionArr);
+    // console.log(errs);
 
     return tail(solutionArr);
   }
 
+  /**
+   * Dump the DAG to a JSON string.
+   * @returns {string}
+   */
   dump() {
     return JSON.stringify({
       G: [...this.getIdG()].map(([k, s]) => [k, [...s]]),
@@ -477,6 +589,10 @@ const DAG = class {
     });
   }
 
+  /**
+   * @param {!string} json A valid DAG Json String.
+   * @returns {boolean}
+   */
   read(json) {
     // Read the string
     const j = safeJsonParse(json);
@@ -513,7 +629,7 @@ const DAG = class {
         // Make sure that the order of each of the nodes args is the same as the
         // original.
         this.nodes.forEach(n => {
-          n._args = j.N.find(matchId(n.id)).args;
+          n._args = j.N.find(e => e.I === n.id).R;
         });
         return true;
       }
@@ -533,7 +649,7 @@ const DAG = class {
  const B = g.create('B');
  const C = g.create('C');
  const D = g.create('D');
- g.connect(D, A).connect(C, B).connect(B, A).connect(A, g.root);
+ g.connect(C, B).connect(B, A).connect(A, g.root);
  C.setMath(11);
  B.addEnum(11, 30).addEnum(12, 20);
  A.setMath('$1 - 1');

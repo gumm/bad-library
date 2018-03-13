@@ -1,10 +1,10 @@
 const rewire = require('rewire');
 const be = require('be-sert');
 const assert = require('assert');
-const DAG = rewire('../math/dag.js');
+const d = rewire('../math/dag.js');
 
 describe('The mathCleaner function', () => {
-  const mathCleaner = DAG.__get__('mathCleaner');
+  const mathCleaner = d.__get__('mathCleaner');
   it('allows simple math strings', () => {
     assert.strictEqual(mathCleaner('1 + 1'), '1 + 1');
   });
@@ -24,7 +24,7 @@ describe('The mathCleaner function', () => {
 });
 
 describe('The funcMaker function', () => {
-  const funcMaker = DAG.__get__('funcMaker');
+  const funcMaker = d.__get__('funcMaker');
   it('when given a value, returns a function that returns that value', () => {
     const [err, f] = funcMaker(10);
     assert.strictEqual(err, null);
@@ -56,7 +56,10 @@ describe('The funcMaker function', () => {
 describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
   describe('Root node is automatically created', () => {
-    const g = new DAG.DAG();
+    /**
+     * @type {DAG}
+     */
+    const g = new d.DAG();
     const root = g.root;
     it('its can be accessed with the property getter "root"',
         () => assert.ok(g.root));
@@ -77,7 +80,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
   });
 
   describe('Use the DAG to create nodes', () => {
-    const g = new DAG.DAG();
+    const g = new d.DAG();
     const root = g.root;
     const A = g.create('A');
     const B = g.create('B');
@@ -96,14 +99,11 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
         () => be.equalsArrays(g.orphans, [A, B, C, D, E, F]));
     it('they are also leaf nodes on creation',
         () => be.equalsArrays(g.leafs, [root, A, B, C, D, E, F]));
-    it('nodes can be acceded by name',
-        () => assert.deepStrictEqual(g.getAllByName('A'), [ A ]));
     it('creating nodes arn *not* idempotent. Multiple nodes can have ' +
         'the same name', () => {
       A1 = g.create('A');
       A2 = g.create('A');
       A3 = g.create('A');
-      assert.deepStrictEqual(g.getAllByName('A'), [ A, A1, A2, A3 ])
     });
     it('nodes with the same name are not the same nodes', () => {
       be.aFalse(A === A1);
@@ -114,12 +114,13 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       be.aFalse(A2 === A3);
     });
 
-    it('non-existent names is the empty array',
-        () => assert.deepStrictEqual(g.getAllByName('Dummy'), []));
   });
 
   describe('Use the DAG to connect nodes', () => {
-    const g = new DAG.DAG();
+    /**
+     * @type {DAG}
+     */
+    const g = new d.DAG();
     const root = g.root;
     const A = g.create('A');
     const B = g.create('B');
@@ -129,7 +130,10 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
     const F = g.create('F');
     it('When B is connected to A, A has B in its indegrees', () => {
       g.connect(B, A);
-      be.equalsArrays(g.indegrees(A), [B])
+      be.equalsArrays(g.indegrees(A), [B]);
+    });
+    it('and the A node has B.id in its arguments', () => {
+      be.equalsArrays(A.args, [B.id])
     });
     it('and B has A in its outdegrees', () => {
       be.equalsArrays(g.outdegrees(B), [A])
@@ -142,12 +146,19 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       g.connect(B, A);
       be.equalsArrays(g.outdegrees(B), [A]);
       be.equalsArrays(g.indegrees(A), [B]);
+      be.equalsArrays(A.args, [B.id]);
+      be.equalsArrays(B.args, []);
     });
     it('a connection that will result in a loop is illegal, ' +
         'and will not be honoured', () => {
+      g.connect(B, A);
       g.connect(A, B);
       be.equalsArrays(g.outdegrees(B), [A]);
       be.equalsArrays(g.indegrees(A), [B]);
+      be.equalsArrays(g.outdegrees(B), [A]);
+      be.equalsArrays(g.indegrees(A), [B]);
+      be.equalsArrays(A.args, [B.id]);
+      be.equalsArrays(B.args, []);
     });
     it('a node can have multiple in degrees', () => {
       g.connect(C, A);
@@ -180,7 +191,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
   });
 
   describe('Use the DAG to sort, disconnect an delete nodes nodes', () => {
-    const g = new DAG.DAG();
+    const g = new d.DAG();
     const A = g.create('A');
     const B = g.create('B');
     const C = g.create('C');
@@ -245,7 +256,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
   describe('Restrictions on a graph.', () => {
     // Create a graph, and all its nodes, but immediatly remove them from the
     // graph.
-    const g = new DAG.DAG();
+    const g = new d.DAG();
     const A = g.create('A');
     const B = g.create('B');
     const C = g.create('C');
@@ -335,7 +346,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
   });
 
   describe('Nodes can carry a mathematical formula', () => {
-    const g = new DAG.DAG();
+    const g = new d.DAG();
     const A = g.create('A');
     const B = g.create('B');
     const C = g.create('C');
@@ -402,7 +413,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
   });
 
   describe('Nodes can carry an enumerator', () => {
-    const g = new DAG.DAG();
+    const g = new d.DAG();
     const A = g.create('A');
     const B = g.create('B');
     g.connect(B, A).connect(A, g.root);
@@ -446,7 +457,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
   });
 
   describe('When DAG computes,', () => {
-    const g = new DAG.DAG();
+    const g = new d.DAG();
     const A = g.create('A');
     const B = g.create('B');
     const C = g.create('C');
@@ -496,7 +507,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
   });
 
   describe('A DAG can be serialized and de-serialized', () => {
-    const g = new DAG.DAG();
+    const g = new d.DAG();
     const A = g.create('A');
     const B = g.create('B');
     const C = g.create('C');
@@ -507,7 +518,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
     B.addEnum(3, 2.5).addEnum('A', 'B');
     A.setMath('($1 + 2.5) / $2');
 
-    const g2 = new DAG.DAG();
+    const g2 = new d.DAG();
     let s;
 
     it('it can be dumped to a JSON string.', () => {
