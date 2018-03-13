@@ -11,7 +11,7 @@ const mathCleaner = s => {
   const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'];
   const ref = ['$', ' '];
   const combined = [...arithmeticOperators, ...numbers, ...ref];
-  return Array.from(s).filter(e => combined.includes(e)).join('');
+  return [...s].filter(e => combined.includes(e)).join('');
 };
 
 /**
@@ -30,7 +30,11 @@ const funcMaker = fn => {
 /**
  * Convert a mathematical string, into  a function that returns the
  * solution.
- * @param {(!string|!number)} m
+ * @param {(!string|!number)} m The string to convert. It can be of the form
+ *    "12 / $4" in which case the token "$1" will be replaced by the token X[3].
+ *    This means that when the arithmetic is calculated, we only need to pass in
+ *    the variable "X" which should be an array of values, and we will be able
+ *    to solve the math.
  * @param {!Array<!Node>} a
  * @returns {[boolean, !Function]}
  */
@@ -158,18 +162,23 @@ function* idGen(opt_n) {
 const isIn = n => (p, [k, s]) => s.has(n) ? (p.push(k) && p) : p;
 
 /**
- * @param {!Iterator<number>} idMaker
+ * @param {!Iterator<number>} gen
  * @returns {function(!string):!Node}
  */
-const nodeMaker = idMaker => name => new Node(idMaker.next().value, name);
+const nodeMaker = gen => n => new Node(gen.next().value, n);
 
 /**
  * Find the biggest number in a list of numbers
  * @param {!Array<!number>} arr
  * @returns {!number}
  */
-const max = arr => Math.max.apply(undefined, arr);
+const max = arr => Math.max(...arr);
 
+/**
+ * Given a Json string, parse it without blowing up.
+ * @param json
+ * @returns {*}
+ */
 const safeJsonParse = json => {
   // This function cannot be optimised, it's best to
   // keep it small!
@@ -213,6 +222,22 @@ const grabId = n => n._id;
  */
 const tail = arr => arr[arr.length ? arr.length - 1 : undefined];
 
+
+/**
+ * @param {!number} precision
+ * @returns {function(!number): number}
+ */
+const pRound = precision => {
+  const factor = Math.pow(10, precision);
+  return number => Math.round(number * factor) / factor;
+};
+
+/**
+ * @param {*} any
+ * @returns {undefined}
+ */
+const alwaysUndef = any => undefined;
+
 /**
  * @type {Node}
  */
@@ -254,7 +279,17 @@ class Node {
      */
     this._enum = [];
 
-    this._func = () => undefined;
+    /**
+     * @type {function(*): (undefined|*)}
+     * @private
+     */
+    this._func = alwaysUndef;
+
+    /**
+     * @type {!number|undefined}
+     * @private
+     */
+    this._round = undefined;
 
     /**
      * @type {string|undefined}
@@ -276,6 +311,7 @@ class Node {
       this.setFallback(obj.D);
       this.setMath(obj.M);
       obj.E.forEach(e => this.addEnum(...e));
+      this.setRound(obj.R);
     }
   }
 
@@ -295,8 +331,9 @@ class Node {
       I: this.id,
       N: this.name,
       M: this._math,
-      R: this._args,
+      A: this._args,
       E: this._enum,
+      R: this._round,
       D: this._fallback
     };
   }
@@ -322,6 +359,21 @@ class Node {
    */
   set name(n) {
     this._name = n;
+  }
+
+  // -------------------------------------------------------------[ Fallback ]--
+  /**
+   * @param {*} n
+   */
+  setFallback(n) {
+    this._fallback = n;
+  }
+
+  /**
+   * @returns {*}
+   */
+  get fallback() {
+    return this._fallback;
   }
 
   // -----------------------------------------------------------------[ Args ]--
@@ -350,21 +402,6 @@ class Node {
     return this._args;
   }
 
-  // -------------------------------------------------------------[ Fallback ]--
-  /**
-   * @param {*} n
-   */
-  setFallback(n) {
-    this._fallback = n;
-  }
-
-  /**
-   * @returns {*}
-   */
-  get fallback() {
-    return this._fallback;
-  }
-
   // -----------------------------------------------------------------[ Math ]--
   /**
    * @param {!string|!number|undefined} s
@@ -372,8 +409,13 @@ class Node {
    */
   setMath(s) {
     this._math = s;
+
+    if (s !== undefined) {
+      this._enum = [];
+      this._round = undefined;
+    }
+
     this._errState = 'Changed';
-    this._enum = [];
     return this;
   }
 
@@ -384,6 +426,19 @@ class Node {
     return this._math;
   }
 
+  // -------------------------------------------------------------[ Rounding ]--
+  setRound(int) {
+    this._round = int;
+
+    if (int !== undefined) {
+      this._math = undefined;
+      this._enum = [];
+    }
+
+    this._errState = 'Changed';
+    return this;
+  };
+
   // -----------------------------------------------------------------[ Enum ]--
   /**
    * @param {*} k
@@ -393,7 +448,9 @@ class Node {
   addEnum(k, v) {
     if (k === undefined) { return this }
     this._enum = enumSet(this._enum, k, v);
+
     this._math = undefined;
+    this._round = undefined;
     this._errState = 'Changed';
     return this;
   }
@@ -417,11 +474,20 @@ class Node {
 
   // ----------------------------------------------------------------[ Solve ]--
   clean() {
+    // This node does math.
     if (this._math) {
       [this._errState, this._func] = mathFunc(this._math, this.args);
+
+    // This node does enums
     } else if (this._enum.length) {
       const m = new Map(this._enum);
       this._func = X => m.get(X[0]);
+      this._errState = null;
+
+    // This node does rounding
+    } else if (this._round !== undefined) {
+      const r = pRound(this._round);
+      this._func = X => r(X[0]);
       this._errState = null;
     }
     return this;
@@ -694,7 +760,7 @@ class DAG {
    */
   getIdG() {
     return [...this.G].reduce(
-        (p, [k, s]) => p.set(grabId(k), new Set([...s].map(grabId))),
+        (p, [k, s]) => p.set(k.id, new Set([...s].map(grabId))),
         new Map()
     )
   }
@@ -709,7 +775,7 @@ class DAG {
    */
   compute() {
     const m = removeOrphans(this.getIdG());
-    const validTopoNodes = this.topo.filter(e => m.has(grabId(e)));
+    const validTopoNodes = this.topo.filter(e => m.has(e.id));
     const validTopoIds = validTopoNodes.map(grabId);
     const errs = [];
     const solutionArr = validTopoNodes.reduce((p, n) => {
@@ -727,7 +793,7 @@ class DAG {
 
   /**
    * Dump the DAG to a JSON string.
-   * @returns {string}
+   * @returns {!string}
    */
   dump() {
     return JSON.stringify({
@@ -777,7 +843,7 @@ class DAG {
         // Make sure that the order of each of the nodes args is the same as the
         // original.
         this.nodes.forEach(n => {
-          n._args = j.N.find(e => e.I === n.id).R;
+          n._args = j.N.find(e => e.I === n.id).A;
         });
         return true;
       }

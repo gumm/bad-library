@@ -345,7 +345,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
   });
 
-  describe('Nodes can carry a mathematical formula', () => {
+  describe('Nodes can do math.', () => {
     const g = new d.DAG();
     const A = g.create('A');
     const B = g.create('B');
@@ -412,7 +412,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
   });
 
-  describe('Nodes can carry an enumerator', () => {
+  describe('Nodes can do enumeration', () => {
     const g = new d.DAG();
     const A = g.create('A');
     const B = g.create('B');
@@ -454,6 +454,19 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
 
 
+  });
+
+  describe('Nodes can do rounding', () => {
+    const g = new d.DAG();
+    const A = g.create('A');
+    const B = g.create('B');
+    g.connect(B, A).connect(A, g.root);
+    B.setMath(12.34567809);
+
+    it('When set, the node rounds its incomming value', () => {
+      A.setRound(2);
+      assert.strictEqual(g.compute(), 12.35)
+    });
   });
 
   describe('When DAG computes,', () => {
