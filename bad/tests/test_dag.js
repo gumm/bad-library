@@ -290,7 +290,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.deepStrictEqual(g.ids, [ 0, 2, 6, 4, 1, 3, 5 ]);
 
       // We then change the node ID to any of the existing node ids.
-      ERR.id = 1; // The same as A
+      ERR._id = 1; // The same as A
       const result = g.add(ERR);
 
       // The result is false - no success.

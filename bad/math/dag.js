@@ -1,3 +1,4 @@
+const argRefSymbol = 'X';
 
 /**
  * Given a string, sanitize it and only allow numbers and arithmetic
@@ -19,7 +20,8 @@ const mathCleaner = s => {
  */
 const funcMaker = fn => {
   try {
-    return [null, new Function('X', `try { return ${fn}; } catch(e) { return; }`)];
+    return [null, new Function(
+        argRefSymbol, `try { return ${fn}; } catch(e) { return; }`)];
   } catch(err) {
     return [`Could not make a function with "${fn}"`, () => undefined];
   }
@@ -37,7 +39,7 @@ const mathFunc = (m, a) => {
   let f = () => undefined;
   if (typeof m === 'string') {
     const s = a.reduce(
-        (p, c, i) => p.split(`$${i + 1}`).join(`X[${i}]`),
+        (p, c, i) => p.split(`$${i + 1}`).join(`${argRefSymbol}[${i}]`),
         mathCleaner(m)
     );
     if (!s.includes('$')) {
@@ -141,6 +143,11 @@ const removeOrphans = G => {
   return G;
 };
 
+/**
+ * A generator function to produce consecutive ids, starting from
+ * n + 1 of n. If n is not given, use 0.
+ * @param {number|undefined} n
+ */
 function* idGen(n) {
   let i = n ? n + 1 : 0;
   while (true)
@@ -163,12 +170,37 @@ const safeJsonParse = json => {
   return parsed;
 };
 
+/**
+ * Given an array of two-element arrays, and a key and value,
+ * return the array with a new two element array item, containing the
+ * key and value, added. This method does not allow the same elements to
+ * be added more than once.
+ * @param {!Array<!Array<*>>} arr
+ * @param {*} k
+ * @param {*} v
+ * @returns {!Array<!Array<*>>}
+ */
 const enumSet = (arr, k, v) => [...new Map(arr).set(k, v).entries()];
 
+/**
+ * Given an array of two-element arrays, and a key,
+ * remove all items where the first element of the inner array matches the key.
+ * @param {!Array<!Array<*>>} arr
+ * @param {*} k
+ */
 const enumUnSet = (arr, k) => arr.filter(e => e[0] !== k);
 
+/**
+ * @param {!Node} n
+ * @returns {!number}
+ */
 const grabId = n => n._id;
 
+/**
+ * Return the last element of an array, or undefined if the array is empty.
+ * @param {!Array<*>} arr
+ * @returns {*}
+ */
 const tail = arr => arr[arr.length ? arr.length - 1 : undefined];
 
 /**
@@ -182,19 +214,54 @@ const Node = class {
    * @param {Object|undefined} obj
    */
   constructor(id, name, obj = undefined) {
+    /**
+     * @type {!number}
+     * @private
+     */
     this._id = id;
+
+    /**
+     * @type {!string}
+     * @private
+     */
     this._name = name;
+
+    /**
+     * @type {!Array<!number>}
+     * @private
+     */
     this._args = [];
+
+    /**
+     * @type {!string|!number|undefined}
+     * @private
+     */
     this._math = undefined;
+
+    /**
+     * @type {Array<Array<*>>}
+     * @private
+     */
     this._enum = [];
+
     this._func = () => undefined;
+
+    /**
+     * @type {string|undefined}
+     * @private
+     */
     this._errState = 'Not init';
+
+    /**
+     * @type {*}
+     * @private
+     */
     this._fallback = undefined;
 
     // We overwrite *some* elements, but we keep the _args and _errState both
     // as default, because the Graph will populate those.
     if (obj) {
-      this.id = obj.I;
+      this._id = obj.I;
       this.name = obj.N;
       this.setFallback(obj.D);
       this.setMath(obj.M);
@@ -226,47 +293,73 @@ const Node = class {
 
 
   // -------------------------------------------------------------[ Identity ]--
+  /**
+   * @returns {!number}
+   */
   get id() {
     return this._id;
   }
 
-  set id(id) {
-    this._id = id;
-  }
-
+  /**
+   * @returns {!string}
+   */
   get name() {
     return this._name;
   }
 
+  /**
+   * @param {!string} n
+   */
   set name(n) {
     this._name = n;
   }
 
   // -----------------------------------------------------------------[ Args ]--
+  /**
+   * Add a argument to the node.
+   * @param {!Node} n
+   */
   addArg(n) {
     this._args.push(n._id);
     this._errState = 'Changed';
   }
 
+  /**
+   * Remove an argument from the node.
+   * @param {!Node} n
+   */
   delArg(n) {
     this._args = this._args.filter(e => e !== n._id);
     this._errState = 'Changed';
   }
 
+  /**
+   * @returns {!Array<!number>}
+   */
   get args() {
     return this._args;
   }
 
   // -------------------------------------------------------------[ Fallback ]--
+  /**
+   * @param {*} n
+   */
   setFallback(n) {
     this._fallback = n;
   }
 
+  /**
+   * @returns {*}
+   */
   get fallback() {
     return this._fallback;
   }
 
   // -----------------------------------------------------------------[ Math ]--
+  /**
+   * @param {!string|!number|undefined} s
+   * @returns {Node}
+   */
   setMath(s) {
     this._math = s;
     this._errState = 'Changed';
@@ -274,6 +367,9 @@ const Node = class {
     return this;
   }
 
+  /**
+   * @returns {string|number|undefined}
+   */
   get math() {
     return this._math;
   }
@@ -282,7 +378,7 @@ const Node = class {
   /**
    * @param {*} k
    * @param {*} v
-   * @returns {Node}
+   * @returns {!Node}
    */
   addEnum(k, v) {
     if (k === undefined) { return this }
@@ -292,12 +388,19 @@ const Node = class {
     return this;
   }
 
+  /**
+   * @param {*} k
+   * @returns {!Node}
+   */
   delEnum(k) {
     this._enum = enumUnSet(this._enum, k);
     this._errState = 'Changed';
     return this;
   }
 
+  /**
+   * @returns {Array<Array<*>>}
+   */
   get enum() {
     return this._enum;
   }
@@ -314,16 +417,25 @@ const Node = class {
     return this;
   }
 
+  /**
+   * Given two lists, this returns the solution for this node.
+   * Both arrays are topologically ordered, and maps to one another.
+   * This node's own args array contains the ids of the nodes that connect
+   * to this node, and so the solutions of those nodes can be found in the
+   * first array (p).
+   * Thus, to get to an arg value the logic is:
+   *     argId -> indexOf arg id in topoIds -> p[]
+   * @param {!Array<*>} p The solution so far. In topo-order.
+   * @param {!Array<!number>} topoIds The topo-ordered list of node IDs
+   * @returns {*}
+   */
   solve(p, topoIds) {
-    const argArr = this.args.map(id => {
-      const sI = topoIds.findIndex(e => e === id);
-      return p[sI];
-    });
+    const argArr = this.args.map(id => p[topoIds.indexOf(id)]);
 
     if(!this._errState) {
       const result = this._func(argArr);
       // Make sure things like false, null, 0 don't trigger the fallback.
-      return  result === undefined ? [null, this._fallback] : [null, result];
+      return  result === undefined ? [null, this.fallback] : [null, result];
     } else {
       this.clean()
     }
