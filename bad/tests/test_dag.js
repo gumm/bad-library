@@ -469,6 +469,114 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
     });
   });
 
+  describe('Nodes can do pass-filtering', () => {
+    const g = new d.DAG();
+    const A = g.create('A');
+    const B = g.create('B');
+    g.connect(B, A).connect(A, g.root);
+    B.setMath(3);
+
+    it('It passes when the value is bigger than x', () => {
+      A.setFilter('>', 2, undefined, undefined, 'vu');
+      assert.strictEqual(g.compute(), 3)
+    });
+
+    it('It passes when the value is eq than x', () => {
+      A.setFilter('>=', 3, undefined, undefined, 'vu');
+      assert.strictEqual(g.compute(), 3)
+    });
+
+    it('It fails of the value is smaller than x', () => {
+      A.setFilter('>=', 4, undefined, undefined, 'vu');
+      assert.strictEqual(g.compute(), undefined)
+    });
+
+
+    it('It passes when the value is smaller than x', () => {
+      A.setFilter(undefined, undefined, '<', 4, 'vu');
+      assert.strictEqual(g.compute(), 3)
+    });
+
+    it('It passes when the value is eq than x', () => {
+      A.setFilter(undefined, undefined, '<=', 3, 'vu');
+      assert.strictEqual(g.compute(), 3)
+    });
+
+    it('It fails of the value is smaller than x', () => {
+      A.setFilter(undefined, undefined, '<', 2, 'vu');
+      assert.strictEqual(g.compute(), undefined)
+    });
+
+
+    it('It passes when the value is between than x and y', () => {
+      A.setFilter('>', 2, '<', 4, 'vu');
+      assert.strictEqual(g.compute(), 3)
+    });
+
+    it('It passes when the value is between than x and y', () => {
+      A.setFilter('>=', 3, '<', 4, 'vu');
+      assert.strictEqual(g.compute(), 3)
+    });
+
+    it('It passes when the value is between than x and y', () => {
+      A.setFilter('>=', 3, '<=', 3, 'vu');
+      assert.strictEqual(g.compute(), 3)
+    });
+
+
+    it('It fails if any of the predicates fail', () => {
+      A.setFilter('>', 3, '<', 4, 'vu');
+      assert.strictEqual(g.compute(), undefined)
+    });
+
+    it('It fails if any of the predicates fail', () => {
+      A.setFilter('>=', 3, '<', 3, 'vu');
+      assert.strictEqual(g.compute(), undefined)
+    });
+
+    it('It fails if any of the predicates fail', () => {
+      A.setFilter('>=', 3, '<=', 2, 'vu');
+      assert.strictEqual(g.compute(), undefined)
+    });
+
+    it('"pv" mode passes with the value', () => {
+      A.setFilter(undefined, undefined, '<=', 3, 'vu');
+      assert.strictEqual(g.compute(), 3)
+    });
+
+    it('"pv" mode fails with undefined', () => {
+      A.setFilter(undefined, undefined, '<', 3, 'vu');
+      assert.strictEqual(g.compute(), undefined)
+    });
+
+    it('"10" mode passes with the 1', () => {
+      A.setFilter(undefined, undefined, '<=', 3, '10');
+      assert.strictEqual(g.compute(), 1)
+    });
+
+    it('"10" mode fails with 0', () => {
+      A.setFilter(undefined, undefined, '<', 3, '10');
+      assert.strictEqual(g.compute(), 0)
+    });
+
+    it('"tf" mode passes with true', () => {
+      A.setFilter(undefined, undefined, '<=', 3, 'tf');
+      assert.strictEqual(g.compute(), true)
+    });
+
+    it('"tf" mode fails with false', () => {
+      A.setFilter(undefined, undefined, '<', 3, 'tf');
+      assert.strictEqual(g.compute(), false)
+    });
+
+
+
+
+
+
+
+  });
+
   describe('When DAG computes,', () => {
     const g = new d.DAG();
     const A = g.create('A');

@@ -280,6 +280,12 @@ class Node {
     this._enum = [];
 
     /**
+     * @type {!Array<!string|!number|undefined>}
+     * @private
+     */
+    this._filter = [];
+
+    /**
      * @type {function(*): (undefined|*)}
      * @private
      */
@@ -312,6 +318,7 @@ class Node {
       this.setMath(obj.M);
       obj.E.forEach(e => this.addEnum(...e));
       this.setRound(obj.R);
+      this.setFilter(...obj.F);
     }
   }
 
@@ -323,8 +330,10 @@ class Node {
    *    N: !string,
    *    M: (!number|!string|undefined),
    *    R: !Array<!number>,
-   *    E: Array<[*,*]>,
-   *    D: *}}
+   *    E: !Array<[*,*]>,
+   *    D: *,
+   *    F: !Array<!number|!string|!undefined>
+   *    }}
    */
   dump() {
     return {
@@ -334,7 +343,8 @@ class Node {
       A: this._args,
       E: this._enum,
       R: this._round,
-      D: this._fallback
+      D: this._fallback,
+      F: this._filter
     };
   }
 
@@ -413,6 +423,7 @@ class Node {
     if (s !== undefined) {
       this._enum = [];
       this._round = undefined;
+      this._filter = [];
     }
 
     this._errState = 'Changed';
@@ -433,6 +444,36 @@ class Node {
     if (int !== undefined) {
       this._math = undefined;
       this._enum = [];
+      this._filter = [];
+    }
+
+    this._errState = 'Changed';
+    return this;
+  };
+
+  // ---------------------------------------------------------------[ Filter ]--
+  /**
+   * @param {!string|undefined} be Bigger or eq. The only strings
+   *    allowed are ">" and ">="
+   * @param {!number|undefined} floor The lower bound. If undefined, the
+   *    predicate will be ignored.
+   * @param {!string|undefined} se Smaller than or eq. The only strings allowed
+   *    are "<" and "<="
+   * @param {!number|undefined} ceil The ceiling value. If undefined
+   *    the predicate will be ignored.
+   * @param {!string} rv Result value. What is passed along if the filter
+   *    either passes or fails. The only allowed values are:
+   *    "vu" - The input value on pass, else undefined
+   *    "10" - The number 1 on pass, else the number 0
+   *    "tf" - The boolean true if passed, else false.
+   * @returns {Node}
+   */
+  setFilter(be, floor, se, ceil, rv) {
+    const f = [be, floor, se, ceil, rv];
+    if (f.filter(e => e !== undefined).length) {
+      this._filter = [...f];
+      this._math = undefined;
+      this._enum = [];
     }
 
     this._errState = 'Changed';
@@ -451,6 +492,7 @@ class Node {
 
     this._math = undefined;
     this._round = undefined;
+    this._filter = [];
     this._errState = 'Changed';
     return this;
   }
@@ -489,7 +531,41 @@ class Node {
       const r = pRound(this._round);
       this._func = X => r(X[0]);
       this._errState = null;
+
+    // This node filtering
+    } else if (this._filter.length) {
+      const [be, floor, se, ceil, rv] = this._filter;
+
+      // Build the predicate
+      let pFloor = v => true;
+      let pCeil = v => true;
+      if (be && floor !== undefined) {
+        pFloor = be.includes('=') ? v => v >= floor :  v => v > floor;
+      }
+      if (se && ceil !== undefined) {
+        pCeil = se.includes('=') ? v => v <= ceil :  v => v < ceil;
+      }
+      const predicate = v => pFloor(v) && pCeil(v);
+
+      // Build the output.
+      let f;
+      switch (rv) {
+        case 'vu':
+          f = v => predicate(v) ? v : undefined;
+          break;
+        case '10':
+          f = v => predicate(v) ? 1 : 0;
+          break;
+        default:
+          f = v => predicate(v);
+      }
+
+      this._func = X => {
+        return f(X[0])
+      };
+      this._errState = null;
     }
+
     return this;
   }
 
