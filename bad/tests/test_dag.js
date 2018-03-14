@@ -571,12 +571,6 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.strictEqual(g.compute(), false)
     });
 
-
-
-
-
-
-
   });
 
   describe('When DAG computes,', () => {
@@ -626,7 +620,6 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.strictEqual(g.compute(), 20);
       be.equalsArrays(g.nodes, [g.root, A, C]);
     })
-
   });
 
   describe('A DAG can be serialized and de-serialized', () => {
@@ -635,11 +628,13 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
     const B = g.create('B');
     const C = g.create('C');
     const D = g.create('D');
-    g.connect(C, B).connect(B, A).connect(D, A).connect(A, g.root);
+    const E = g.create('D');
+    g.connect(C, E).connect(E, B).connect(B, A).connect(D, A).connect(A, g.root);
     D.setMath(10);
     C.setMath(3);
     B.addEnum(3, 2.5).addEnum('A', 'B');
     A.setMath('($1 + 2.5) / $2');
+    E.setFilter('vu', '>', 2, '<=', 5);
 
     const g2 = new d.DAG();
     let s;

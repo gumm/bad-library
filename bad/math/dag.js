@@ -365,26 +365,27 @@ class Node {
 
   //------------------------------------------------------------------[ Save ]--
   /**
-   * Dump the node to a Json string.
    * @returns {{
-   *    I: !number,
-   *    N: !string,
-   *    M: (!number|!string|undefined),
-   *    R: !Array<!number>,
-   *    E: !Array<[*,*]>,
-   *    D: *,
-   *    F: !Array<!number|!string|!undefined>
-   *    }}
+   *    I: number,
+   *    N: string,
+   *    A: Array<number>,
+   *    D: *|undefined,
+   *    M: string|number|undefined,
+   *    E: Array<Array<*>>|undefined,
+   *    R: number|undefined,
+   *    F: Array<string|number|undefined>|undefined
+   *      }}
    */
   dump() {
     return {
       I: this.id,
       N: this.name,
-      M: this._math,
       A: this._args,
+      D: this._fallback,
+
+      M: this._math,
       E: this._enum,
       R: this._round,
-      D: this._fallback,
       F: this._filter
     };
   }
@@ -959,17 +960,16 @@ class DAG {
  const B = g.create('B');
  const C = g.create('C');
  const D = g.create('D');
- g.connect(C, B).connect(B, A).connect(A, g.root);
- C.setMath(11);
- B.addEnum(11, 30).addEnum(12, 20);
- A.setMath('$1 - 1');
- g.compute();
- g.connect(D, A);
- D.setMath(5);
- A.setMath('$1 - $2')
- g.compute();
- g.disconnect(B, A);
- g.compute();
+ const E = g.create('D');
+ g.connect(C, E).connect(E, B).connect(B, A).connect(D, A).connect(A, g.root);
+ D.setMath(10);
+ C.setMath(3);
+ B.addEnum(3, 2.5).addEnum('A', 'B');
+ A.setMath('($1 + 2.5) / $2');
+ E.setFilter('vu', '>', 2, '<=', 5);
+
+ const g2 = new d.DAG();
+ let s;
 
 
 */
