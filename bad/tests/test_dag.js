@@ -476,96 +476,98 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
     g.connect(B, A).connect(A, g.root);
     B.setMath(3);
 
-    it('It passes when the value is bigger than x', () => {
-      A.setFilter('>', 2, undefined, undefined, 'vu');
+    // Bigger than (High-Pass)
+    it('Test value bigger than n (Pass)', () => {
+      A.setFilter('vu', '>', 2);
       assert.strictEqual(g.compute(), 3)
     });
 
-    it('It passes when the value is eq than x', () => {
-      A.setFilter('>=', 3, undefined, undefined, 'vu');
-      assert.strictEqual(g.compute(), 3)
-    });
-
-    it('It fails of the value is smaller than x', () => {
-      A.setFilter('>=', 4, undefined, undefined, 'vu');
+    it('Test value bigger than n (Fail)', () => {
+      A.setFilter('vu', '>', 4);
       assert.strictEqual(g.compute(), undefined)
     });
 
-
-    it('It passes when the value is smaller than x', () => {
-      A.setFilter(undefined, undefined, '<', 4, 'vu');
+    it('Test value bigger or eq than n (Pass)', () => {
+      A.setFilter('vu', '>=', 3);
       assert.strictEqual(g.compute(), 3)
     });
 
-    it('It passes when the value is eq than x', () => {
-      A.setFilter(undefined, undefined, '<=', 3, 'vu');
-      assert.strictEqual(g.compute(), 3)
-    });
-
-    it('It fails of the value is smaller than x', () => {
-      A.setFilter(undefined, undefined, '<', 2, 'vu');
+    it('Test value bigger or eq than n (Fail)', () => {
+      A.setFilter('vu', '>=', 4);
       assert.strictEqual(g.compute(), undefined)
     });
 
-
-    it('It passes when the value is between than x and y', () => {
-      A.setFilter('>', 2, '<', 4, 'vu');
+    // Smaller than (Low Pass)
+    it('Test value smaller than n (Pass)', () => {
+      A.setFilter('vu', '<', 4);
       assert.strictEqual(g.compute(), 3)
     });
 
-    it('It passes when the value is between than x and y', () => {
-      A.setFilter('>=', 3, '<', 4, 'vu');
-      assert.strictEqual(g.compute(), 3)
-    });
-
-    it('It passes when the value is between than x and y', () => {
-      A.setFilter('>=', 3, '<=', 3, 'vu');
-      assert.strictEqual(g.compute(), 3)
-    });
-
-
-    it('It fails if any of the predicates fail', () => {
-      A.setFilter('>', 3, '<', 4, 'vu');
+    it('Test value smaller than n (Fail)', () => {
+      A.setFilter('vu', '<', 2);
       assert.strictEqual(g.compute(), undefined)
     });
 
-    it('It fails if any of the predicates fail', () => {
-      A.setFilter('>=', 3, '<', 3, 'vu');
-      assert.strictEqual(g.compute(), undefined)
-    });
-
-    it('It fails if any of the predicates fail', () => {
-      A.setFilter('>=', 3, '<=', 2, 'vu');
-      assert.strictEqual(g.compute(), undefined)
-    });
-
-    it('"pv" mode passes with the value', () => {
-      A.setFilter(undefined, undefined, '<=', 3, 'vu');
+    it('Test value smaller or eq than n (Pass)', () => {
+      A.setFilter('vu', '<=', 3);
       assert.strictEqual(g.compute(), 3)
     });
 
-    it('"pv" mode fails with undefined', () => {
-      A.setFilter(undefined, undefined, '<', 3, 'vu');
+    it('Test value smaller or eq than n (Fail)', () => {
+      A.setFilter('vu', '<=', 2);
+      assert.strictEqual(g.compute(), undefined)
+    });
+
+    // Between values (Band Pass)
+    it('Test value between n and p (Pass)', () => {
+      A.setFilter('vu', '<', 4, '>', 2);
+      assert.strictEqual(g.compute(), 3)
+    });
+
+    it('Test value between n and p (Fail)', () => {
+      A.setFilter('vu', '<', 4, '>', 3);
+      assert.strictEqual(g.compute(), undefined)
+    });
+
+    // Exactly equal
+    it('Test value exactly equal (Pass)', () => {
+      A.setFilter('vu', '==', 3);
+      assert.strictEqual(g.compute(), 3)
+    });
+
+    it('Test value exactly equal (Fail)', () => {
+      A.setFilter('vu', '==', 3.00001);
+      assert.strictEqual(g.compute(), undefined)
+    });
+
+    // Output formatting.
+    it('"vu" mode passes with the value', () => {
+      A.setFilter('vu', '<=', 3);
+      assert.strictEqual(g.compute(), 3)
+    });
+
+    it('"vu" mode fails with undefined', () => {
+      A.setFilter('vu', '<', 3);
       assert.strictEqual(g.compute(), undefined)
     });
 
     it('"10" mode passes with the 1', () => {
-      A.setFilter(undefined, undefined, '<=', 3, '10');
+      A.setFilter('10', '<=', 3);
       assert.strictEqual(g.compute(), 1)
     });
 
     it('"10" mode fails with 0', () => {
-      A.setFilter(undefined, undefined, '<', 3, '10');
+      A.setFilter('10', '<', 3);
       assert.strictEqual(g.compute(), 0)
     });
 
     it('"tf" mode passes with true', () => {
-      A.setFilter(undefined, undefined, '<=', 3, 'tf');
+      A.setFilter('tf','<=', 3);
       assert.strictEqual(g.compute(), true)
     });
 
     it('"tf" mode fails with false', () => {
-      A.setFilter(undefined, undefined, '<', 3, 'tf');
+      A.setFilter('tf','<', 3);
       assert.strictEqual(g.compute(), false)
     });
 

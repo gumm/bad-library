@@ -1,6 +1,53 @@
 const argRefSymbol = 'X';
 
 /**
+ * @returns {undefined}
+ */
+const alwaysUndef = () => undefined;
+
+/**
+ * @returns {boolean}
+ */
+const alwaysFalse = () => false;
+
+/**
+ * Given a predicate and a target value. return a function that takes a
+ * value to test against the predicate.
+ * Junk input always results in a failing test.
+ * @param {!string} p Predicate
+ * @param {!number} pVal A value
+ * @returns {!function(!number): boolean}
+ */
+const makeTest = (p, pVal) => {
+  const m = {
+    '==': v => v === pVal,
+    '<=': v => v <= pVal,
+    '>=': v => v >= pVal,
+    '<': v => v < pVal,
+    '>': v => v > pVal
+  };
+  return m[p] || alwaysFalse;
+};
+
+/**
+ * @param {!string} rv Return value type. Can be:
+ *    'vu': Pass the input value through if it passes and undefined if it fails.
+ *    '10': Pass the number 1 if it passes, else 0
+ *    'tf': Pass with true, else fail.
+ *    Junk input always results in a failing test.
+ * @param test
+ * @returns {*|(function(*): boolean)}
+ */
+const makeResult = (rv, test) => {
+  const m = {
+    'vu': v => test(v) ? v : undefined,
+    '10': v => test(v) ? 1 : 0,
+    'tf': v => test(v)
+  };
+  return m[rv] || alwaysUndef;
+};
+
+/**
  * Given a string, sanitize it and only allow numbers and arithmetic
  * operators
  * @param {!string} s
@@ -23,7 +70,7 @@ const funcMaker = fn => {
     return [null, new Function(
         argRefSymbol, `try { return ${fn}; } catch(e) { return; }`)];
   } catch(err) {
-    return [`Could not make a function with "${fn}"`, () => undefined];
+    return [`Could not make a function with "${fn}"`, alwaysUndef];
   }
 };
 
@@ -40,7 +87,7 @@ const funcMaker = fn => {
  */
 const mathFunc = (m, a) => {
   let err = 'Unable to clean math';
-  let f = () => undefined;
+  let f = alwaysUndef;
   if (typeof m === 'string') {
     const s = a.reduce(
         (p, c, i) => p.split(`$${i + 1}`).join(`${argRefSymbol}[${i}]`),
@@ -231,12 +278,6 @@ const pRound = precision => {
   const factor = Math.pow(10, precision);
   return number => Math.round(number * factor) / factor;
 };
-
-/**
- * @param {*} any
- * @returns {undefined}
- */
-const alwaysUndef = any => undefined;
 
 /**
  * @type {Node}
@@ -453,23 +494,22 @@ class Node {
 
   // ---------------------------------------------------------------[ Filter ]--
   /**
-   * @param {!string|undefined} be Bigger or eq. The only strings
-   *    allowed are ">" and ">="
-   * @param {!number|undefined} floor The lower bound. If undefined, the
-   *    predicate will be ignored.
-   * @param {!string|undefined} se Smaller than or eq. The only strings allowed
-   *    are "<" and "<="
-   * @param {!number|undefined} ceil The ceiling value. If undefined
-   *    the predicate will be ignored.
    * @param {!string} rv Result value. What is passed along if the filter
    *    either passes or fails. The only allowed values are:
    *    "vu" - The input value on pass, else undefined
    *    "10" - The number 1 on pass, else the number 0
    *    "tf" - The boolean true if passed, else false.
+   * @param {!string} p1 Predicate. Must be one of:
+   *    ==, <=, >=, <, >
+   * @param {!number|undefined} v1 Value with which to test the predicate
+   * @param {!string=} opt_p2 Predicate. A second predicate so we can do
+   *    range filtering. Must be one of:
+   *    ==, <=, >=, <, >
+   * @param {!number=} opt_v2 Value with which to test the 2nd predicate
    * @returns {Node}
    */
-  setFilter(be, floor, se, ceil, rv) {
-    const f = [be, floor, se, ceil, rv];
+  setFilter(rv, p1, v1, opt_p2, opt_v2) {
+    const f = [rv, p1, v1, opt_p2, opt_v2];
     if (f.filter(e => e !== undefined).length) {
       this._filter = [...f];
       this._math = undefined;
@@ -534,32 +574,12 @@ class Node {
 
     // This node filtering
     } else if (this._filter.length) {
-      const [be, floor, se, ceil, rv] = this._filter;
-
-      // Build the predicate
-      let pFloor = v => true;
-      let pCeil = v => true;
-      if (be && floor !== undefined) {
-        pFloor = be.includes('=') ? v => v >= floor :  v => v > floor;
+      const [rv, p1, v1, opt_p2, opt_v2] = this._filter;
+      let P = makeTest(p1, v1);
+      if (opt_p2 && opt_v2) {
+        P = v => makeTest(p1, v1)(v) &&  makeTest(opt_p2, opt_v2)(v);
       }
-      if (se && ceil !== undefined) {
-        pCeil = se.includes('=') ? v => v <= ceil :  v => v < ceil;
-      }
-      const predicate = v => pFloor(v) && pCeil(v);
-
-      // Build the output.
-      let f;
-      switch (rv) {
-        case 'vu':
-          f = v => predicate(v) ? v : undefined;
-          break;
-        case '10':
-          f = v => predicate(v) ? 1 : 0;
-          break;
-        default:
-          f = v => predicate(v);
-      }
-
+      const f = makeResult(rv, P);
       this._func = X => {
         return f(X[0])
       };
