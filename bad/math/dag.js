@@ -1,3 +1,5 @@
+const R = require('ramda');
+
 const argRefSymbol = 'X';
 
 /**
@@ -339,6 +341,12 @@ class Node {
     this._round = undefined;
 
     /**
+     * @type {!Array<string|number>|undefined}
+     * @private
+     */
+    this._path = undefined;
+
+    /**
      * @type {string|undefined}
      * @private
      */
@@ -355,11 +363,13 @@ class Node {
     if (obj) {
       this._id = obj.I;
       this.name = obj.N;
+
       this.setFallback(obj.D);
       this.setMath(obj.M);
       obj.E.forEach(e => this.addEnum(...e));
       this.setRound(obj.R);
       this.setFilter(...obj.F);
+      this.setPath(...obj.P);
     }
   }
 
@@ -386,7 +396,8 @@ class Node {
       M: this._math,
       E: this._enum,
       R: this._round,
-      F: this._filter
+      F: this._filter,
+      P: this._path
     };
   }
 
@@ -456,6 +467,32 @@ class Node {
 
   // -----------------------------------------------------------------[ Math ]--
   /**
+   * @param a
+   * @returns {Node}
+   */
+  setPath(...a) {
+    this._path = [...a];
+
+    if (this._path.length) {
+      this._enum = [];
+      this._filter = [];
+      this._round = undefined;
+      this._math = undefined;
+    }
+
+    this._errState = 'Changed';
+    return this;
+  }
+
+  /**
+   * @returns {Array<string|number>}
+   */
+  get path() {
+    return this._path;
+  }
+
+  // -----------------------------------------------------------------[ Math ]--
+  /**
    * @param {!string|!number|undefined} s
    * @returns {Node}
    */
@@ -463,6 +500,7 @@ class Node {
     this._math = s;
 
     if (s !== undefined) {
+      this._path = [];
       this._enum = [];
       this._round = undefined;
       this._filter = [];
@@ -484,6 +522,7 @@ class Node {
     this._round = int;
 
     if (int !== undefined) {
+      this._path = [];
       this._math = undefined;
       this._enum = [];
       this._filter = [];
@@ -511,7 +550,9 @@ class Node {
    */
   setFilter(rv, p1, v1, opt_p2, opt_v2) {
     const f = [rv, p1, v1, opt_p2, opt_v2];
+
     if (f.filter(e => e !== undefined).length) {
+      this._path = [];
       this._filter = [...f];
       this._math = undefined;
       this._enum = [];
@@ -531,9 +572,11 @@ class Node {
     if (k === undefined) { return this }
     this._enum = enumSet(this._enum, k, v);
 
+    this._path = [];
     this._math = undefined;
     this._round = undefined;
     this._filter = [];
+
     this._errState = 'Changed';
     return this;
   }
@@ -562,7 +605,7 @@ class Node {
       [this._errState, this._func] = mathFunc(this._math, this.args);
 
     // This node does enums
-    } else if (this._enum.length) {
+    } else if (this._enum && this._enum.length) {
       const m = new Map(this._enum);
       this._func = X => m.get(X[0]);
       this._errState = null;
@@ -574,16 +617,20 @@ class Node {
       this._errState = null;
 
     // This node filtering
-    } else if (this._filter.length) {
+    } else if (this._filter && this._filter.length) {
       const [rv, p1, v1, opt_p2, opt_v2] = this._filter;
       let P = makeTest(p1, v1);
       if (opt_p2 && opt_v2) {
         P = v => makeTest(p1, v1)(v) &&  makeTest(opt_p2, opt_v2)(v);
       }
       const f = makeResult(rv, P);
-      this._func = X => {
-        return f(X[0])
-      };
+      this._func = X => f(X[0]);
+      this._errState = null;
+
+    // This node can access data on a path.
+    } else if (this._path && this._path.length) {
+      const f = R.pathOr(undefined, this._path);
+      this._func = (X, data) => f(data);
       this._errState = null;
     }
 
@@ -600,13 +647,14 @@ class Node {
    *     argId -> indexOf arg id in topoIds -> p[]
    * @param {!Array<*>} p The solution so far. In topo-order.
    * @param {!Array<!number>} topoIds The topo-ordered list of node IDs
+   * @param {Object=} opt_d
    * @returns {*}
    */
-  solve(p, topoIds) {
+  solve(p, topoIds, opt_d) {
     const argArr = this.args.map(id => p[topoIds.indexOf(id)]);
 
     if(!this._errState) {
-      const result = this._func(argArr);
+      const result = this._func(argArr, opt_d);
       // Make sure things like false, null, 0 don't trigger the fallback.
       return  result === undefined ? [null, this.fallback] : [null, result];
     } else {
@@ -868,15 +916,16 @@ class DAG {
    * into the next node's solve function. Nodes are called to be solved in
    * topological order, meaning it is guaranteed that any input a node needs
    * will already have been calculated by a previous node.
+   * @param {Object=} opt_d
    * @returns {*}
    */
-  compute() {
+  solve(opt_d) {
     const m = removeOrphans(this.getIdG());
     const validTopoNodes = this.topo.filter(e => m.has(e.id));
     const validTopoIds = validTopoNodes.map(grabId);
     const errs = [];
     const solutionArr = validTopoNodes.reduce((p, n) => {
-          const [err, s] = n.clean().solve(p, validTopoIds);
+          const [err, s] = n.clean().solve(p, validTopoIds, opt_d);
           errs.push(err);
           p.push(s);
           return p;
