@@ -223,7 +223,7 @@ const countByFunc = f => arr => arr.filter(f).length;
  * @param {!Array.<*>} a
  * @param {!Array.<*>} b
  */
-const sameArr = (a, b) => a.length == b.length && a.every((c, i) => b[i] === c);
+const sameArr = (a, b) => a.length === b.length && a.every((c, i) => b[i] === c);
 
 
 /**

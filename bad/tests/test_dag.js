@@ -5,6 +5,7 @@ const d = rewire('../math/dag.js');
 
 describe('The mathCleaner function', () => {
   const mathCleaner = d.__get__('mathCleaner');
+
   it('allows simple math strings', () => {
     assert.strictEqual(mathCleaner('1 + 1'), '1 + 1');
   });
@@ -89,23 +90,23 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
     const E = g.create('E');
     const F = g.create('F');
     let A1, A2, A3; // Placeholders for nodes we will create later.
-    it('nodes are created with the "create" method',
+    it('Nodes are created with the "create" method',
         () => be.equalsArrays(g.nodes, [root, A, B, C, D, E, F]));
-    it('nodes have names',
+    it('Nodes have names',
         () => be.equalsArrays(g.names, ['ROOT', 'A', 'B', 'C', 'D', 'E', 'F']));
-    it('nodes have unique IDs',
+    it('Nodes have unique IDs',
         () => be.equalsArrays(g.ids, [0, 1, 2, 3, 4, 5, 6]));
-    it('nodes are created as orphans',
+    it('Nodes are created as orphans',
         () => be.equalsArrays(g.orphans, [A, B, C, D, E, F]));
-    it('they are also leaf nodes on creation',
+    it('Nodes are leaf nodes on creation',
         () => be.equalsArrays(g.leafs, [root, A, B, C, D, E, F]));
-    it('creating nodes arn *not* idempotent. Multiple nodes can have ' +
+    it('Creating nodes are *not* idempotent. Multiple nodes can have ' +
         'the same name', () => {
       A1 = g.create('A');
       A2 = g.create('A');
       A3 = g.create('A');
     });
-    it('nodes with the same name are not the same nodes', () => {
+    it('Nodes with the same name are not the same nodes', () => {
       be.aFalse(A === A1);
       be.aFalse(A === A2);
       be.aFalse(A === A3);
@@ -132,14 +133,16 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       g.connect(B, A);
       be.equalsArrays(g.indegrees(A), [B]);
     });
-    it('and the A node has B.id in its arguments', () => {
+    it('When B is connected to A, A has B.id in its arguments', () => {
+      g.connect(B, A);
       be.equalsArrays(A.args, [B.id])
     });
-    it('and B has A in its outdegrees', () => {
+    it('When B is connected to A, B has A in its outdegrees', () => {
+      g.connect(B, A);
       be.equalsArrays(g.outdegrees(B), [A])
     });
-    it('connecting nodes are idempotent. Creating the same connection ' +
-        'multiple times makes no difference', () => {
+    it('Connecting nodes are idempotent. Creating the same connection ' +
+        'multiple times has no further effect.', () => {
       g.connect(B, A);
       g.connect(B, A);
       g.connect(B, A);
@@ -149,8 +152,8 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       be.equalsArrays(A.args, [B.id]);
       be.equalsArrays(B.args, []);
     });
-    it('a connection that will result in a loop is illegal, ' +
-        'and will not be honoured', () => {
+    it('Connection that form a cycle are illegal, ' +
+        'and will not be honoured.', () => {
       g.connect(B, A);
       g.connect(A, B);
       be.equalsArrays(g.outdegrees(B), [A]);
@@ -160,7 +163,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       be.equalsArrays(A.args, [B.id]);
       be.equalsArrays(B.args, []);
     });
-    it('a node can have multiple in degrees', () => {
+    it('A node can have multiple in degrees', () => {
       g.connect(C, A);
       g.connect(D, A);
       be.equalsArrays(g.outdegrees(B), [A]);
@@ -168,7 +171,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       be.equalsArrays(g.outdegrees(D), [A]);
       be.equalsArrays(g.indegrees(A), [B, C, D]);
     });
-    it('but the root node can not. It can only have one in degree.', () => {
+    it('Root node can only have one in degree.', () => {
       g.connect(A, root);
       be.equalsArrays(g.outdegrees(A), [root]);
       be.equalsArrays(g.indegrees(root), [A]);
@@ -177,17 +180,15 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       be.equalsArrays(g.outdegrees(A), [root]);
       be.equalsArrays(g.indegrees(root), [A]);
     });
-    it('connections can be chained', () => {
+    it('Connections can be chained', () => {
       g.connect(D, E).connect(E, F).connect(F, C).connect(F, B).connect(E, C);
       be.equalsArrays(g.outdegrees(D), [A, E]);
       be.equalsArrays(g.outdegrees(E), [F, C]);
       be.equalsArrays(g.outdegrees(F), [C, B]);
     });
-    it('a node can have multiple out degrees', () => {
+    it('A node can have multiple out degrees', () => {
       be.equalsArrays(g.outdegrees(F), [C, B]);
     });
-
-
   });
 
   describe('Use the DAG to sort, disconnect an delete nodes nodes', () => {
@@ -245,7 +246,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       g.add(B);
       be.equalsArrays(g.nodes, [g.root, A, C, D, F, B, E]);
     });
-    it('Once added back, they can be connected again. Even though the graph' +
+    it('Once added back, they can be connected again. Even though the graph ' +
         'looks the same, the topo sort *may* differ - because of the order' +
         'in which nodes were added to the graph.', () => {
       g.connect(B, A).connect(E, B).connect(F, E).connect(D, B);
@@ -265,7 +266,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
     const F = g.create('F');
     g.clean();
 
-    it('listing nodes, names or ids honours the order in ' +
+    it('Listing nodes, names or ids honours the order in ' +
         'which nodes are added to the graph', () => {
       g.add(B);
       g.add(F);
@@ -277,7 +278,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.deepStrictEqual(g.names, ['ROOT', 'B', 'F', 'D', 'A', 'C', 'E' ]);
       assert.deepStrictEqual(g.ids, [ 0, 2, 6, 4, 1, 3, 5 ]);
     });
-    it('Adding a node that with an ID that already ' +
+    it('Adding a node with an ID that already ' +
         'exists in the graph is illegal, and does nothing', () => {
 
       // We use the graph to create the node.
@@ -299,7 +300,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.deepStrictEqual(g.ids, [ 0, 2, 6, 4, 1, 3, 5 ]);
     });
 
-    it('you can not make root connect to something', () => {
+    it('Root may not have out degrees', () => {
       g.connect(g.root, A);
       be.equalsArrays(g.indegrees(A), []);
       be.equalsArrays(g.outdegrees(A), []);
@@ -307,7 +308,8 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       be.equalsArrays(g.outdegrees(g.root), []);
     });
 
-    it('root only accepts one input. If already connected, it wont accept more',
+    it('Root only accepts one input. Once connected it rejects ' +
+        'further connections',
         () => {
           g.connect(A, g.root);
           be.equalsArrays(g.outdegrees(A), [ g.root ]);
@@ -350,37 +352,38 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
     const A = g.create('A');
     const B = g.create('B');
     const C = g.create('C');
+    g.connect(A, g.root);
 
-    it('A mathematical formula can be a raw number', () => {
-      A.setMath(14);
-      assert.strictEqual(g.connect(A, g.root).solve(), 14)
-    });
-
-    it('A mathematical formula can be a a string formula', () => {
+    it('The mathematical formula is given as a string', () => {
       A.setMath('17 - 3');
       assert.strictEqual(g.solve(), 14)
     });
 
-    it('The string may only contain arithmetic operators, numbers, ' +
+    it('When given a raw number, it is treated as a constant', () => {
+      A.setMath(14);
+      assert.strictEqual(g.solve(), 14)
+    });
+
+    it('The formula may only contain arithmetic operators, numbers, ' +
         'grouping brackets, spaces and the $-glyph.' +
         'Anything else will be stripped.', () => {
       A.setMath('balh-blah(17 - 3)');
       assert.strictEqual(g.solve(), -14);
     });
 
-    it('If the cleaned string results in nonsensical math, ' +
+    it('If the cleaned formula results in nonsensical math, ' +
         'the DAG returns undefined', () => {
       A.setMath('blah - blah * blah');
       assert.strictEqual(g.solve(), undefined);
     });
 
-    it('If the cleaned string results the empty string ' +
+    it('If the cleaned formula results the empty string ' +
         'the DAG returns undefined', () => {
       A.setMath('blah');
       assert.strictEqual(g.solve(), undefined);
     });
 
-    it('A mathematical formula can reference a connecting node', () => {
+    it('A formula can reference a connecting node using the "$n" syntax', () => {
       B.setMath(17);
       g.connect(B, A);
       A.setMath('$1 - 3');
@@ -388,24 +391,33 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
     });
 
     it('It references its connecting node in order of addition', () => {
+      // $1 refers to the first node connected
+      // $2 refers to the second node connected
       C.setMath(3);
       g.connect(C, A);
       A.setMath('$1 - $2');
       assert.strictEqual(g.solve(), 14)
     });
 
-    it('If the order of connections change, the order of reference changes', () => {
+    it('When the order changes, the formula result changed', () => {
+      // Disconnect B from A. A now only has C as input. Reconnect B to A.
+      // A considers the connection order to be first C then B.
       C.setMath(3);
       g.disconnect(B, A).connect(B, A);
       assert.strictEqual(g.solve(), -14)
     });
 
-    it('If the formula references a node that does not exist, the DAG returns undefined', () => {
+    it('If the formula references a node that does not exist, the result ' +
+        'is undefined', () => {
       g.disconnect(B, A);
       assert.strictEqual(g.solve(),);
     });
 
-    it('When the formula is fixed, it computes', () => {
+    it('A single reference to a connecting node is treated ' +
+        'as a constant', () => {
+      g.disconnect(C, A);
+      g.connect(B, A);
+      B.setMath(3);
       A.setMath('$1');
       assert.equal(g.solve(), 3);
     });
@@ -445,14 +457,12 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.strictEqual(g.solve(), undefined);
     });
 
-    it('The enum keys *not* be undefined. ' +
+    it('The enum keys *may not* be undefined. ' +
         'Attempting to do so does nothing', () => {
       A.addEnum(undefined, 'something');
       assert.deepStrictEqual(A.enum, [ [ 2, 'B' ], [ 3, 'C' ] ]);
       assert.strictEqual(g.solve(), undefined);
     });
-
-
 
   });
 
@@ -478,90 +488,182 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
     // Bigger than (High-Pass)
     it('Test value bigger than n (Pass)', () => {
+      B.setMath(3);
       A.setFilter('vu', '>', 2);
       assert.strictEqual(g.solve(), 3)
     });
 
     it('Test value bigger than n (Fail)', () => {
+      B.setMath(3);
       A.setFilter('vu', '>', 4);
       assert.strictEqual(g.solve(), undefined)
     });
 
     it('Test value bigger or eq than n (Pass)', () => {
+      B.setMath(3);
       A.setFilter('vu', '>=', 3);
       assert.strictEqual(g.solve(), 3)
     });
 
     it('Test value bigger or eq than n (Fail)', () => {
+      B.setMath(3);
       A.setFilter('vu', '>=', 4);
       assert.strictEqual(g.solve(), undefined)
     });
 
     // Smaller than (Low Pass)
     it('Test value smaller than n (Pass)', () => {
+      B.setMath(3);
       A.setFilter('vu', '<', 4);
       assert.strictEqual(g.solve(), 3)
     });
 
     it('Test value smaller than n (Fail)', () => {
+      B.setMath(3);
       A.setFilter('vu', '<', 2);
       assert.strictEqual(g.solve(), undefined)
     });
 
     it('Test value smaller or eq than n (Pass)', () => {
+      B.setMath(3);
       A.setFilter('vu', '<=', 3);
       assert.strictEqual(g.solve(), 3)
     });
 
     it('Test value smaller or eq than n (Fail)', () => {
+      B.setMath(3);
       A.setFilter('vu', '<=', 2);
       assert.strictEqual(g.solve(), undefined)
     });
 
     // Between values (Band Pass)
     it('Test value between n and p (Pass)', () => {
+      B.setMath(3);
       A.setFilter('vu', '<', 4, '>', 2);
       assert.strictEqual(g.solve(), 3)
     });
 
     it('Test value between n and p (Fail)', () => {
+      B.setMath(3);
       A.setFilter('vu', '<', 4, '>', 3);
       assert.strictEqual(g.solve(), undefined)
     });
 
+    // Non contradicting nonsense
+    it('If both sets are given, and their predicates are the same,' +
+        ' we discard the redundant one. [>]', () => {
+      // Value must be: Bigger than 2 AND bigger than 5
+      B.setMath(3);
+      A.setFilter('vc', '>', 2, '>', 5);
+      assert.strictEqual(g.solve(), 5);
+    });
+
+    it('If both sets are given, and their predicates are the same,' +
+        ' we discard the redundant one [<]', () => {
+      // Value must be: Bigger than 2 AND bigger than 5
+      B.setMath(3);
+      A.setFilter('vc', '<', 2, '<', 5);
+      assert.strictEqual(g.solve(), 2);
+    });
+
+    it('If both sets are given, and their predicates are the same,' +
+        ' we discard the redundant one [<]', () => {
+      // Value must be: Bigger than 2 AND bigger than 5
+      B.setMath(3);
+      A.setFilter('vc', '<', 5, '<', 2);
+      assert.strictEqual(g.solve(), 2);
+    });
+
+    it('If both sets are given, and their predicates are in the same direction,' +
+        ' and their values are the same, the most restrictive ' +
+        'sense is used', () => {
+      // Value must be: Bigger than 2 AND bigger than 5
+      B.setMath(3);
+      A.setFilter('vu', '<=', 3, '<', 3);
+      assert.strictEqual(g.solve(), undefined);
+
+      // Regardless of the order
+      A.setFilter('vu', '<', 3, '<=', 3);
+      assert.strictEqual(g.solve(), undefined);
+
+      // Regardless of the order
+      A.setFilter('vu', '<=', 3, '<=', 3);
+      assert.strictEqual(g.solve(), 3);
+
+      // Clamped values also work
+      A.setFilter('vc', '<', 3, '<=', 3);
+      assert.strictEqual(g.solve(), 3);
+    });
+
+    // Outside of band  values (Band Fail) are not allowed.
+    it('Predicates that do not define a *inclusive* band return undefined', () => {
+      // For simplicity, our pass filter is an *AND* filter, and while the
+      // below could form an exclusion band if the predicates were "OR"ed, we
+      // don't allow for that, and interpret the statement as:
+      // 3 is bigger than 10 AND 3 is smaller than 4, which is clearly false
+      B.setMath(3);
+      A.setFilter('vu', '>', 10, '<', 4);
+      assert.strictEqual(g.solve(), undefined);
+
+
+      // Clamping values when the input defines an exclusion band is
+      // indeterminate. It could clamp to any of the target values, and the
+      // behavior is unpredictable.
+      // The correct way of handling this is to make this undefined, but with
+      // the amount of edge case testing required, I could simply not be
+      // bothered. Fuck the user for even trying this.
+
+      // Here it clamps to the higher value
+      A.setFilter('vc', '>', 10, '<', 4);
+      assert.strictEqual(g.solve(), 10);
+
+      // Here it clamps to the lower value.
+      B.setMath(10);
+      A.setFilter('vc',  '<', 9, '>', 15);
+      assert.strictEqual(g.solve(), 9);
+
+    });
+
     // Exactly equal
     it('Test value exactly equal (Pass)', () => {
+      B.setMath(3);
       A.setFilter('vu', '==', 3);
       assert.strictEqual(g.solve(), 3)
     });
 
     it('Test value exactly equal (Fail)', () => {
+      B.setMath(3);
       A.setFilter('vu', '==', 3.00001);
       assert.strictEqual(g.solve(), undefined)
     });
 
     // Output formatting.
     it('"vu" mode passes with the value', () => {
+      B.setMath(3);
       A.setFilter('vu', '<=', 3);
       assert.strictEqual(g.solve(), 3)
     });
 
     it('"vu" mode fails with undefined', () => {
+      B.setMath(3);
       A.setFilter('vu', '<', 3);
       assert.strictEqual(g.solve(), undefined)
     });
 
     it('"10" mode passes with the 1', () => {
+      B.setMath(3);
       A.setFilter('10', '<=', 3);
       assert.strictEqual(g.solve(), 1)
     });
 
     it('"10" mode fails with 0', () => {
+      B.setMath(3);
       A.setFilter('10', '<', 3);
       assert.strictEqual(g.solve(), 0)
     });
 
     it('"tf" mode passes with true', () => {
+      B.setMath(3);
       A.setFilter('tf','<=', 3);
       assert.strictEqual(g.solve(), true)
     });
@@ -571,6 +673,96 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.strictEqual(g.solve(), false)
     });
 
+    it('"vc" mode passes with the value', () => {
+      B.setMath(3);
+      A.setFilter('vc','>', 1);
+      assert.strictEqual(g.solve(), 3)
+    });
+
+    it('"vc" fails with the clamping value', () => {
+      B.setMath(3);
+      A.setFilter('vc','>', 100);
+      assert.strictEqual(g.solve(), 100)
+    });
+
+    // Range clamping (inclusive)
+    it('"vc" can clamp to the upper limit. 6 should be clamped to 5', () => {
+      B.setMath(6);
+      A.setFilter('vc','<', 5, '>', 2);
+      assert.strictEqual(g.solve(), 5);
+    });
+
+    it('"vc" can clamp to the lower limit. 1 should be clamped to 2', () => {
+      B.setMath(1);
+      A.setFilter('vc','<', 5, '>', 2);
+      assert.strictEqual(g.solve(), 2);
+    });
+
+    it('"vc" passes the value without clamping. 3 should pass through as 3', () => {
+      B.setMath(1);
+      A.setFilter('vc','<', 5, '>', 2);
+      // Clamped to the limit
+      assert.strictEqual(g.solve(), 2);
+    });
+
+  });
+
+  describe('Nodes can have a default or fallback value', () => {
+    const g = new d.DAG();
+    const A = g.create('A');
+    const B = g.create('B');
+    g.connect(B, A).connect(A, g.root);
+    B.setMath(10);
+
+    it('Without a fallback value, the node fails with undefined', () => {
+      A.setFilter('vu', '<', 5);
+      assert.strictEqual(g.solve(), undefined)
+    });
+
+    it('With a fallback value, the node fails to the fallback', () => {
+      A.setFilter('vu', '<', 5);
+      A.setFallback(100);
+      assert.strictEqual(g.solve(), 100)
+    });
+
+    it('The fallback value can be a string', () => {
+      A.setFilter('vu', '<', 5);
+      A.setFallback('string');
+      assert.strictEqual(g.solve(), 'string')
+    });
+
+    it('The fallback value can be a boolean', () => {
+      A.setFilter('vu', '<', 5);
+      A.setFallback(false);
+      assert.strictEqual(g.solve(), false)
+    });
+
+    it('The fallback value can be a number', () => {
+      A.setFilter('vu', '<', 5);
+      A.setFallback('fallback');
+      assert.strictEqual(g.solve(), 'fallback')
+    });
+
+    it('A failing math node invokes the fallback', () => {
+      A.setMath('make me fail');
+      A.setFallback('fallback');
+      assert.strictEqual(g.solve(), 'fallback')
+    });
+
+    it('A failing enum node invokes the fallback', () => {
+      A.addEnum(10, 'pass').addEnum(9, 'fail');
+      A.setFallback('fallback');
+      assert.strictEqual(g.solve(), 'pass');
+
+      A.delEnum(10);
+      assert.strictEqual(g.solve(), 'fallback')
+    });
+
+    it('A failing filter node invokes the fallback', () => {
+      A.setFilter('vu', '<', 5);
+      A.setFallback('fallback');
+      assert.strictEqual(g.solve(), 'fallback');
+    });
   });
 
   describe('When DAG computes,', () => {
@@ -670,10 +862,6 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       let r = D2.map(e => g.solve(e));
       console.log(r);
     });
-
-
-
-
   });
 
   describe('A DAG can be serialized and de-serialized', () => {

@@ -2,6 +2,8 @@ const R = require('ramda');
 
 const argRefSymbol = 'X';
 
+const isDef = t => t !== undefined;
+
 /**
  * @returns {undefined}
  */
@@ -37,17 +39,37 @@ const makeTest = (p, pVal) => {
  *    '10': Pass the number 1 if it passes, else 0
  *    'tf': Pass with true, else fail.
  *    Junk input always results in a failing test.
- * @param test
+ * @param {function(*):boolean} test
+ * @param {=number} c A clamp value.
  * @returns {*|(function(*): boolean)}
  */
-const makeResult = (rv, test) => {
+const makeResult = (rv, test, c) => {
   const m = {
     'vu': v => test(v) ? v : undefined,
     '10': v => test(v) ? 1 : 0,
-    'tf': v => test(v)
+    'tf': v => test(v),
+    'vc': v => test(v) ? v : c
   };
   return m[rv] || alwaysUndef;
 };
+
+const parseFilter = arr => {
+  const [rv, p1, v1, p2, v2] = arr;
+  const P1 = makeTest(p1, v1);
+  const R1 = makeResult(rv, P1, v1);
+  let f = v => R1(v);
+
+  if (p2 && isDef(v2)) {
+    const P2 = makeTest(p2, v2);
+    const R2 = makeResult(rv, P2, v2);
+    f = v => R1(v) && R2(v);
+    if (rv === 'vc') {
+      f = v => R1(v) === v1 ? v1 : R2(v) === v2 ? v2 : v;
+    }
+  }
+  return [null, X => f(X[0])];
+};
+
 
 /**
  * Given a string, sanitize it and only allow numbers and arithmetic
@@ -499,7 +521,7 @@ class Node {
   setMath(s) {
     this._math = s;
 
-    if (s !== undefined) {
+    if (isDef(s)) {
       this._path = [];
       this._enum = [];
       this._round = undefined;
@@ -521,7 +543,7 @@ class Node {
   setRound(int) {
     this._round = int;
 
-    if (int !== undefined) {
+    if (isDef(int)) {
       this._path = [];
       this._math = undefined;
       this._enum = [];
@@ -539,19 +561,29 @@ class Node {
    *    "vu" - The input value on pass, else undefined
    *    "10" - The number 1 on pass, else the number 0
    *    "tf" - The boolean true if passed, else false.
+   *    "vc" - The input value on pass, else the clamped value. That is, the
+   *       predicate value that resulted in a fail.
+   *       Example: f(n) = n >= 2 && n <= 5
+   *                in "vc" mode:
+   *                  f(1.9999) == 2  <- Clamped Here
+   *                  f(3) == 3
+   *                  f(4) == 4
+   *                  f(5) == 5
+   *                  f(5.0001) == 5  <- Clamped Here
    * @param {!string} p1 Predicate. Must be one of:
    *    ==, <=, >=, <, >
    * @param {!number|undefined} v1 Value with which to test the predicate
-   * @param {!string=} opt_p2 Predicate. A second predicate so we can do
+   * @param {!string=} p2 Predicate. A second predicate so we can do
    *    range filtering. Must be one of:
    *    ==, <=, >=, <, >
-   * @param {!number=} opt_v2 Value with which to test the 2nd predicate
+   * @param {!number=} v2 Value with which to test the 2nd predicate
    * @returns {Node}
    */
-  setFilter(rv, p1, v1, opt_p2, opt_v2) {
-    const f = [rv, p1, v1, opt_p2, opt_v2];
+  setFilter(rv, p1, v1, p2, v2) {
 
-    if (f.filter(e => e !== undefined).length) {
+    if ([rv, p1, v1, p2, v2].filter(e => isDef(e)).length) {
+      const f = [rv, p1, v1, p2, v2];
+
       this._path = [];
       this._filter = [...f];
       this._math = undefined;
@@ -611,21 +643,14 @@ class Node {
       this._errState = null;
 
     // This node does rounding
-    } else if (this._round !== undefined) {
+    } else if (isDef(this._round)) {
       const r = pRound(this._round);
       this._func = X => r(X[0]);
       this._errState = null;
 
     // This node filtering
     } else if (this._filter && this._filter.length) {
-      const [rv, p1, v1, opt_p2, opt_v2] = this._filter;
-      let P = makeTest(p1, v1);
-      if (opt_p2 && opt_v2) {
-        P = v => makeTest(p1, v1)(v) &&  makeTest(opt_p2, opt_v2)(v);
-      }
-      const f = makeResult(rv, P);
-      this._func = X => f(X[0]);
-      this._errState = null;
+      [this._errState, this._func] = parseFilter(this._filter);
 
     // This node can access data on a path.
     } else if (this._path && this._path.length) {
