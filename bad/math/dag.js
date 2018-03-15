@@ -970,6 +970,23 @@ class DAG {
     return tail(solutionArr);
   }
 
+  getSolver() {
+    const m = removeOrphans(this.getIdG());
+    const validTopoNodes = this.topo.filter(e => m.has(e.id));
+    const validTopoIds = validTopoNodes.map(grabId);
+    const cleanNodes = validTopoNodes.map(n => n.clean());
+    const errs = [];
+
+    return (opt_d) => tail(cleanNodes.reduce((p, n) => {
+      const [err, s] = n.solve(p, validTopoIds, opt_d);
+      errs.push(err);
+      p.push(s);
+      return p;
+    }, []));
+  }
+
+
+
   /**
    * Dump the DAG to a JSON string.
    * @returns {!string}
@@ -1038,11 +1055,23 @@ class DAG {
 
  d = require('./bad/math/dag.js');
  const g = new d.DAG();
- const A = g.create('A');
- const B = g.create('B');
- const C = g.create('C');
- const D = g.create('D');
- const E = g.create('D');
+ const A = g.makeNode('A');
+ g.connect(A, g.root);
+ A.setPath('v');
+ g.solve({v:10});
+
+ data = [1,2,3,4,5,6,7,8,9].map(e => ({v:e}))
+ data.map(e => g.solve(e))
+
+ solver = g.getSolver()
+ data.map(solver)
+
+
+
+ const B = g.makeNode('B');
+ const C = g.makeNode('C');
+ const D = g.makeNode('D');
+ const E = g.makeNode('D');
  g.connect(C, E).connect(E, B).connect(B, A).connect(D, A).connect(A, g.root);
  D.setMath(10);
  C.setMath(3);

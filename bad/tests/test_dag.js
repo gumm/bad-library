@@ -825,7 +825,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
     const A = g.makeNode('A');
     const C = g.makeNode('C');
     const D = g.makeNode('D');
-    const E = g.makeNode('D');
+    const E = g.makeNode('E');
     g.connect(C, E).connect(E, A).connect(D, A).connect(A, g.root);
     D.setMath(10);
     C.setMath(3);
@@ -868,6 +868,20 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       let r = D2.map(e => g.solve(e));
       console.log(r);
     });
+
+    it('A DAG can retrun a pre-computed solver that is ' +
+        'much faster than the above methods.', () => {
+      const D3 = Array(10000).fill(1).map((e, i) => ({v:i, r:2}));
+      D.setPath('v');
+      C.setPath('r');
+      // const D3 = Array(100000).fill(1).map((e, i) => [i]);
+      // D.setPath(0);
+      // C.setPath(0);
+      const solver = g.getSolver();
+      let r = D3.map(solver);
+      console.log(r);
+    })
+
   });
 
   describe('A DAG can be serialized and de-serialized', () => {
