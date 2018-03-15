@@ -83,12 +83,12 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
   describe('Use the DAG to create nodes', () => {
     const g = new d.DAG();
     const root = g.root;
-    const A = g.create('A');
-    const B = g.create('B');
-    const C = g.create('C');
-    const D = g.create('D');
-    const E = g.create('E');
-    const F = g.create('F');
+    const A = g.makeNode('A');
+    const B = g.makeNode('B');
+    const C = g.makeNode('C');
+    const D = g.makeNode('D');
+    const E = g.makeNode('E');
+    const F = g.makeNode('F');
     let A1, A2, A3; // Placeholders for nodes we will create later.
     it('Nodes are created with the "create" method',
         () => be.equalsArrays(g.nodes, [root, A, B, C, D, E, F]));
@@ -102,9 +102,9 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
         () => be.equalsArrays(g.leafs, [root, A, B, C, D, E, F]));
     it('Creating nodes are *not* idempotent. Multiple nodes can have ' +
         'the same name', () => {
-      A1 = g.create('A');
-      A2 = g.create('A');
-      A3 = g.create('A');
+      A1 = g.makeNode('A');
+      A2 = g.makeNode('A');
+      A3 = g.makeNode('A');
     });
     it('Nodes with the same name are not the same nodes', () => {
       be.aFalse(A === A1);
@@ -123,12 +123,12 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
      */
     const g = new d.DAG();
     const root = g.root;
-    const A = g.create('A');
-    const B = g.create('B');
-    const C = g.create('C');
-    const D = g.create('D');
-    const E = g.create('E');
-    const F = g.create('F');
+    const A = g.makeNode('A');
+    const B = g.makeNode('B');
+    const C = g.makeNode('C');
+    const D = g.makeNode('D');
+    const E = g.makeNode('E');
+    const F = g.makeNode('F');
     it('When B is connected to A, A has B in its indegrees', () => {
       g.connect(B, A);
       be.equalsArrays(g.indegrees(A), [B]);
@@ -193,12 +193,12 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
   describe('Use the DAG to sort, disconnect an delete nodes nodes', () => {
     const g = new d.DAG();
-    const A = g.create('A');
-    const B = g.create('B');
-    const C = g.create('C');
-    const D = g.create('D');
-    const E = g.create('E');
-    const F = g.create('F');
+    const A = g.makeNode('A');
+    const B = g.makeNode('B');
+    const C = g.makeNode('C');
+    const D = g.makeNode('D');
+    const E = g.makeNode('E');
+    const F = g.makeNode('F');
     g.connect(A, g.root)
         .connect(B, A)
         .connect(C, A)
@@ -234,16 +234,16 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.deepStrictEqual(g.topo, [D, F, C, A, g.root]);
     });
     it('A node can be added back to the graph', () => {
-      g.add(B);
-      g.add(E);
+      g.addNode(B);
+      g.addNode(E);
       be.equalsArrays(g.nodes, [g.root, A, C, D, F, B, E]);
     });
     it('Adding a node back is idempotent', () => {
-      g.add(B);
-      g.add(B);
-      g.add(B);
-      g.add(B);
-      g.add(B);
+      g.addNode(B);
+      g.addNode(B);
+      g.addNode(B);
+      g.addNode(B);
+      g.addNode(B);
       be.equalsArrays(g.nodes, [g.root, A, C, D, F, B, E]);
     });
     it('Once added back, they can be connected again. Even though the graph ' +
@@ -258,22 +258,22 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
     // Create a graph, and all its nodes, but immediatly remove them from the
     // graph.
     const g = new d.DAG();
-    const A = g.create('A');
-    const B = g.create('B');
-    const C = g.create('C');
-    const D = g.create('D');
-    const E = g.create('E');
-    const F = g.create('F');
+    const A = g.makeNode('A');
+    const B = g.makeNode('B');
+    const C = g.makeNode('C');
+    const D = g.makeNode('D');
+    const E = g.makeNode('E');
+    const F = g.makeNode('F');
     g.clean();
 
     it('Listing nodes, names or ids honours the order in ' +
         'which nodes are added to the graph', () => {
-      g.add(B);
-      g.add(F);
-      g.add(D);
-      g.add(A);
-      g.add(C);
-      g.add(E);
+      g.addNode(B);
+      g.addNode(F);
+      g.addNode(D);
+      g.addNode(A);
+      g.addNode(C);
+      g.addNode(E);
       assert.deepStrictEqual(g.nodes, [ g.root, B, F, D, A, C, E ]);
       assert.deepStrictEqual(g.names, ['ROOT', 'B', 'F', 'D', 'A', 'C', 'E' ]);
       assert.deepStrictEqual(g.ids, [ 0, 2, 6, 4, 1, 3, 5 ]);
@@ -282,17 +282,17 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
         'exists in the graph is illegal, and does nothing', () => {
 
       // We use the graph to create the node.
-      const ERR = g.create('ERR');
+      const ERR = g.makeNode('ERR');
       be.equal(ERR.id, 7);
       assert.deepStrictEqual(g.ids, [ 0, 2, 6, 4, 1, 3, 5, 7 ]);
 
       // We then delete the node.
-      g.del(ERR);
+      g.delNode(ERR);
       assert.deepStrictEqual(g.ids, [ 0, 2, 6, 4, 1, 3, 5 ]);
 
       // We then change the node ID to any of the existing node ids.
       ERR._id = 1; // The same as A
-      const result = g.add(ERR);
+      const result = g.addNode(ERR);
 
       // The result is false - no success.
       be.aFalse(result);
@@ -326,8 +326,8 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
     it('A node must be a member of the graph before it can be connected', () => {
 
       // We use the graph to create the node, but then remove it from the graph
-      const R = g.create('R');
-      g.del(R);
+      const R = g.makeNode('R');
+      g.delNode(R);
       assert.deepStrictEqual(g.nodes, [ g.root, B, F, D, A, C, E ]);
 
       // Try and connect A -> R
@@ -339,7 +339,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.deepStrictEqual(g.nodes, [ g.root, B, F, D, A, C, E ]);
 
       // but once added to te graph, it can be connected.
-      g.add(R);
+      g.addNode(R);
       g.connect(R, A);
       assert.deepStrictEqual(g.nodes, [ g.root, B, F, D, A, C, E, R ]);
 
@@ -349,9 +349,9 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
   describe('Nodes can do math.', () => {
     const g = new d.DAG();
-    const A = g.create('A');
-    const B = g.create('B');
-    const C = g.create('C');
+    const A = g.makeNode('A');
+    const B = g.makeNode('B');
+    const C = g.makeNode('C');
     g.connect(A, g.root);
 
     it('The mathematical formula is given as a string', () => {
@@ -426,8 +426,8 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
   describe('Nodes can do enumeration', () => {
     const g = new d.DAG();
-    const A = g.create('A');
-    const B = g.create('B');
+    const A = g.makeNode('A');
+    const B = g.makeNode('B');
     g.connect(B, A).connect(A, g.root);
 
     it('An enum is a collection of 2-element arrays', () => {
@@ -468,8 +468,8 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
   describe('Nodes can do rounding', () => {
     const g = new d.DAG();
-    const A = g.create('A');
-    const B = g.create('B');
+    const A = g.makeNode('A');
+    const B = g.makeNode('B');
     g.connect(B, A).connect(A, g.root);
     B.setMath(12.34567809);
 
@@ -481,8 +481,8 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
   describe('Nodes can do pass-filtering', () => {
     const g = new d.DAG();
-    const A = g.create('A');
-    const B = g.create('B');
+    const A = g.makeNode('A');
+    const B = g.makeNode('B');
     g.connect(B, A).connect(A, g.root);
     B.setMath(3);
 
@@ -709,8 +709,8 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
   describe('Nodes can have a default or fallback value', () => {
     const g = new d.DAG();
-    const A = g.create('A');
-    const B = g.create('B');
+    const A = g.makeNode('A');
+    const B = g.makeNode('B');
     g.connect(B, A).connect(A, g.root);
     B.setMath(10);
 
@@ -763,13 +763,19 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       A.setFallback('fallback');
       assert.strictEqual(g.solve(), 'fallback');
     });
+
+    it('A node with no function, but a fallback, is treated as a constant', () => {
+     const m = new d.DAG();
+     m.connect(m.makeNode('C').setFallback('fallback'), m.root);
+     assert.strictEqual(m.solve(), 'fallback');
+    });
   });
 
   describe('When DAG computes,', () => {
     const g = new d.DAG();
-    const A = g.create('A');
-    const B = g.create('B');
-    const C = g.create('C');
+    const A = g.makeNode('A');
+    const B = g.makeNode('B');
+    const C = g.makeNode('C');
 
     it('If nothing connects to the root node, the DAG computes to undefined', () => {
       assert.strictEqual(g.solve(), undefined)
@@ -789,7 +795,7 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.strictEqual(sol1, 30);
 
       // Modify the graph by adding a node and connecting it.
-      const E = g.create('E').setMath('$1 * 3');
+      const E = g.makeNode('E').setMath('$1 * 3');
       g.connect(E, B).connect(C, E);
       // Then modify the solver for node B to take advantage of its new connection
       B.setMath('$1 - $2');
@@ -816,10 +822,10 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
   describe('A dag can be given a value/object to compute on', () => {
     const g = new d.DAG();
-    const A = g.create('A');
-    const C = g.create('C');
-    const D = g.create('D');
-    const E = g.create('D');
+    const A = g.makeNode('A');
+    const C = g.makeNode('C');
+    const D = g.makeNode('D');
+    const E = g.makeNode('D');
     g.connect(C, E).connect(E, A).connect(D, A).connect(A, g.root);
     D.setMath(10);
     C.setMath(3);
@@ -866,11 +872,11 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
 
   describe('A DAG can be serialized and de-serialized', () => {
     const g = new d.DAG();
-    const A = g.create('A');
-    const B = g.create('B');
-    const C = g.create('C');
-    const D = g.create('D');
-    const E = g.create('D');
+    const A = g.makeNode('A');
+    const B = g.makeNode('B');
+    const C = g.makeNode('C');
+    const D = g.makeNode('D');
+    const E = g.makeNode('D');
     g.connect(C, E).connect(E, B).connect(B, A).connect(D, A).connect(A, g.root);
     D.setMath(10);
     C.setMath(3);

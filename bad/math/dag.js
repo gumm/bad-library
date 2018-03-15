@@ -452,6 +452,7 @@ class Node {
    */
   setFallback(n) {
     this._fallback = n;
+    return this;
   }
 
   /**
@@ -469,6 +470,7 @@ class Node {
   addArg(n) {
     this._args.push(n._id);
     this._errState = 'Changed';
+    return this;
   }
 
   /**
@@ -478,6 +480,7 @@ class Node {
   delArg(n) {
     this._args = this._args.filter(e => e !== n._id);
     this._errState = 'Changed';
+    return this;
   }
 
   /**
@@ -657,6 +660,11 @@ class Node {
       const f = R.pathOr(undefined, this._path);
       this._func = (X, data) => f(data);
       this._errState = null;
+
+    // This does nothing but return a fallback value
+    } else if (this._fallback) {
+      this._func = () => this._fallback;
+      this._errState = null;
     }
 
     return this;
@@ -716,7 +724,7 @@ class DAG {
      * @type {!Node}
      * @private
      */
-    this._rootNode = this.create('ROOT');
+    this._rootNode = this.makeNode('ROOT');
     this._rootNode.setMath('$1')
   }
 
@@ -800,7 +808,7 @@ class DAG {
    * @param {!String} name
    * @returns {!Node}
    */
-  create(name) {
+  makeNode(name) {
     const n = this._nodeMaker(name);
     this.G.set(n, new Set());
     return n;
@@ -815,7 +823,7 @@ class DAG {
    * @param {!Node} n
    * @returns {(!Node|!boolean)}
    */
-  add(n) {
+  addNode(n) {
     if (this.G.has(n)) { return n; }
     if (this.ids.includes(n.id)) { return false; }
     this.G.set(n, new Set());
@@ -830,7 +838,7 @@ class DAG {
    * @param {!Node} n
    * @returns {boolean}
    */
-  del(n) {
+  delNode(n) {
     let deleted = false;
     if (n && n !== this._rootNode) {
       deleted = this.G.delete(n);
@@ -896,7 +904,7 @@ class DAG {
    * @returns {DAG}
    */
   clean() {
-    this.orphans.forEach(e => this.del(e));
+    this.orphans.forEach(e => this.delNode(e));
     if (this.orphans.length) {
       this.clean();
     }
@@ -1000,7 +1008,7 @@ class DAG {
         const g = new Map(j.G);
         this._rootNode = undefined;
         for (const k of g.keys()) {
-          this.add(findNode(k))
+          this.addNode(findNode(k))
         }
         this._rootNode = this.nodes[0];
         for (const [k, arr] of g.entries()) {
