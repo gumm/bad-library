@@ -840,6 +840,9 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       }]
     };
 
+    const D2 = Array(10000).fill(data);
+    const D3 = Array(10000).fill(1).map((e, i) => [i]);
+
     it('It is ignored when nothing uses it.', () => {
       assert.strictEqual(g.solve(data), 0.55)
     });
@@ -854,33 +857,26 @@ describe('DAG Class creates a Directed-Acyclic-Graph', () => {
       assert.strictEqual(g.solve(data), 0.55)
     });
 
-    it('The graph can be applied to a set of values', () => {
-      const D2 = Array(10000).fill(data);
+    it('The graph can be applied to an array of data', () => {
       let r = D2.map(e => g.solve(e));
-      console.log(r);
-    });
-
-    it('The graph can be applied to a set of values', () => {
-      // An array of arrays each inner array containing a number from 1 - 99
-      const D2 = Array(10000).fill(1).map((e, i) => [i]);
-      D.setPath(0);
-      C.setPath(0);
-      let r = D2.map(e => g.solve(e));
-      console.log(r);
+      console.log(r); // <- About 270ms
     });
 
     it('A DAG can retrun a pre-computed solver that is ' +
         'much faster than the above methods.', () => {
-      const D3 = Array(10000).fill(1).map((e, i) => ({v:i, r:2}));
-      D.setPath('v');
-      C.setPath('r');
-      // const D3 = Array(100000).fill(1).map((e, i) => [i]);
-      // D.setPath(0);
-      // C.setPath(0);
+      const solver = g.getSolver();
+      let r = D2.map(solver);
+      console.log(r);  // <- About 25ms About 10x faster
+    });
+
+    it('The graph can be applied to an array of array-data', () => {
+      // An array of arrays each inner array containing a number from 1 - 99
+      D.setPath(0);
+      C.setPath(0);
       const solver = g.getSolver();
       let r = D3.map(solver);
       console.log(r);
-    })
+    });
 
   });
 
