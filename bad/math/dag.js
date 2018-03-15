@@ -953,21 +953,7 @@ class DAG {
    * @returns {*}
    */
   solve(opt_d) {
-    const m = removeOrphans(this.getIdG());
-    const validTopoNodes = this.topo.filter(e => m.has(e.id));
-    const validTopoIds = validTopoNodes.map(grabId);
-    const errs = [];
-    const solutionArr = validTopoNodes.reduce((p, n) => {
-          const [err, s] = n.clean().solve(p, validTopoIds, opt_d);
-          errs.push(err);
-          p.push(s);
-          return p;
-        }, []);
-
-    // console.log(solutionArr);
-    // console.log(errs);
-
-    return tail(solutionArr);
+    return this.getSolver()(opt_d)
   }
 
   getSolver() {
