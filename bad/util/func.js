@@ -156,8 +156,8 @@ const interleave = j => s => s.split('').map(v => `${j}${v}`).join('');
  *    cat(1, 'a', false, 'b', null, 'c', new Date())  # 'a|b|c'
  * @param sep
  */
-const catWithSep = sep => (...str) => str.filter(
-  s => typeof s === 'string' && s !== '').join(sep);
+const catWithSep = sep => (...str) =>
+    str.filter(s => typeof s === 'string' && s !== '').join(sep);
 
 
 /**
@@ -179,16 +179,16 @@ const catWithSep = sep => (...str) => str.filter(
 function* rangeGen(b, e, s = 1) {
   if (!isNumber(s) || s === 0) {
     throw `Invalid step size: ${s}`;
-  }
+    }
   if (!(isNumber(b) && isNumber(e))) {
     throw new TypeError('Arguments to range must be numbers');
-  }
+    }
   let up = e >= b;
   for (let i = b; up ? i <= e : i >= e;
        up ? i += Math.abs(s) : i -= Math.abs(s)) {
     yield i;
   }
-}
+  }
 const range = (b, e, s) => [...(rangeGen(b, e, s))];
 
 
@@ -223,7 +223,8 @@ const countByFunc = f => arr => arr.filter(f).length;
  * @param {!Array.<*>} a
  * @param {!Array.<*>} b
  */
-const sameArr = (a, b) => a.length === b.length && a.every((c, i) => b[i] === c);
+const sameArr = (a, b) =>
+    a.length === b.length && a.every((c, i) => b[i] === c);
 
 
 /**

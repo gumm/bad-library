@@ -11,6 +11,6 @@ echo "-----------------------------------------------------"
 echo ""
 echo "Now formatting with Clang..."
 shopt -s globstar
-~/.local/lib/clang/bin/clang-format -i -style=Google ${LINT_TARGET}/**/*.js
+clang-format -i -style=Google ${LINT_TARGET}/**/*.js
 
 echo "Finished"

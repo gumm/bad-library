@@ -3,8 +3,9 @@
 : <<'HEREDOC'
 Basic Usage:
  --compilation_level (-O) VAL           : Specifies the compilation level to
-                                          use. Options: WHITESPACE_ONLY,
-                                          SIMPLE, ADVANCED (default: SIMPLE)
+                                          use. Options: BUNDLE, WHITESPACE_ONLY,
+                                          SIMPLE (default), ADVANCED (default:
+                                          SIMPLE)
  --env [BROWSER | CUSTOM]               : Determines the set of builtin externs
                                           to load. Options: BROWSER, CUSTOM.
                                           Defaults to BROWSER. (default:
@@ -23,18 +24,22 @@ Basic Usage:
  --js_output_file VAL                   : Primary output filename. If not
                                           specified, output is written to
                                           stdout (default: )
- --language_in VAL                      : Sets what language spec that input
-                                          sources conform. Options:
+ --language_in VAL                      : Sets the language spec to which input
+                                          sources should conform. Options:
                                           ECMASCRIPT3, ECMASCRIPT5,
-                                          ECMASCRIPT5_STRICT, ECMASCRIPT6
-                                          (default), ECMASCRIPT6_STRICT,
-                                          ECMASCRIPT6_TYPED (experimental)
-                                          (default: ECMASCRIPT6)
- --language_out VAL                     : Sets what language spec the output
-                                          should conform to. Options:
-                                          ECMASCRIPT3 (default), ECMASCRIPT5,
                                           ECMASCRIPT5_STRICT, ECMASCRIPT6_TYPED
-                                          (experimental) (default: ECMASCRIPT3)
+                                          (experimental), ECMASCRIPT_2015,
+                                          ECMASCRIPT_2016, ECMASCRIPT_2017,
+                                          ECMASCRIPT_NEXT (default:
+                                          ECMASCRIPT_2017)
+ --language_out VAL                     : Sets the language spec to which
+                                          output should conform. Options:
+                                          ECMASCRIPT3, ECMASCRIPT5,
+                                          ECMASCRIPT5_STRICT, ECMASCRIPT6_TYPED
+                                          (experimental), ECMASCRIPT_2015,
+                                          ECMASCRIPT_2016, ECMASCRIPT_2017,
+                                          ECMASCRIPT_NEXT, NO_TRANSPILE
+                                          (default: ECMASCRIPT5)
  --warning_level (-W) [QUIET | DEFAULT  : Specifies the warning level to use.
  | VERBOSE]                               Options: QUIET, DEFAULT, VERBOSE
                                           (default: DEFAULT)
@@ -44,6 +49,8 @@ Warning and Error Management:
  --conformance_configs VAL              : A list of JS Conformance
                                           configurations in text protocol
                                           buffer format.
+ --error_format [STANDARD | JSON]       : Specifies format for error messages.
+                                          (default: STANDARD)
  --extra_annotation_name VAL            : A whitelist of tag names in JSDoc.
                                           You may specify multiple
  --hide_warnings_for VAL                : If specified, files whose path
@@ -63,6 +70,8 @@ Warning and Error Management:
  --new_type_inf                         : Checks for type errors using the new
                                           type inference algorithm. (default:
                                           false)
+ --strict_mode_input                    : Assume input sources are to run in
+                                          strict mode. (default: true)
  --warnings_whitelist_file VAL          : A file containing warnings to
                                           suppress. Each line should be of the
                                           form
@@ -70,14 +79,14 @@ Warning and Error Management:
                                           <warning-description> (default: )
 
 Available Error Groups: accessControls, ambiguousFunctionDecl,
-    checkEventfulObjectDisposal, checkRegExp, checkTypes, checkVars,
-    commonJsModuleLoad, conformanceViolations, const, constantProperty,
-    deprecated, deprecatedAnnotations, duplicateMessage, es3, es5Strict,
-    externsValidation, fileoverviewTags, functionParams, globalThis,
+    checkRegExp, checkTypes, checkVars, conformanceViolations, const,
+    constantProperty, deprecated, deprecatedAnnotations, duplicateMessage, es3,
+    es5Strict, externsValidation, fileoverviewTags, functionParams, globalThis,
     internetExplorerChecks, invalidCasts, misplacedTypeAnnotation,
     missingGetCssName, missingOverride, missingPolyfill, missingProperties,
-    missingProvide, missingRequire, missingReturn, msgDescriptions,
-    newCheckTypes, nonStandardJsDocs, reportUnknownTypes, suspiciousCode,
+    missingProvide, missingRequire, missingReturn, moduleLoad, msgDescriptions,
+    newCheckTypes, nonStandardJsDocs, missingSourcesWarnings,
+    reportUnknownTypes, suspiciousCode, strictMissingProperties,
     strictModuleDepCheck, typeInvalidation, undefinedNames, undefinedVars,
     unknownDefines, unusedLocalVariables, unusedPrivateMembers, uselessCode,
     useOfGoogBase, underscore, visibility
@@ -101,11 +110,17 @@ Output:
                                           PRINT_INPUT_DELIMITER, SINGLE_QUOTES
  --generate_exports                     : Generates export code for those
                                           marked with @export (default: false)
+ --isolation_mode [NONE | IIFE]         : If set to IIFE the compiler output
+                                          will follow the form:
+                                            (function(){%output%)).call(this);
+                                          Options: NONE, IIFE (default: NONE)
  --output_wrapper VAL                   : Interpolate output into this string
                                           at the place denoted by the marker
                                           token %output%. Use marker token
                                           %output|jsstring% to do js string
-                                          escaping on the output. (default: )
+                                          escaping on the output. Consider
+                                          using the --isolation_mode flag
+                                          instead. (default: )
  --output_wrapper_file VAL              : Loads the specified file and passes
                                           the file contents to the
                                           --output_wrapper flag, replacing the
@@ -145,10 +160,22 @@ Dependency Management:
 JS Modules:
  --js_module_root VAL                   : Path prefixes to be removed from ES6
                                           & CommonJS modules.
+ --module_resolution [BROWSER | NODE |  : Specifies how the compiler locates
+ WEBPACK]                                 modules. BROWSER requires all module
+                                          imports to begin with a '.' or '/'
+                                          and have a file extension. NODE uses
+                                          the node module rules. WEBPACK looks
+                                          up modules from a special lookup map.
+                                          (default: BROWSER)
+ --package_json_entry_names VAL         : Ordered list of entries to look for
+                                          in package.json files when processing
+                                          modules with the NODE module
+                                          resolution strategy (i.e.
+                                          esnext:main,browser,main). Defaults
+                                          to a list with the following entries:
+                                          "browser", "module", "main".
  --process_common_js_modules            : Process CommonJS modules to a
                                           concatenable form. (default: false)
- --transform_amd_modules                : Transform AMD to CommonJS modules.
-                                          (default: false)
 
 
 Library and Framework Specific:
@@ -157,8 +184,15 @@ Library and Framework Specific:
                                           with @ngInject (default: false)
  --dart_pass                            : Rewrite Dart Dev Compiler output to
                                           be compiler-friendly. (default: false)
- --polymer_pass                         : Rewrite Polymer classes to be
-                                          compiler-friendly. (default: false)
+ --force_inject_library VAL             : Force injection of named runtime
+                                          libraries. The format is <name> where
+                                          <name> is the name of a runtime
+                                          library. Possible libraries include:
+                                          base, es6_runtime, runtime_type_check
+ --inject_libraries                     : Allow injecting runtime libraries.
+                                          (default: true)
+ --polymer_pass                         : Equivalent to --polymer_version=1
+                                          (default: false)
  --process_closure_primitives           : Processes built-ins from the Closure
                                           library, such as goog.require(),
                                           goog.provide(), and goog.exportSymbol(
@@ -195,10 +229,12 @@ Code Splitting:
                                           must correspond with a module
                                           specified using --module. The wrapper
                                           must contain %s as the code
-                                          placeholder. The %basename%
-                                          placeholder can also be used to
-                                          substitute the base name of the
-                                          module output file.
+                                          placeholder. Alternately, %output%
+                                          can be used in place of %s. %n% can
+                                          be used to represent a newline. The
+                                          %basename% placeholder can also be
+                                          used to substitute the base name of
+                                          the module output file.
 
 
 Reports:
@@ -272,9 +308,10 @@ HEREDOC
 
 
 WORKSPACE=$1
-CLOSURE_COMPILER_PATH=${WORKSPACE}/node_modules/google-closure-compiler
+NODE_MODULE_PATH='./node_modules'
+CLOSURE_COMPILER_PATH=${NODE_MODULE_PATH}/google-closure-compiler
 EXT_MAP=${CLOSURE_COMPILER_PATH}/contrib/externs/maps/google_maps_api_v3_23.js
-CLOSURE_LIB_PATH=${WORKSPACE}/node_modules/google-closure-library
+CLOSURE_LIB_PATH=${NODE_MODULE_PATH}/google-closure-library
 OUT=${WORKSPACE}/scripts/build
 
 echo "${WORKSPACE}"
@@ -282,8 +319,8 @@ echo "${CLOSURE_COMPILER_PATH}"
 
 cd ${WORKSPACE}
 java -jar node_modules/google-closure-compiler/compiler.jar \
-    --hide_warnings_for ${CLOSURE_LIB_PATH} \
-    --js="!${CLOSURE_LIB_PATH}/**_test.js" \
+    --hide_warnings_for ${NODE_MODULE_PATH} \
+    --js="!${NODE_MODULE_PATH}/**_test.js" \
     --js="${WORKSPACE}/bad/**.js" \
     --js="${CLOSURE_LIB_PATH}/closure/**.js" \
     --js="${CLOSURE_LIB_PATH}/third_party/**.js" \
@@ -298,7 +335,7 @@ java -jar node_modules/google-closure-compiler/compiler.jar \
     --dependency_mode=STRICT \
     --entry_point=CompilerEntry \
     --language_in ECMASCRIPT6_STRICT \
-    --language_out ECMASCRIPT5_STRICT \
+    --language_out ECMASCRIPT5 \
     --summary_detail_level 3 \
     --warning_level VERBOSE \
     --process_closure_primitives \

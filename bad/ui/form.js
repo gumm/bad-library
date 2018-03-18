@@ -15,7 +15,9 @@ goog.require('goog.uri.utils');
  * A class for managing the display of field level messages on a form.
  */
 bad.ui.FieldErrs = class {
-  constructor() { this.fMap = new Map(); }
+  constructor() {
+    this.fMap = new Map();
+  }
 
   /**
    * Format the message dom object and insert it into the DOM
@@ -162,7 +164,7 @@ bad.ui.Form.prototype.getFormFromId = function(string) {
       goog.dom.getElement(string) || this.getElement().querySelector('form');
   if (el && el.tagName == goog.dom.TagName.FORM) {
     form = /** @type {!HTMLFormElement} */ (el);
-  }
+    }
   return form;
 };
 
@@ -277,7 +279,7 @@ bad.ui.Form.prototype.replaceForm = function(reply) {
       }
     }
     this.enterDocument();
-  }
+    }
   if (this.responseObject.scripts) {
     this.evalScripts(this.responseObject.scripts);
   }
@@ -330,7 +332,7 @@ bad.ui.Form.prototype.processSubmitReply = function(reply) {
     this.replaceForm(reply);
     let hasErrors = goog.dom.getElementsByClass('alert-error', this.form_);
     success = !hasErrors.length
-  }
+    }
 
   if (success && this.redirected) {
     //    console.log(`REDIRECTED: ${this.redirected}\nSUCCESS: ${success}`);

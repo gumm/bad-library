@@ -55,7 +55,7 @@ bad.ui.Component.prototype.onBeforeCompReadyCallback_ = goog.nullFunction;
 bad.ui.Component.prototype.render = function(opt_target) {
   if (opt_target) {
     this.setTarget(opt_target);
-  }
+    }
 
   if (this.target_) {
     bad.ui.Component.superClass_.render.call(this, this.target_);

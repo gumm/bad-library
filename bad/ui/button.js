@@ -65,7 +65,7 @@ bad.ui.button.makeButton = function(elId, parent, opt_callback, opt_domHelper) {
   if (el) {
     button = /** @type {!goog.ui.CustomButton} */ (bad.ui.button.makeButton_(
         goog.ui.CustomButton, el, parent, opt_callback, opt_domHelper));
-  }
+    }
   return button;
 };
 
@@ -88,7 +88,7 @@ bad.ui.button.makeToggleButton = function(
   if (el) {
     button = /** @type {!goog.ui.ToggleButton} */ (bad.ui.button.makeButton_(
         goog.ui.ToggleButton, el, parent, opt_callback, opt_domHelper));
-  }
+    }
 
   return button;
 };
@@ -108,7 +108,7 @@ bad.ui.button.makeToggleButton = function(
 bad.ui.button.makeButton_ = function(
     constructor, el, parent, opt_callback, opt_domHelper) {
 
-  var renderer = bad.ui.button.getBasicButtonRenderer();
+  const renderer = bad.ui.button.getBasicButtonRenderer();
   /**
    * @type {!goog.ui.ToggleButton|!goog.ui.CustomButton}
    */
@@ -120,7 +120,7 @@ bad.ui.button.makeButton_ = function(
     button.decorate(el);
   } else {
     button.decorate(el);
-  }
+    }
 
   let cb = opt_callback;
   if (goog.isDefAndNotNull(cb)) {
@@ -133,7 +133,7 @@ bad.ui.button.makeButton_ = function(
         cb();
       }
     }, false, button);
-  }
+    }
   return button;
 };
 
@@ -155,20 +155,20 @@ bad.ui.button.makeButton_ = function(
 bad.ui.button.makeMenuButton = function(
     elId, menuItems, domHelper, handler, scope, opt_sticky, opt_cssClass) {
 
-  var el = goog.dom.getElement(elId);
-  var button;
-  var cssClassName = opt_cssClass ? opt_cssClass : 'flat-menu';
+  const el = goog.dom.getElement(elId);
+  let button;
+  const cssClassName = opt_cssClass ? opt_cssClass : 'flat-menu';
 
   if (el) {
-    var menuRenderer = /** @type {!goog.ui.MenuRenderer} */ (
+    const menuRenderer = /** @type {!goog.ui.MenuRenderer} */ (
         goog.ui.ContainerRenderer.getCustomRenderer(
             goog.ui.MenuRenderer, cssClassName));
 
-    var itemRenderer = /** @type {!goog.ui.MenuItemRenderer} */ (
+    const itemRenderer = /** @type {!goog.ui.MenuItemRenderer} */ (
         goog.ui.ControlRenderer.getCustomRenderer(
             goog.ui.MenuItemRenderer, 'flat-menuitem'));
 
-    var menu = bad.ui.button.makeMenu(
+    const menu = bad.ui.button.makeMenu(
         menuItems, domHelper, handler, scope, menuRenderer, itemRenderer,
         opt_sticky);
 
@@ -176,7 +176,7 @@ bad.ui.button.makeMenuButton = function(
     button = new goog.ui.MenuButton(
         '', menu, bad.ui.button.getMenuButtonRenderer(), domHelper);
     button.decorate(el);
-  }
+    }
   return button;
 };
 
@@ -197,14 +197,14 @@ bad.ui.button.makeMenu = function(
     menuItems, domHelper, handler, scope, opt_menuRend, opt_itemRend,
     opt_sticky) {
 
-  var menu = new goog.ui.Menu(domHelper, opt_menuRend);
+  const menu = new goog.ui.Menu(domHelper, opt_menuRend);
   menu.addListItem = function(arr) {
-    var item;
+    let item;
     if (arr[0]) {
       /**
        * @type {!Element}
        */
-      var name = bad.utils.getIconString(arr[0], arr[1]);
+      const name = bad.utils.getIconString(arr[0], arr[1]);
       item = new goog.ui.MenuItem(name, arr[2], domHelper, opt_itemRend);
     } else {
       item = new goog.ui.MenuSeparator(domHelper);
@@ -212,8 +212,9 @@ bad.ui.button.makeMenu = function(
     menu.addChild(item, true);
   };
 
-  goog.array.forEach(
-      menuItems, function(arr) { menu.addListItem(arr); }, scope);
+  goog.array.forEach(menuItems, function(arr) {
+    menu.addListItem(arr);
+  }, scope);
 
   menu.unStickAll = function() {
     menu.forEachChild(function(child) {
@@ -222,7 +223,7 @@ bad.ui.button.makeMenu = function(
   };
 
   handler.listen(menu, goog.ui.Component.EventType.ACTION, function(e) {
-    var activeMenuItem = e.target;
+    const activeMenuItem = e.target;
     e.stopPropagation();
     activeMenuItem.getModel()();
     if (opt_sticky) {

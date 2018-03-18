@@ -14,7 +14,7 @@ bad.utils.getElDataMap = el => {
     if (b[0] == '') {
       o[b[1]] = a.value;
     }
-  }
+    }
   return o;
 };
 
@@ -52,7 +52,9 @@ bad.utils.handleTemplateProm = t => Promise.resolve(bad.utils.splitScripts(t));
  */
 bad.utils.evalScripts = comp => arr => {
   arr && Array.from(arr).forEach(s => {
-    goog.bind(function() { eval(s.text); }, comp)();
+    goog.bind(function() {
+      eval(s.text);
+    }, comp)();
   });
 };
 
@@ -176,7 +178,7 @@ bad.utils.getRawFormElements = form => {
             formElements.push(el);
           }
         });
-  }
+    }
   return formElements;
 };
 
@@ -241,14 +243,14 @@ bad.utils.creditCardValidator = function(number, type) {
 
       if (i % 2 === parity) {
         digit = digit * 2;
-      }
+        }
       if (digit > 9) {
         // get the cossfoot
         // Exp: 10 - 9 = 1 + 0 | 12 - 9 = 1 + 2 | ... | 18 - 9 = 1 + 8
         digit = digit - 9;
       }
       sum += digit;
-    }
+      }
 
     // divide by 10 and check if it ends in 0 - return true | false
     return ((sum % 10) === 0);

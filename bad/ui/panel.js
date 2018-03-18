@@ -128,7 +128,7 @@ bad.ui.Panel.prototype.replacePanelContent = function(reply) {
     const el = this.getElement();
     el.replaceChild(this.responseObject.html, el.firstElementChild);
     this.enterDocument();
-  }
+    }
   if (this.responseObject.scripts) {
     this.evalScripts(this.responseObject.scripts);
   }
@@ -296,7 +296,9 @@ bad.ui.Panel.prototype.enterDocument = function() {
     e.preventDefault();
     e.target.classList.add('drag_over');
   };
-  const onDragOver = e => { e.preventDefault(); };
+  const onDragOver = e => {
+    e.preventDefault();
+  };
   const onDragLeave = e => {
     e.preventDefault();
     e.target.classList.remove('drag_over');
@@ -358,10 +360,7 @@ bad.ui.Panel.prototype.enterDocument = function() {
   Array.from(async_html_els).forEach(el => {
     let href = el.getAttribute('data-href');
     let event_value = el.getAttribute('data-zv');
-    this.dispatchCompEvent(event_value, {
-      trigger: el,
-      href: href
-    });
+    this.dispatchCompEvent(event_value, {trigger: el, href: href});
   });
 
 
@@ -495,7 +494,7 @@ bad.ui.Panel.prototype.listenToThis = function(
  */
 bad.ui.Panel.prototype.getPrettyPrinter = function() {
   return new goog.format.JsonPrettyPrinter(
-    new goog.format.JsonPrettyPrinter.SafeHtmlDelimiters());
+      new goog.format.JsonPrettyPrinter.SafeHtmlDelimiters());
 };
 
 

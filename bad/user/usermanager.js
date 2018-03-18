@@ -154,7 +154,7 @@ const basicPutPostPatchInit = (method, jwt, useDocumentCookies = false) => {
   if (useDocumentCookies) {
     const token = cookies.get('csrftoken');
     token && useDocumentCookies && h.append('X-CSRFToken', token);
-  }
+    }
   return {
     cache: 'no-cache',
     method: method,
@@ -330,7 +330,7 @@ bad.UserManager.prototype.getSalutation = function() {
   const surname = this.getSurname();
   if (surname) {
     salutation = salutation + ' ' + surname;
-  }
+    }
   return salutation;
 };
 

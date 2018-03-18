@@ -49,7 +49,7 @@ bad.ui.ExButtonGroup.prototype.addExGroup = function(group) {
  * @param {!goog.events.Event} e
  */
 bad.ui.ExButtonGroup.prototype.onAction = function(e) {
-  var activeButton = e.target;
+  const activeButton = e.target;
   this.buttonSet_.forEach(function(button) {
     if (button !== activeButton) {
       button.setChecked(false);

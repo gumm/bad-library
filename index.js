@@ -24,7 +24,7 @@ const parseShape = goog.require('bad.layout.parseShape');
 const shapeNames = goog.require('bad.layout.shapesNames');
 const utils = goog.require('bad.utils');
 
-exports = {
+window['blah'] = {
     CssClassMap,
     CssPrefix,
     bit,
