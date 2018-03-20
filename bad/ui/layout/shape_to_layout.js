@@ -202,9 +202,9 @@ const parseLayoutShapes = (gMarkers, gMark, orient) => {
     const ATL = tl;
     const x = ATL[1][0];
     const y = ATL[1][1];
-    const ATR = findTR(x, y, orient == h ? 14 : 12);
-    const ABL = findBL(x, y, orient == h ? 3 : 7);
-    const ABR = findBR(x, y, ATR, ABL, orient == h ? 11 : 13);
+    const ATR = findTR(x, y, orient === h ? 14 : 12);
+    const ABL = findBL(x, y, orient === h ? 3 : 7);
+    const ABR = findBR(x, y, ATR, ABL, orient === h ? 11 : 13);
     return {TL: ATL, TR: ATR, BL: ABL, BR: ABR};
   };
 
@@ -212,9 +212,9 @@ const parseLayoutShapes = (gMarkers, gMark, orient) => {
     const ATL = tl;
     const x = ATL[1][0];
     const y = ATL[1][1];
-    const ATR = findTR(x, y, orient == h ? 14 : 13);
-    const ABL = findBL(x, y, orient == h ? 11 : 7);
-    const ABR = findBR(x, y, ATR, ABL, orient == h ? 11 : 13);
+    const ATR = findTR(x, y, orient === h ? 14 : 13);
+    const ABL = findBL(x, y, orient === h ? 11 : 7);
+    const ABR = findBR(x, y, ATR, ABL, orient === h ? 11 : 13);
     return {TL: ATL, TR: ATR, BL: ABL, BR: ABR};
   };
 
@@ -222,15 +222,15 @@ const parseLayoutShapes = (gMarkers, gMark, orient) => {
     const ATL = tl;
     const x = ATL[1][0];
     const y = ATL[1][1];
-    const ATR = findTR(x, y, orient == h ? 12 : 13);
-    const ABL = findBL(x, y, orient == h ? 11 : 3);
-    const ABR = findBR(x, y, ATR, ABL, orient == h ? 9 : 9);
+    const ATR = findTR(x, y, orient === h ? 12 : 13);
+    const ABL = findBL(x, y, orient === h ? 11 : 3);
+    const ABR = findBR(x, y, ATR, ABL, orient === h ? 9 : 9);
     return {TL: ATL, TR: ATR, BL: ABL, BR: ABR};
   };
 
   const A = cellA(TL);
-  const B = cellB(orient == h ? A.TR : A.BL);
-  const C = cellC(orient == h ? B.TR : B.BL);
+  const B = cellB(orient === h ? A.TR : A.BL);
+  const C = cellC(orient === h ? B.TR : B.BL);
   layout.CELLS = [A, B, C];
   return layout;
 };
@@ -308,9 +308,9 @@ const nestLayouts = layouts => {
   const nested = layouts.map(l => {
     l.CELLS = l.CELLS.map(cell => {
       const lInC = layouts.filter(tl => { return aFitsInB(tl, cell); });
-      if (lInC.length == 0) {
+      if (lInC.length === 0) {
         cell.INNERLAYOUT = null;
-      } else if (lInC.length == 1) {
+      } else if (lInC.length === 1) {
         cell.INNERLAYOUT = lInC[0];
       } else {
         cell.INNERLAYOUT = lInC.reduce((pv, cv) => aFitsInB(pv, cv) ? cv : pv);
