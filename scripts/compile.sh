@@ -318,7 +318,7 @@ echo "${WORKSPACE}"
 echo "${CLOSURE_COMPILER_PATH}"
 
 cd ${WORKSPACE}
-java -jar node_modules/google-closure-compiler/compiler.jar \
+java -jar ${CLOSURE_COMPILER_PATH}/compiler.jar \
     --hide_warnings_for ${NODE_MODULE_PATH} \
     --js="!${NODE_MODULE_PATH}/**_test.js" \
     --js="${WORKSPACE}/bad/**.js" \

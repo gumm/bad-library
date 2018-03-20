@@ -112,6 +112,8 @@ const shapeNames = {
  * @param {!string} shapeName
  * @return {!string}
  */
-exports.get = function(shapeName) {
+const makeShape = function(shapeName) {
   return shapeNames[shapeName];
 };
+
+exports = { makeShape };

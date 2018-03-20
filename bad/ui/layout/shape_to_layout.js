@@ -5,7 +5,7 @@
 
 goog.module('bad.layout.parseShape');
 
-const getShape = goog.require('bad.layout.shapesNames');
+const { makeShape } = goog.require('bad.layout.shapesNames');
 
 /**
  * @typedef {{
@@ -354,7 +354,7 @@ const parseOuterLayout = (id, layout) => {
  * @return {!Array}
  */
 exports.do = function(id, str) {
-  const shape = getShape.get(str);
+  const shape = makeShape(str);
   const lines = toLines(shape);
   const markers = findMarkers(lines);
   const gradedMarkers = gradeMarkers(markers, lines);
