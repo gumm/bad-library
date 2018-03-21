@@ -50,7 +50,7 @@ bad.ui.ExButtonGroup.prototype.addExGroup = function(group) {
  */
 bad.ui.ExButtonGroup.prototype.onAction = function(e) {
   const activeButton = e.target;
-  this.buttonSet_.forEach(function(button) {
+  this.buttonSet_.forEach(button => {
     if (button !== activeButton) {
       button.setChecked(false);
     }
@@ -62,7 +62,7 @@ bad.ui.ExButtonGroup.prototype.onAction = function(e) {
  * @param {!boolean} bool
  */
 bad.ui.ExButtonGroup.prototype.setChecked = function(bool) {
-  this.buttonSet_.forEach(function(button) {
+  this.buttonSet_.forEach(button => {
     if (button instanceof goog.ui.ToggleButton) {
       button.setChecked(false);
     }

@@ -1,15 +1,16 @@
 /**
  * http://graphics.stanford.edu/~seander/bithacks.html
  */
-goog.provide('bad.math.bit');
-goog.provide('bad.math.buff');
+goog.module('bad.math.bit');
+
+const bit = {};
 
 /**
  * Convert a decimal number to a binary string.
  * @param {!number} n
  * @return {string} A string representing a binary ie. "1011".
  */
-bad.math.bit.convertNumberToBinaryString = function(n) {
+bit.convertNumberToBinaryString = function(n) {
   return n.toString(2);
 };
 
@@ -18,7 +19,7 @@ bad.math.bit.convertNumberToBinaryString = function(n) {
  * @param {!string} s A string representing a binary ie. "1011".
  * @return {number}
  */
-bad.math.bit.convertBinaryStringToNumber = function(s) {
+bit.convertBinaryStringToNumber = function(s) {
   return parseInt(s, 2);
 };
 
@@ -38,7 +39,7 @@ bad.math.bit.convertBinaryStringToNumber = function(s) {
  * @param {!number} n
  * @return {number}
  */
-bad.math.bit.getBitAt = function(b, n) {
+bit.getBitAt = function(b, n) {
   return ((b >> n) & 1);
 };
 
@@ -55,7 +56,7 @@ bad.math.bit.getBitAt = function(b, n) {
  * @param {!number} n
  * @return {number}
  */
-bad.math.bit.setBitAt = function(b, n) {
+bit.setBitAt = function(b, n) {
   return b | (1 << n);
 };
 
@@ -66,7 +67,7 @@ bad.math.bit.setBitAt = function(b, n) {
  * @param {!number} n
  * @return {number}
  */
-bad.math.bit.clearBitAt = function(b, n) {
+bit.clearBitAt = function(b, n) {
   return b & ~(1 << n);
 };
 
@@ -77,7 +78,7 @@ bad.math.bit.clearBitAt = function(b, n) {
  * @param {!number} n
  * @return {number}
  */
-bad.math.bit.invBitAt = function(b, n) {
+bit.invBitAt = function(b, n) {
   return b ^ (1 << n);
 };
 
@@ -88,16 +89,8 @@ bad.math.bit.invBitAt = function(b, n) {
  * @param {!number} n
  * @return {boolean}
  */
-bad.math.bit.hasBitAt = function(b, n) {
-  return bad.math.bit.getBitAt(b, n) == 1;
+bit.hasBitAt = function(b, n) {
+  return bit.getBitAt(b, n) === 1;
 };
 
-
-/**
- * Given an Uint8Array view into a buffer, flip the bit at the given bit number.
- * @param {!Uint8Array} buff
- * @param {!number} bitNum
- */
-bad.math.buff.invBitAt8 = function(buff, bitNum) {
-  buff[Math.floor(bitNum / 8)] ^= 1 << (bitNum % 8);
-};
+exports = bit;

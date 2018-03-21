@@ -11,7 +11,7 @@ bad.utils.getElDataMap = el => {
   for (let i = 0; i < attr.length; i++) {
     let a = attr[i];
     let b = a.name.split('data-');
-    if (b[0] == '') {
+    if (b[0] === '') {
       o[b[1]] = a.value;
     }
     }

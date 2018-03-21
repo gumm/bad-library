@@ -190,10 +190,10 @@ bad.ui.Form.prototype.getForm = function() {
  */
 bad.ui.Form.prototype.interceptFormSubmit = function(form) {
   const user = this.getUser();
-  this.listenToThis(form, goog.events.EventType.SUBMIT, goog.bind(function(e) {
+  this.listenToThis(form, goog.events.EventType.SUBMIT, e => {
     e.preventDefault();
     user && user.formSubmit(this);
-  }, this));
+  });
   return form;
 };
 

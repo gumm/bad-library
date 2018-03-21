@@ -47,7 +47,7 @@ const treeNodeSelect = panel => eventData => {
   const allNodes = panel.getElement().querySelectorAll('.tree-node');
   let href = eventData.trigger.getAttribute('data-href');
   Array.from(allNodes).forEach(n => {
-    if (n.getAttribute('data-href') == href) {
+    if (n.getAttribute('data-href') === href) {
       goog.dom.classlist.add(n, 'selected')
     } else {
       goog.dom.classlist.remove(n, 'selected')

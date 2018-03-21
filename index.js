@@ -24,28 +24,30 @@ const parseShape = goog.require('bad.layout.parseShape');
 const shapeNames = goog.require('bad.layout.shapesNames');
 const utils = goog.require('bad.utils');
 
-window['blah'] = {
-    CssClassMap,
-    CssPrefix,
-    bit,
-    buf,
-    CompEvent,
-    EventType,
-    ResizableEventType,
-    ViewEvent,
-    Layout,
-    LayoutCssClassMap,
-    LayoutIdFragment,
-    parseShape,
-    shapeNames,
-    button,
-    Component,
-    ExButtonGroup,
-    FieldErrs,
-    Form,
-    Panel,
-    View,
-    UserManager,
-    utils,
-    func
+const bad = {
+  bit,
+  buf,
+  CssClassMap,
+  CssPrefix,
+  CompEvent,
+  EventType,
+  ResizableEventType,
+  ViewEvent,
+  Layout,
+  LayoutCssClassMap,
+  LayoutIdFragment,
+  parseShape,
+  shapeNames,
+  button,
+  Component,
+  ExButtonGroup,
+  FieldErrs,
+  Form,
+  Panel,
+  View,
+  UserManager,
+  utils,
+  func
 };
+
+goog.exportSymbol('bad', bad);

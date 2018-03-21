@@ -1,13 +1,6 @@
 goog.provide('bad.CssClassMap');
-goog.provide('bad.CssPrefix');
+goog.require('bad.CssPrefix');
 
-/**
- * @type {{PANEL: string, LAYOUT: string}}
- */
-bad.CssPrefix = {
-  PANEL: 'pan',
-  LAYOUT: 'layout'
-};
 
 /**
  * An enumerator to the HTML element class names.
@@ -16,3 +9,4 @@ bad.CssPrefix = {
 bad.CssClassMap = {
   PANEL_WRAPPER: goog.getCssName(bad.CssPrefix.PANEL, 'wrapper')
 };
+

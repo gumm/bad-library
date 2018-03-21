@@ -32,7 +32,7 @@
 function setUp() {
   goog.debug.LogManager.getRoot().setLevel(goog.debug.Logger.Level.WARNING);
 
-  var debugConsole = new goog.debug.Console();
+  const debugConsole = new goog.debug.Console();
   debugConsole.setCapturing(true);
 }
 
@@ -42,17 +42,17 @@ function tearDown() {
 
 function test_realWorld() {
 
-  var f = function(id, isChecked) {
+  const f = id  => isChecked => {
     console.log(id, isChecked)
   };
 
-  var g1 = new bad.ui.ExButtonGroup();
-  var g2 = new bad.ui.ExButtonGroup();
-  var g3 = new bad.ui.ExButtonGroup();
+  const g1 = new bad.ui.ExButtonGroup();
+  const g2 = new bad.ui.ExButtonGroup();
+  const g3 = new bad.ui.ExButtonGroup();
 
-  var g1Ids = ['t1', 't2', 't3', 't4'];
-  var g2Ids = ['t5', 't6', 't7'];
-  var g3Ids = ['t8', 't9'];
+  const g1Ids = ['t1', 't2', 't3', 't4'];
+  const g2Ids = ['t5', 't6', 't7'];
+  const g3Ids = ['t8', 't9'];
 
   g1.addExGroup(g3);
   g2.addExGroup(g3);
@@ -60,17 +60,17 @@ function test_realWorld() {
   g3.addExGroup(g2);
 
   g1Ids.forEach(function(id) {
-    var b1 = bad.ui.button.makeToggleButton(id, undefined, goog.partial(f, id));
+    const b1 = bad.ui.button.makeToggleButton(id, undefined, f(id));
     g1.addToggleButton(b1);
   });
 
   g2Ids.forEach(function(id) {
-    var b2 = bad.ui.button.makeToggleButton(id, undefined, goog.partial(f, id));
+    const b2 = bad.ui.button.makeToggleButton(id, undefined, f(id));
     g2.addToggleButton(b2);
   });
 
   g3Ids.forEach(function(id) {
-    var b3 = bad.ui.button.makeToggleButton(id, undefined, goog.partial(f, id));
+    const b3 = bad.ui.button.makeToggleButton(id, undefined, f(id));
     g3.addToggleButton(b3);
   });
 

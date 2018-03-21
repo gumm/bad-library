@@ -29,7 +29,7 @@
 function setUp() {
   goog.debug.LogManager.getRoot().setLevel(goog.debug.Logger.Level.WARNING);
 
-  var debugConsole = new goog.debug.Console();
+  const debugConsole = new goog.debug.Console();
   debugConsole.setCapturing(true);
 }
 
@@ -38,25 +38,23 @@ function tearDown() {
 }
 
 function test_realWorld() {
-  var func = function(a) {
-    console.log(a)
-  };
+  const func = a => () => console.log(a);
 
   // Basic Buttons
-  bad.ui.button.makeButton('basic', undefined, goog.partial(func, 'Basic'));
-  bad.ui.button.makeButton('submit', undefined, goog.partial(func,'Submit'));
-  bad.ui.button.makeButton('warning', undefined, goog.partial(func, 'Warn'));
-  bad.ui.button.makeToggleButton('toggle', undefined, func);
+  bad.ui.button.makeButton('basic', undefined, func('Basic'));
+  bad.ui.button.makeButton('submit', undefined, func('Submit'));
+  bad.ui.button.makeButton('warning', undefined, func('Warn'));
+  bad.ui.button.makeToggleButton('toggle', undefined, func('Toggle'));
 
   /**
    * @type {Array}
    */
-  var mItems = [
-    ['Item1', 'icon-user', goog.partial(func, 'Item1')],
+  const mItems = [
+    ['Item1', 'icon-user',func('Item1')],
     [/* menu separator */],
-    ['Item2', 'icon-signout', goog.partial(func, 'Item2')]
+    ['Item2', 'icon-signout', func('Item2')]
   ];
-  var handler = new goog.events.EventHandler(this);
+  const handler = new goog.events.EventHandler(this);
 
   bad.ui.button.makeMenuButton('smenu', mItems, undefined, handler,
       this, true);

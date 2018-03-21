@@ -2,10 +2,10 @@
 <html>
 <head>
     <title>Layout Unit Tests - bad.ui.Layout</title>
-    <script src="../../node_modules/google-closure-library/closure/goog/base.js"></script>
-    <script src="../deps.js"></script>
+    <script src="../../../node_modules/google-closure-library/closure/goog/base.js"></script>
+    <script src="../../deps.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="../css/layout.css">
+    <link rel="stylesheet" type="text/css" href="../../css/layout.css">
     <script type="text/javascript">
         goog.require('bad.ui.Layout');
         goog.require('goog.debug.Console');
@@ -75,7 +75,7 @@
         }
 
         .layout-nest-left-mid-z-b {
-            background-color: orange;
+            background-color: grey;
         }
     </style>
 </head>
@@ -101,7 +101,7 @@ function setUp() {
     var rightMargin = 30;
     var bottomMargin = 20;
     var leftMargin = 10;
-    var draggerThickness = 3;
+    var draggerThickness = 7;
     var initialSizeOfLeftCell = 260;
     var initialSizeOfRightCell = 200;
     var minSizeLeftCellCanBeDraggedTo = 30;
