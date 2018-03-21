@@ -108,7 +108,7 @@ bad.ui.button.makeToggleButton = function(
 bad.ui.button.makeButton_ = function(
     constructor, el, parent, opt_callback, opt_domHelper) {
 
-  const renderer = bad.ui.button.getBasicButtonRenderer();
+  const renderer = bad.ui.button.getFlatButtonRenderer();
   /**
    * @type {!goog.ui.ToggleButton|!goog.ui.CustomButton}
    */
