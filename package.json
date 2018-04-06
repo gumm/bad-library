@@ -25,16 +25,16 @@
   "dependencies": {},
   "devDependencies": {
     "be-sert": "*",
-    "google-closure-compiler": "*",
-    "google-closure-library": "*",
+    "dag-solve": "^2.3.11",
+    "google-closure-compiler": "^20180402.0.0",
+    "google-closure-library": "^20180405.0.0",
     "less": "*",
     "less-middleware": "*",
     "less-plugin-clean-css": "*",
-    "material-components-web": "*",
-    "mocha": "*",
+    "material-components-web": "^0.34.1",
+    "mocha": "^5.0.5",
     "nyc": "*",
     "ramda": "*",
-    "rewire": "*",
-    "dag-solve": "*"
+    "rewire": "*"
   }
 }
