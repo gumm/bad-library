@@ -863,7 +863,8 @@ bad.ui.Layout.prototype.setDraggerBCLimits_ = function(max) {
   const min = this.getMinimumSize_(this.cell_.C);
 
   this.setWidth_(
-      rect, this.getWidth_(this.componentBoxSize_) -
+      rect,
+      this.getWidth_(this.componentBoxSize_) -
           this.getLeft_(this.dragger_.AB.rect) - (draggerThickness * 2) - min);
   this.setLeft_(rect, max + draggerThickness);
   this.dragger_.BC.dragger.setLimits(rect);
@@ -883,7 +884,7 @@ bad.ui.Layout.prototype.setDraggerBCLimits_ = function(max) {
 bad.ui.Layout.prototype.getDraggerLimitsRect_ = function(dragger) {
   if (!dragger.limitsRect) {
     dragger.limitsRect = new goog.math.Rect(NaN, NaN, NaN, NaN);
-  }
+    }
   return dragger.limitsRect;
 };
 
@@ -1049,7 +1050,7 @@ bad.ui.Layout.prototype.getSize = function() {
 bad.ui.Layout.prototype.getOrientClassName_ = function() {
   if (this.orientation_ === bad.ui.Layout.Orientation.VERTICAL) {
     return bad.ui.Layout.CssClassMap.DRAG_VERTICAL;
-  }
+    }
   return bad.ui.Layout.CssClassMap.DRAG_HORIZ;
 };
 
@@ -1121,7 +1122,7 @@ bad.ui.Layout.prototype.createRects_ = function() {
     this.dragger_.AB.rect =
         new goog.math.Rect(iniA, top, thickness, rootHeight);
     rects.push(this.dragger_.AB.rect);
-  }
+    }
 
   if (!this.dragger_.BC.rect) {
     /**
@@ -1130,7 +1131,7 @@ bad.ui.Layout.prototype.createRects_ = function() {
     this.dragger_.BC.rect = new goog.math.Rect(
         rootWidth - iniC - thickness, top, thickness, rootHeight);
     rects.push(this.dragger_.BC.rect);
-  }
+    }
 
   if (!this.cell_.A.rect) {
     /**
@@ -1138,7 +1139,7 @@ bad.ui.Layout.prototype.createRects_ = function() {
      */
     this.cell_.A.rect = new goog.math.Rect(left, top, iniA, rootHeight);
     rects.push(this.cell_.A.rect);
-  }
+    }
 
   if (!this.cell_.B.rect) {
     /**
@@ -1147,7 +1148,7 @@ bad.ui.Layout.prototype.createRects_ = function() {
     this.cell_.B.rect = new goog.math.Rect(
         iniA + thickness, top, rootWidth - iniA - iniC - thickness, rootHeight);
     rects.push(this.cell_.B.rect);
-  }
+    }
 
   if (!this.cell_.C.rect) {
     /**
@@ -1156,7 +1157,7 @@ bad.ui.Layout.prototype.createRects_ = function() {
     this.cell_.C.rect = new goog.math.Rect(
         iniC + thickness, top, rootWidth - iniC + thickness, rootHeight);
     rects.push(this.cell_.C.rect);
-  }
+    }
 
   /**
    * When creating the controlling rectangles for the first time, invert all
@@ -1374,7 +1375,7 @@ bad.ui.Layout.prototype.matchSizeToViewport = function() {
 
   if (this.getWidthToViewport() && viewPortSize) {
     width = viewPortSize.width;
-  }
+    }
   if (this.getHeightToViewport() && viewPortSize) {
     height = viewPortSize.height;
   }
@@ -1412,7 +1413,7 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
     this.updateVariableSizes_();
     if (opt_callback) {
       opt_callback();
-    }
+      }
     return true;
   };
 
@@ -1432,7 +1433,7 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
       if (opt_callback) {
         opt_callback();
       }
-    }
+      }
     return true;
   };
 
@@ -1444,27 +1445,27 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
    * @param {boolean=} opt_animate
    */
   compA.show = (opt_callback, opt_percentage, opt_pixels, opt_animate) => {
-        const fullSize = this.getWidth_(this.componentBoxSize_);
-        const initSize = this.getInitialSize_(this.cell_.A);
-        const minSize = this.getMinimumSize_(this.cell_.A);
-        const fallbackSize = initSize || minSize || 50;
-        const availableSize = fullSize - this.getWidth_(compC.rect) -
-            (this.getDraggerThickness() * 2);
-        const lastOpenSize = this.memoryAB_ ? this.memoryAB_ : fallbackSize;
-        const openTo = goog.isDefAndNotNull(opt_percentage) ?
-            (availableSize / 100) * opt_percentage :
-            goog.isDefAndNotNull(opt_pixels) ? opt_pixels : lastOpenSize;
-        if (opt_animate) {
-          this.doAnimate_(dragAB, openTo, opt_callback);
-        } else {
-          this.setLeft_(dragAB.rect, openTo);
-          this.updateVariableSizes_();
-          if (opt_callback) {
-            opt_callback();
-          }
-        }
-        return true;
-      };
+    const fullSize = this.getWidth_(this.componentBoxSize_);
+    const initSize = this.getInitialSize_(this.cell_.A);
+    const minSize = this.getMinimumSize_(this.cell_.A);
+    const fallbackSize = initSize || minSize || 50;
+    const availableSize = fullSize - this.getWidth_(compC.rect) -
+        (this.getDraggerThickness() * 2);
+    const lastOpenSize = this.memoryAB_ ? this.memoryAB_ : fallbackSize;
+    const openTo = goog.isDefAndNotNull(opt_percentage) ?
+        (availableSize / 100) * opt_percentage :
+        goog.isDefAndNotNull(opt_pixels) ? opt_pixels : lastOpenSize;
+    if (opt_animate) {
+      this.doAnimate_(dragAB, openTo, opt_callback);
+    } else {
+      this.setLeft_(dragAB.rect, openTo);
+      this.updateVariableSizes_();
+      if (opt_callback) {
+        opt_callback();
+      }
+      }
+    return true;
+  };
 
   /**
    * Helper function to slide the A cell open.
@@ -1564,7 +1565,7 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
     this.updateVariableSizes_();
     if (opt_callback) {
       opt_callback();
-    }
+      }
     return true;
   };
 
@@ -1588,7 +1589,7 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
       if (opt_callback) {
         opt_callback();
       }
-    }
+      }
     return true;
   };
 
@@ -1600,33 +1601,32 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
    * @param {boolean=} opt_animate
    */
   compC.show = (opt_callback, opt_percentage, opt_pixels, opt_animate) => {
-        const fullSize = this.getWidth_(this.componentBoxSize_);
-        const compASize = this.getWidth_(compA.rect);
-        const initSize = this.getInitialSize_(this.cell_.C);
-        const minSize = this.getMinimumSize_(this.cell_.C);
-        const fallbackSize = initSize || minSize || 50;
-        const availableSize = fullSize - compASize;
-        const lastOpenSize = this.memoryBC_ ? fullSize - this.memoryBC_ :
-                                              fullSize - fallbackSize;
-        const openTo = goog.isDefAndNotNull(opt_percentage) ?
-            (compASize + this.getDraggerThickness() +
-             (availableSize / 100) * (100 - opt_percentage)) :
-            goog.isDefAndNotNull(opt_pixels) ?
-            compASize + this.getDraggerThickness() + availableSize -
-                    opt_pixels :
-            lastOpenSize;
+    const fullSize = this.getWidth_(this.componentBoxSize_);
+    const compASize = this.getWidth_(compA.rect);
+    const initSize = this.getInitialSize_(this.cell_.C);
+    const minSize = this.getMinimumSize_(this.cell_.C);
+    const fallbackSize = initSize || minSize || 50;
+    const availableSize = fullSize - compASize;
+    const lastOpenSize =
+        this.memoryBC_ ? fullSize - this.memoryBC_ : fullSize - fallbackSize;
+    const openTo = goog.isDefAndNotNull(opt_percentage) ?
+        (compASize + this.getDraggerThickness() +
+         (availableSize / 100) * (100 - opt_percentage)) :
+        goog.isDefAndNotNull(opt_pixels) ?
+        compASize + this.getDraggerThickness() + availableSize - opt_pixels :
+        lastOpenSize;
 
-        if (opt_animate) {
-          this.doAnimate_(dragBC, openTo, opt_callback);
-        } else {
-          this.setLeft_(dragBC.rect, openTo);
-          this.updateVariableSizes_();
-          if (opt_callback) {
-            opt_callback();
-          }
-        }
-        return true;
-      };
+    if (opt_animate) {
+      this.doAnimate_(dragBC, openTo, opt_callback);
+    } else {
+      this.setLeft_(dragBC.rect, openTo);
+      this.updateVariableSizes_();
+      if (opt_callback) {
+        opt_callback();
+      }
+      }
+    return true;
+  };
 
   /**
    * Helper function to slide the C cell open.
@@ -1635,12 +1635,12 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
    * @param {number=} opt_pixels
    */
   compC.slideOpen = (opt_percentage, opt_pixels, opt_callback) => {
-        const size = this.getWidth_(compC.rect);
-        if (size <= 0) {
-          const animate = true;
-          compC.show(opt_callback, opt_percentage, opt_pixels, animate);
-        }
-      };
+    const size = this.getWidth_(compC.rect);
+    if (size <= 0) {
+      const animate = true;
+      compC.show(opt_callback, opt_percentage, opt_pixels, animate);
+    }
+  };
 
   /**
    * Helper function to slide the C cell to any arbitrary position.

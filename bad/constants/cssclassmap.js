@@ -9,4 +9,3 @@ goog.require('bad.CssPrefix');
 bad.CssClassMap = {
   PANEL_WRAPPER: goog.getCssName(bad.CssPrefix.PANEL, 'wrapper')
 };
-

@@ -5,7 +5,7 @@
 
 goog.module('bad.layout.parseShape');
 
-const { makeShape } = goog.require('bad.layout.shapesNames');
+const {makeShape} = goog.require('bad.layout.shapesNames');
 
 /**
  * @typedef {{
@@ -94,7 +94,7 @@ const gradeMarkers = (markers, lines) => {
         if (lines[check[1]][check[0]] === '|') {
           result = 1;
         }
-      }
+        }
       return result;
     };
 
@@ -106,7 +106,7 @@ const gradeMarkers = (markers, lines) => {
         if (lines[check[1]][check[0]] === '-') {
           result = 2;
         }
-      }
+        }
       return result;
     };
 
@@ -118,7 +118,7 @@ const gradeMarkers = (markers, lines) => {
         if (lines[check[1]][check[0]] === '|') {
           result = 4;
         }
-      }
+        }
       return result;
     };
 
@@ -130,7 +130,7 @@ const gradeMarkers = (markers, lines) => {
         if (lines[check[1]][check[0]] === '-') {
           result = 8;
         }
-      }
+        }
       return result;
     };
 
@@ -253,7 +253,7 @@ const parseStartMarkers = markers => {
         orient = v;
       } else if (markers[i + 1][0] === 14) {
         orient = h;
-      }
+        }
       const lOut = parseLayoutShapes(markers, m, orient);
       layouts.push(lOut);
     }
@@ -278,7 +278,7 @@ const parseNames = (layouts, lines) => {
       cell.NAME = tName.replace(/^(\D+)\((\d+)\)/ig, (match, p1, p2) => {
         if (match) {
           size = parseInt(p2, 10);
-        }
+          }
         return p1;
       });
       cell.SIZE = size;
@@ -307,14 +307,16 @@ const aFitsInB = (a, b) =>
 const nestLayouts = layouts => {
   const nested = layouts.map(l => {
     l.CELLS = l.CELLS.map(cell => {
-      const lInC = layouts.filter(tl => { return aFitsInB(tl, cell); });
+      const lInC = layouts.filter(tl => {
+        return aFitsInB(tl, cell);
+      });
       if (lInC.length === 0) {
         cell.INNERLAYOUT = null;
       } else if (lInC.length === 1) {
         cell.INNERLAYOUT = lInC[0];
       } else {
         cell.INNERLAYOUT = lInC.reduce((pv, cv) => aFitsInB(pv, cv) ? cv : pv);
-      }
+        }
       return cell;
     });
     return l;
@@ -338,10 +340,10 @@ const parseOuterLayout = (id, layout) => {
     if (c.INNERLAYOUT) {
       reply[1] = c.INNERLAYOUT.ORIENT;
       reply[2] = parseLayout(c.INNERLAYOUT);
-    }
+      }
     if (c.SIZE) {
       reply[3] = c.SIZE;
-    }
+      }
     return reply;
   };
   return [id, layout.ORIENT, parseLayout(layout)];

@@ -116,4 +116,4 @@ const makeShape = function(shapeName) {
   return shapeNames[shapeName];
 };
 
-exports = { makeShape };
+exports = {makeShape};
