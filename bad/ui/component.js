@@ -85,7 +85,7 @@ bad.ui.Component.prototype.onBeforeComponentReady = function() {
 
 
 /**
- * @param {!Function} func A callback guaranteed to fire after the panels is
+ * @param {Function} func A callback guaranteed to fire after the panels is
  * ready, and in the document, but before the
  * {@code bad.EventType.READY} event is fired.
  */
@@ -96,7 +96,7 @@ bad.ui.Component.prototype.setBeforeReadyCallback = function(func) {
 
 /**
  * Set the target element where the component will render to.
- * @param {!Element|!HTMLElement} element A valid dom element.
+ * @param {Element|!HTMLElement} element A valid dom element.
  */
 bad.ui.Component.prototype.setTarget = function(element) {
   this.target_ = element;
@@ -134,7 +134,7 @@ bad.ui.Component.prototype.show = function() {
  * A shorthand method to get panels to dispatch uniform events.
  * Views may listen just to this event, and act on the supplied value or
  * data payload.
- * @param {!string} value
+ * @param {string} value
  * @param {(string|number|?IObject|?Object)=} opt_data
  * @return {boolean} If anyone called preventDefault on the event object (or
  *     if any of the handlers returns false this will also return false.

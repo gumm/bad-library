@@ -8,8 +8,8 @@ goog.require('goog.events.EventTarget');
 
 /**
  * Toggle the whole tree display either open or closed
- * @param {!bad.ui.Panel} panel
- * @param {!{custom:{isOn:!boolean}}} eventData
+ * @param {bad.ui.Panel} panel
+ * @param {{custom:{isOn: boolean}}} eventData
  */
 const toggleTree = (panel, eventData) => {
   // The first level children. From a pure usability perspective
@@ -17,7 +17,7 @@ const toggleTree = (panel, eventData) => {
   // up with only one element revealed. So we keep the first level children
   // open at all times.
   const fc = panel.getElement().querySelector('.children');
-  const isOn = /**@type {!boolean} */ (eventData.custom['isOn']);
+  const isOn = /**@type {boolean} */ (eventData.custom['isOn']);
   const children = panel.getElement().querySelectorAll('.children');
   const revealIcons = panel.getElement().querySelectorAll('.tst_reveal_icon');
   Array.from(children).forEach(
@@ -31,8 +31,8 @@ const toggleTree = (panel, eventData) => {
 
 
 /**
- * @param {!bad.ui.Panel} panel
- * @param {!{trigger:!HTMLElement}} eventData
+ * @param {bad.ui.Panel} panel
+ * @param {{trigger:!HTMLElement}} eventData
  */
 const toggleTreeChildren = (panel, eventData) => {
   const revealIcon = eventData.trigger;
@@ -64,7 +64,7 @@ bad.ui.View = function() {
   goog.events.EventTarget.call(this);
 
   /**
-   * @type {!Map<*, !bad.ui.Panel>}
+   * @type {Map<*, !bad.ui.Panel>}
    */
   this.panelMap = new Map();
 
@@ -75,7 +75,7 @@ goog.inherits(bad.ui.View, goog.events.EventTarget);
 /**
  * Returns the event handler for this component, lazily created the first time
  * this method is called.
- * @return {!goog.events.EventHandler} Event handler for this component.
+ * @return {goog.events.EventHandler} Event handler for this component.
  * @protected
  */
 bad.ui.View.prototype.getHandler = function() {
@@ -125,7 +125,7 @@ bad.ui.View.prototype.dispose = function() {
 
 /**
  * Add a panel as a child of the view.
- * @param {!string} name The name of the panel - used as a key in the panel map.
+ * @param {string} name The name of the panel - used as a key in the panel map.
  * @param {!bad.ui.Panel} panel The panel itself.
  */
 bad.ui.View.prototype.addPanelToView = function(name, panel) {
@@ -138,7 +138,7 @@ bad.ui.View.prototype.addPanelToView = function(name, panel) {
 
 /**
  * Remove a panel from the view by name.
- * @param {!string} name The name of the panel - used as a key in the panel map.
+ * @param {string} name The name of the panel - used as a key in the panel map.
  */
 bad.ui.View.prototype.removePanelFromView = function(name) {
   this.panelMap.has(name) && this.panelMap.get(name).dispose();
@@ -148,7 +148,7 @@ bad.ui.View.prototype.removePanelFromView = function(name) {
 
 /**
  * @param {*} name
- * @return {!bad.ui.Panel|undefined}
+ * @return {bad.ui.Panel|undefined}
  */
 bad.ui.View.prototype.getPanelByName = function(name) {
   return this.panelMap.get(name);
@@ -157,7 +157,7 @@ bad.ui.View.prototype.getPanelByName = function(name) {
 
 /**
  * Initiates a listener for panel action events on the panel.
- * @param {!bad.ui.Panel} panel The panel to listen to.
+ * @param {bad.ui.Panel} panel The panel to listen to.
  * @private
  */
 bad.ui.View.prototype.initListenersForPanel_ = function(panel) {
@@ -185,21 +185,21 @@ bad.ui.View.prototype.displayPanels = goog.nullFunction;
 
 
 /**
- * @param {!bad.CompEvent} e
+ * @param {bad.CompEvent} e
  */
 bad.ui.View.prototype.onPanelAction = function(e) {
   const eventValue = e.getValue();
   const eventData = e.getData();
-  const ePanel = /** @type {!bad.ui.Panel} */ (e.target);
+  const ePanel = /** @type {bad.ui.Panel} */ (e.target);
 
   switch (eventValue) {
     case 'toggle_tree':
-      toggleTree(ePanel, /**@type {!{custom:{isOn:boolean}}}*/ (eventData));
+      toggleTree(ePanel, /**@type {{custom:{isOn:boolean}}}*/ (eventData));
       break;
     case 'tree_toggle-children':
       toggleTreeChildren(
           ePanel,
-          /**@type {!{trigger:!HTMLElement}}*/ (eventData));
+          /**@type {{trigger:!HTMLElement}}*/ (eventData));
       break;
     case 'destroy_me':
       ePanel.dispose();
@@ -217,7 +217,7 @@ bad.ui.View.prototype.onPanelAction = function(e) {
 
 
 /**
- * @param {!bad.ui.Layout.NestMap} nests
+ * @param {bad.ui.Layout.NestMap} nests
  */
 bad.ui.View.prototype.setNests = function(nests) {
   this.nst = nests;
@@ -225,7 +225,7 @@ bad.ui.View.prototype.setNests = function(nests) {
 
 
 /**
- * @param {!bad.UserManager} user
+ * @param {bad.UserManager} user
  */
 bad.ui.View.prototype.setUser = function(user) {
   this.user_ = user;
@@ -234,7 +234,7 @@ bad.ui.View.prototype.setUser = function(user) {
 
 
 /**
- * @return {!bad.UserManager}
+ * @return {bad.UserManager}
  */
 bad.ui.View.prototype.getUser = function() {
   return this.user_;
@@ -242,7 +242,7 @@ bad.ui.View.prototype.getUser = function() {
 
 //------------------------------------------------------[ Panel Event Helper ]--
 /**
- * @param {!string} v Secondary event value.
+ * @param {string} v Secondary event value.
  * @param {*=} opt_data Optional data to include in the
  * event.
  */

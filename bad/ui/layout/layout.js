@@ -28,8 +28,8 @@ goog.require('goog.ui.Component');
 /**
  * Given a goog.math.rect object, this inverts the rectangle. That is:
  * width becomes height, and top becomes left (and vice versa).
- * @param {!goog.math.Rect} rect The rectangle object that will be inverted.
- * @return {!goog.math.Rect} rect The inverted rectangle.
+ * @param {goog.math.Rect} rect The rectangle object that will be inverted.
+ * @return {goog.math.Rect} rect The inverted rectangle.
  */
 const invertRect = rect => {
   const [w, h, l, t] = [rect.width, rect.height, rect.left, rect.top];
@@ -61,8 +61,8 @@ const invertRect = rect => {
  *      Cells [B] and [C] are separated by drag bar [BC]
  * Internally, the layout is modelled with rectangles, and the DOM elements are
  * updated to the rectangle size and positions as dragging happens.
- * @param {!string} id An id for this instance of this class.
- * @param {!Array<!string>} cellNames An array of three cell addresses.
+ * @param {string} id An id for this instance of this class.
+ * @param {Array<string>} cellNames An array of three cell addresses.
  * @param {string=} opt_orientation An optional specification for the
  *      orientation of the layout. (vertical or horizontal)
  *      Defaults to horizontal.
@@ -87,21 +87,21 @@ bad.ui.Layout = function(id, cellNames, opt_orientation, opt_domHelper) {
 
   /**
    * Allows the height of the layout to follow the height of the view port.
-   * @type {!boolean}
+   * @type {boolean}
    * @private
    */
   this.heightToViewport_ = false;
 
   /**
    * Allows the width of the layout to follow the width of the view port.
-   * @type {!boolean}
+   * @type {boolean}
    * @private
    */
   this.widthToViewport_ = false;
 
   /**
    * The orientation of the containers.
-   * @type {!string}
+   * @type {string}
    * @private
    */
   this.orientation_ = 'horizontal';
@@ -119,7 +119,7 @@ bad.ui.Layout = function(id, cellNames, opt_orientation, opt_domHelper) {
   /**
    * A layout may have inner layouts.
    * This is a map of the inner layouts contained in this layout.
-   * @enum {!bad.ui.Layout}
+   * @enum {bad.ui.Layout}
    * @private
    */
   this.innerLayout_ = {};
@@ -127,7 +127,7 @@ bad.ui.Layout = function(id, cellNames, opt_orientation, opt_domHelper) {
   /**
    * All cell elements - including those of the inner layout
    * are accessible through this map.
-   * @enum {!bad.ui.Layout.CellType}
+   * @enum {bad.ui.Layout.CellType}
    */
   this.nests = {};
 
@@ -136,7 +136,7 @@ bad.ui.Layout = function(id, cellNames, opt_orientation, opt_domHelper) {
    * The cells and their methods are accessible through this
    * map via the id's given to the cells with during construction.
    * If no id's were passed in, the default is A, B and C are used
-   * @enum {!bad.ui.Layout.CellType}
+   * @enum {bad.ui.Layout.CellType}
    * @private
    */
   this.cell_ = {
@@ -157,7 +157,7 @@ bad.ui.Layout = function(id, cellNames, opt_orientation, opt_domHelper) {
 
   /**
    * The thickness (in pixels) of the draggers.
-   * @type {!number}
+   * @type {number}
    * @private
    */
   this.draggerThickness_ = 0;
@@ -166,14 +166,14 @@ bad.ui.Layout = function(id, cellNames, opt_orientation, opt_domHelper) {
    * A class name that will be appended to the draggers to be able to style
    * a grabber image into them. By default this is set to 'grabber'
    * and results in 3 dots.
-   * @type {!string}
+   * @type {string}
    * @private
    */
   this.grabberClass_ = 'grabber';
 
   /**
    * The last known position of the 'AB' dragger.
-   * @type {!number}
+   * @type {number}
    * @private
    */
   this.memoryAB_ = 0;
@@ -181,13 +181,13 @@ bad.ui.Layout = function(id, cellNames, opt_orientation, opt_domHelper) {
   /**
 
    * The last known position of the 'BC' dragger.
-   * @type {!number}
+   * @type {number}
    * @private
    */
   this.memoryBC_ = 0;
 
   /**
-   * @type {!string}
+   * @type {string}
    * @private
    */
   this.targetCellName_ = '';
@@ -195,14 +195,14 @@ bad.ui.Layout = function(id, cellNames, opt_orientation, opt_domHelper) {
   /**
    * This is set only when the dom is rendered, and can be read by any of the
    * children in order to build a dynamic CSS structure for each cell.
-   * @type {!string}
+   * @type {string}
    * @private
    */
   this.cellClassPrefix_ = '';
 
   /**
    * A monitoring object
-   * @type {!goog.dom.ViewportSizeMonitor}
+   * @type {goog.dom.ViewportSizeMonitor}
    * @private
    */
   this.viewportSizeMonitor_ =
@@ -210,7 +210,7 @@ bad.ui.Layout = function(id, cellNames, opt_orientation, opt_domHelper) {
 
   /**
    * The duration of animations
-   * @type {!number}
+   * @type {number}
    * @private
    */
   this.aniDuration_ = 250;
@@ -239,11 +239,11 @@ bad.ui.Layout.NestMap;
  * @typedef {{
  *     cellClass: string,
  *     element: !Element,
- *     initSize: !number,
- *     minSize: !number,
+ *     initSize: number,
+ *     minSize: number,
  *     name: string,
  *     rect: !goog.math.Rect,
- *     isOpen: !function(): !number,
+ *     isOpen: function(): number,
  *     hide: !Function,
  *     close: !Function,
  *     show: !Function,
@@ -273,7 +273,7 @@ bad.ui.Layout.DraggerType;
 /**
  * @typedef {{
  *    element: !Element,
- *    nestId: !string,
+ *    nestId: string,
  *    rect: !goog.math.Rect
  * }}
  */
@@ -312,7 +312,7 @@ bad.ui.Layout.IdFragment = {
  * A map of orientation transforms.
  * For vertical orientations, this map is used as a rotation transform to access
  * the correct values in things like goog.math.Rect and goog.math.Size objects.
- * @enum {!string}
+ * @enum {string}
  */
 bad.ui.Layout.ORIENT = {
   'x': 'y',
@@ -333,7 +333,7 @@ bad.ui.Layout.ORIENT = {
 
 /**
  * A map of dom class names
- * @enum {!string}
+ * @enum {string}
  */
 bad.ui.Layout.CssClassMap = {
   LAYOUT_CELL: goog.getCssName(bad.CssPrefix.LAYOUT, 'nest'),
@@ -477,7 +477,7 @@ bad.ui.Layout.prototype.enterDocument = function() {
  * Change the sizes of all children in this layout. It is important to stop
  * event propagation here to prevent the events bubbling to the parent layout
  * and ending in a loop.
- * @param {!goog.events.Event} e The resize event that triggered this.
+ * @param {goog.events.Event} e The resize event that triggered this.
  * @private
  */
 bad.ui.Layout.prototype.updateChildSizes_ = function(e) {
@@ -521,8 +521,8 @@ bad.ui.Layout.prototype.disposeInternal = function() {
 
 //-------------------------------------------------------------[ Orientation ]--
 /**
- * @param {!string} value The orientation string to check.
- * @return {!string}
+ * @param {string} value The orientation string to check.
+ * @return {string}
  * @private
  */
 bad.ui.Layout.prototype.checkOrient_ = function(value) {
@@ -533,8 +533,8 @@ bad.ui.Layout.prototype.checkOrient_ = function(value) {
 
 
 /**
- * @param {!goog.math.Rect} rect
- * @param {!number} value
+ * @param {goog.math.Rect} rect
+ * @param {number} value
  * @private
  */
 bad.ui.Layout.prototype.setWidth_ = function(rect, value) {
@@ -545,7 +545,7 @@ bad.ui.Layout.prototype.setWidth_ = function(rect, value) {
 
 
 /**
- * @param {!(!goog.math.Rect|!goog.math.Size)} rect
+ * @param {(!goog.math.Rect|!goog.math.Size)} rect
  * @return {number}
  * @private
  */
@@ -557,7 +557,7 @@ bad.ui.Layout.prototype.getWidth_ = function(rect) {
 
 
 /**
- * @return {!string}
+ * @return {string}
  * @private
  */
 bad.ui.Layout.prototype.flipLeft_ = function() {
@@ -566,8 +566,8 @@ bad.ui.Layout.prototype.flipLeft_ = function() {
 
 
 /**
- * @param {!goog.math.Rect} rect
- * @param {!number} value
+ * @param {goog.math.Rect} rect
+ * @param {number} value
  * @private
  */
 bad.ui.Layout.prototype.setLeft_ = function(rect, value) {
@@ -577,7 +577,7 @@ bad.ui.Layout.prototype.setLeft_ = function(rect, value) {
 
 
 /**
- * @param {!goog.math.Rect} rect
+ * @param {goog.math.Rect} rect
  * @return {number}
  * @private
  */
@@ -588,8 +588,8 @@ bad.ui.Layout.prototype.getLeft_ = function(rect) {
 
 
 /**
- * @param {!(!goog.math.Rect|!goog.math.Size)} rect
- * @return {!number}
+ * @param {(!goog.math.Rect|!goog.math.Size)} rect
+ * @return {number}
  * @private
  */
 bad.ui.Layout.prototype.getHeight_ = function(rect) {
@@ -599,8 +599,8 @@ bad.ui.Layout.prototype.getHeight_ = function(rect) {
 
 
 /**
- * @param {!goog.math.Rect} rect
- * @param {!number} value
+ * @param {goog.math.Rect} rect
+ * @param {number} value
  * @private
  */
 bad.ui.Layout.prototype.setHeight_ = function(rect, value) {
@@ -629,7 +629,7 @@ bad.ui.Layout.prototype.pullNests_ = function() {
   Object.values(this.innerLayout_).forEach(layout => {
 
     /**
-     * @type {!Object.<!string, !bad.ui.Layout.CellType>}
+     * @type {Object.<string, !bad.ui.Layout.CellType>}
      */
     const parentNests = this.getNests();
     const layoutNests = layout.getNests();
@@ -645,12 +645,12 @@ bad.ui.Layout.prototype.pullNests_ = function() {
 /**
  * A layout has the ability to contain inner layouts in any of its cells.
  * This functions add an layout instance into the given inner cell.
- * @param {!Array} names An array of names for the inner layout cells.
- * @param {!string} targetName The name of the target layouts cell where this
+ * @param {Array} names An array of names for the inner layout cells.
+ * @param {string} targetName The name of the target layouts cell where this
  *      layout will be added.
- * @param {!string} orientation The vertical or horizontal orientation
+ * @param {string} orientation The vertical or horizontal orientation
  *      of the layout.
- * @return {!bad.ui.Layout}
+ * @return {bad.ui.Layout}
  */
 bad.ui.Layout.prototype.setInnerLayout = function(
     names, targetName, orientation) {
@@ -678,7 +678,7 @@ bad.ui.Layout.prototype.setInnerLayout = function(
 
 /**
  * Setting the targetId automatically also sets the target element.
- * @param {!string} id The id of the target element.
+ * @param {string} id The id of the target element.
  */
 bad.ui.Layout.prototype.setTargetCellName = function(id) {
   this.targetCellName_ = id;
@@ -686,7 +686,7 @@ bad.ui.Layout.prototype.setTargetCellName = function(id) {
 
 
 /**
- * @return {!string} The id of the target element.
+ * @return {string} The id of the target element.
  */
 bad.ui.Layout.prototype.getTargetCellName = function() {
   return this.targetCellName_;
@@ -695,7 +695,7 @@ bad.ui.Layout.prototype.getTargetCellName = function() {
 
 /**
  * Build up a CSS class name from all the parent cells.
- * @param {!string} name The id of the target element.
+ * @param {string} name The id of the target element.
  * @private
  */
 bad.ui.Layout.prototype.setCellClassPrefix_ = function(name) {
@@ -705,7 +705,7 @@ bad.ui.Layout.prototype.setCellClassPrefix_ = function(name) {
 
 /**
  * Get a pre-built CSS class name from all the parent cells.
- * @return {!string} The id of the target element.
+ * @return {string} The id of the target element.
  * @private
  */
 bad.ui.Layout.prototype.getCellClassPrefix_ = function() {
@@ -738,7 +738,7 @@ bad.ui.Layout.prototype.createInnerLayout_ = function() {
  * This is the callback function to be called once a change event has been
  * fired by the parent layout.
  * This function is called with the inner layout as scope.
- * @param {!bad.ui.Layout.CellType} parentCell The parent cell that
+ * @param {bad.ui.Layout.CellType} parentCell The parent cell that
  *    changed size.
  */
 bad.ui.Layout.prototype.onTargetSizeChange = function(parentCell) {
@@ -749,7 +749,7 @@ bad.ui.Layout.prototype.onTargetSizeChange = function(parentCell) {
 
 //-----------------------------------------------------[ Setters and Getters ]--
 /**
- * @return {!Object<!string, !bad.ui.Layout.CellType>} The nests object.
+ * @return {Object<string, !bad.ui.Layout.CellType>} The nests object.
  */
 bad.ui.Layout.prototype.getNests = function() {
   return this.nests;
@@ -759,7 +759,7 @@ bad.ui.Layout.prototype.getNests = function() {
 /**
  * Given a list of names, get the nest object for that layout position.
  * @param {...*} var_args
- * @return {!bad.ui.Layout.CellType|undefined}
+ * @return {bad.ui.Layout.CellType|undefined}
  */
 bad.ui.Layout.prototype.getNest = function(...var_args) {
   return this.nests[`$${var_args.join('$')}`];
@@ -769,7 +769,7 @@ bad.ui.Layout.prototype.getNest = function(...var_args) {
 /**
  * Given a list of names, get the nest element for that layout position.
  * @param {...*} var_args
- * @return {!Element|undefined}
+ * @return {Element|undefined}
  */
 bad.ui.Layout.prototype.getNestElement = function(...var_args) {
   const nest = this.nests[`$${var_args.join('$')}`];
@@ -779,8 +779,8 @@ bad.ui.Layout.prototype.getNestElement = function(...var_args) {
 
 /**
  * Sets the initial size of a cell.
- * @param {!string} name The name of the cell to set the initial size.
- * @param {!number} value The size in Pixels of the container.
+ * @param {string} name The name of the cell to set the initial size.
+ * @param {number} value The size in Pixels of the container.
  */
 bad.ui.Layout.prototype.setInitialSize = function(name, value) {
   const cell = this.getCellByName(name);
@@ -792,7 +792,7 @@ bad.ui.Layout.prototype.setInitialSize = function(name, value) {
 
 /**
  * Gets the initial size of a cell.
- * @param {!bad.ui.Layout.CellType} cell The cell to get its initial size for.
+ * @param {bad.ui.Layout.CellType} cell The cell to get its initial size for.
  * @return {number} The size in Pixels of the container.
  * @private
  */
@@ -803,8 +803,8 @@ bad.ui.Layout.prototype.getInitialSize_ = function(cell) {
 
 /**
  * Set smallest size the A or C cell can be dragged to.
- * @param {!string} name The name of the cell to set the minimum size to.
- * @param {!number} value The minimum size allowed for the A component.
+ * @param {string} name The name of the cell to set the minimum size to.
+ * @param {number} value The minimum size allowed for the A component.
  */
 bad.ui.Layout.prototype.setMinimumSize = function(name, value) {
   const cell = this.getCellByName(name);
@@ -817,7 +817,7 @@ bad.ui.Layout.prototype.setMinimumSize = function(name, value) {
 /**
  * Returns the minimum size the A or C panel may be.
  * Lazily creates a minimum and set it to 0 if none has been specified yet.
- * @param {!bad.ui.Layout.CellType} cell The cell to get the minimum size for.
+ * @param {bad.ui.Layout.CellType} cell The cell to get the minimum size for.
  * @return {number} The minimum size the A cell may be.
  * @private
  */
@@ -827,8 +827,8 @@ bad.ui.Layout.prototype.getMinimumSize_ = function(cell) {
 
 
 /**
- * @param {!string} value The name of the cell to get.
- * @return {!bad.ui.Layout.CellType|undefined}
+ * @param {string} value The name of the cell to get.
+ * @return {bad.ui.Layout.CellType|undefined}
  */
 bad.ui.Layout.prototype.getCellByName = function(value) {
   return Object.values(this.cell_).find(cell => cell.name === value);
@@ -837,7 +837,7 @@ bad.ui.Layout.prototype.getCellByName = function(value) {
 
 /**
  * Set the maximum size of the A cell.
- * @param {!number} value
+ * @param {number} value
  * @private
  */
 bad.ui.Layout.prototype.setDraggerABLimits_ = function(value) {
@@ -853,7 +853,7 @@ bad.ui.Layout.prototype.setDraggerABLimits_ = function(value) {
 /**
  * Set the BC dragger to be limited to between the AB dragger and the minimum
  * size the C panel may be.
- * @param {!number} max The maximum position allowed for the AB dragger. This is
+ * @param {number} max The maximum position allowed for the AB dragger. This is
  *      either top or left depending on the orientation.
  * @private
  */
@@ -875,9 +875,9 @@ bad.ui.Layout.prototype.setDraggerBCLimits_ = function(max) {
  * Dragger limits are set via a goog.math.Rect object.
  * If dragger limits have been set, this returns the rect object,
  * and lazily creates it (with NaN as limits) if it has not been set.
- * @param {!bad.ui.Layout.DraggerType} dragger The dragger object to
+ * @param {bad.ui.Layout.DraggerType} dragger The dragger object to
  *      get the limits for.
- * @return {!goog.math.Rect} goog.math.Rect object specifying the limits of the
+ * @return {goog.math.Rect} goog.math.Rect object specifying the limits of the
  *      AB dragger.
  * @private
  */
@@ -891,10 +891,10 @@ bad.ui.Layout.prototype.getDraggerLimitsRect_ = function(dragger) {
 
 /**
  * Set whether the layout should follow the view port width.
- * @param {!number} top Top.
- * @param {!number} right Right.
- * @param {!number} bottom Bottom.
- * @param {!number} left Left.
+ * @param {number} top Top.
+ * @param {number} right Right.
+ * @param {number} bottom Bottom.
+ * @param {number} left Left.
  */
 bad.ui.Layout.prototype.setMargin = function(top, right, bottom, left) {
   this.margin_.top = top;
@@ -905,7 +905,7 @@ bad.ui.Layout.prototype.setMargin = function(top, right, bottom, left) {
 
 
 /**
- * @return {!goog.math.Box} The margin box.
+ * @return {goog.math.Box} The margin box.
  */
 bad.ui.Layout.prototype.getMargin = function() {
   return this.margin_;
@@ -914,7 +914,7 @@ bad.ui.Layout.prototype.getMargin = function() {
 
 /**
  * Set whether the layout should follow the view port width.
- * @param {!boolean} bool True if the layout should follow the view port width.
+ * @param {boolean} bool True if the layout should follow the view port width.
  */
 bad.ui.Layout.prototype.setWidthToViewport = function(bool) {
   this.widthToViewport_ = bool;
@@ -922,7 +922,7 @@ bad.ui.Layout.prototype.setWidthToViewport = function(bool) {
 
 
 /**
- * @return {!boolean} True if the layout should track the view port width.
+ * @return {boolean} True if the layout should track the view port width.
  */
 bad.ui.Layout.prototype.getWidthToViewport = function() {
   return this.widthToViewport_;
@@ -931,7 +931,7 @@ bad.ui.Layout.prototype.getWidthToViewport = function() {
 
 /**
  * Set whether the layout should follow the view port height.
- * @param {!boolean} bool True if the layout should follow the view port height.
+ * @param {boolean} bool True if the layout should follow the view port height.
  */
 bad.ui.Layout.prototype.setHeightToViewport = function(bool) {
   this.heightToViewport_ = bool;
@@ -948,7 +948,7 @@ bad.ui.Layout.prototype.getHeightToViewport = function() {
 
 /**
  * Sets the thickness of the drag handle.
- * @param {!number} value The thickness of the drag handle in pixels.
+ * @param {number} value The thickness of the drag handle in pixels.
  */
 bad.ui.Layout.prototype.setDraggerThickness = function(value) {
   this.draggerThickness_ = value;
@@ -957,7 +957,7 @@ bad.ui.Layout.prototype.setDraggerThickness = function(value) {
 
 /**
  * Gets the width of the drag handle.
- * @return {!number} The size of the handle in pixels.
+ * @return {number} The size of the handle in pixels.
  */
 bad.ui.Layout.prototype.getDraggerThickness = function() {
   return this.draggerThickness_;
@@ -966,7 +966,7 @@ bad.ui.Layout.prototype.getDraggerThickness = function() {
 
 /**
  * Add a grabber image to the dragger.
- * @param {!string} value The name of a class that wil be
+ * @param {string} value The name of a class that wil be
  *      appended to the draggers.
  */
 bad.ui.Layout.prototype.setGrabberClass = function(value) {
@@ -976,7 +976,7 @@ bad.ui.Layout.prototype.setGrabberClass = function(value) {
 
 /**
  * Get the class name of the grabber image to be added to the draggers.
- * @return {!string} The size of the handle in pixels.
+ * @return {string} The size of the handle in pixels.
  * @private
  */
 bad.ui.Layout.prototype.getGrabberClass_ = function() {
@@ -986,7 +986,7 @@ bad.ui.Layout.prototype.getGrabberClass_ = function() {
 
 /**
  * Sets the vertical/horizontal orientation.
- * @param {!string} value The continuous resize value.
+ * @param {string} value The continuous resize value.
  */
 bad.ui.Layout.prototype.setOrientation = function(value) {
   this.orientation_ = value;
@@ -997,8 +997,8 @@ bad.ui.Layout.prototype.setOrientation = function(value) {
  * Set the size of the layout.  This is usually called by the controlling
  * application.  This will set the layout root BorderBoxSize, while honouring
  * the required margins for the layout.
- * @param {!number} givenWidth The required width of the layout.
- * @param {!number} givenHeight The required height of the layout.
+ * @param {number} givenWidth The required width of the layout.
+ * @param {number} givenHeight The required height of the layout.
  */
 bad.ui.Layout.prototype.setSize = function(givenWidth, givenHeight) {
   // Compensate for margin settings.
@@ -1034,7 +1034,7 @@ bad.ui.Layout.prototype.setSize = function(givenWidth, givenHeight) {
 
 /**
  * Get the size of the component border box.
- * @return {!goog.math.Size} A goog.math.Size object.
+ * @return {goog.math.Size} A goog.math.Size object.
  */
 bad.ui.Layout.prototype.getSize = function() {
   return this.componentBoxSize_;
@@ -1044,7 +1044,7 @@ bad.ui.Layout.prototype.getSize = function() {
 /**
  * Get the class names relative to the orientation of the element requesting the
  * class name.
- * @return {!string} The required class name.
+ * @return {string} The required class name.
  * @private
  */
 bad.ui.Layout.prototype.getOrientClassName_ = function() {
@@ -1057,8 +1057,8 @@ bad.ui.Layout.prototype.getOrientClassName_ = function() {
 
 /**
  * Find the location relative to the layout.
- * @param {!number} left The x location relative to the window.
- * @return {!number} The relative x location.
+ * @param {number} left The x location relative to the window.
+ * @return {number} The relative x location.
  * @private
  */
 bad.ui.Layout.prototype.getRelativeLeft_ = function(left) {
@@ -1096,7 +1096,7 @@ bad.ui.Layout.prototype.createRects_ = function() {
       initTargetSize.height - margin.top - margin.bottom);
 
   /**
-   * @type {!Array<!goog.math.Rect>}
+   * @type {Array<!goog.math.Rect>}
    */
   const rects = [];
 
@@ -1117,7 +1117,7 @@ bad.ui.Layout.prototype.createRects_ = function() {
 
   if (!this.dragger_.AB.rect) {
     /**
-     * @type {!goog.math.Rect}
+     * @type {goog.math.Rect}
      */
     this.dragger_.AB.rect =
         new goog.math.Rect(iniA, top, thickness, rootHeight);
@@ -1126,7 +1126,7 @@ bad.ui.Layout.prototype.createRects_ = function() {
 
   if (!this.dragger_.BC.rect) {
     /**
-     * @type {!goog.math.Rect}
+     * @type {goog.math.Rect}
      */
     this.dragger_.BC.rect = new goog.math.Rect(
         rootWidth - iniC - thickness, top, thickness, rootHeight);
@@ -1135,7 +1135,7 @@ bad.ui.Layout.prototype.createRects_ = function() {
 
   if (!this.cell_.A.rect) {
     /**
-     * @type {!goog.math.Rect}
+     * @type {goog.math.Rect}
      */
     this.cell_.A.rect = new goog.math.Rect(left, top, iniA, rootHeight);
     rects.push(this.cell_.A.rect);
@@ -1143,7 +1143,7 @@ bad.ui.Layout.prototype.createRects_ = function() {
 
   if (!this.cell_.B.rect) {
     /**
-     * @type {!goog.math.Rect}
+     * @type {goog.math.Rect}
      */
     this.cell_.B.rect = new goog.math.Rect(
         iniA + thickness, top, rootWidth - iniA - iniC - thickness, rootHeight);
@@ -1152,7 +1152,7 @@ bad.ui.Layout.prototype.createRects_ = function() {
 
   if (!this.cell_.C.rect) {
     /**
-     * @type {!goog.math.Rect}
+     * @type {goog.math.Rect}
      */
     this.cell_.C.rect = new goog.math.Rect(
         iniC + thickness, top, rootWidth - iniC + thickness, rootHeight);
@@ -1243,7 +1243,7 @@ bad.ui.Layout.prototype.updateVariableSizes_ = function() {
  * Update the static static component of the cells and draggers.
  * For vertical layout, the width is the static component, and for
  * horizontal layouts, the height is the static component.
- * @param {!number} value The required pixel size.
+ * @param {number} value The required pixel size.
  * @private
  */
 bad.ui.Layout.prototype.updateStaticSizes_ = function(value) {
@@ -1257,7 +1257,7 @@ bad.ui.Layout.prototype.updateStaticSizes_ = function(value) {
 
 //---------------------------------------------------------[ Events Handlers ]--
 /**
- * @param {!goog.events.Event} e The event.
+ * @param {goog.events.Event} e The event.
  * @private
  */
 bad.ui.Layout.prototype.onPanelMinimize_ = function(e) {
@@ -1273,7 +1273,7 @@ bad.ui.Layout.prototype.onPanelMinimize_ = function(e) {
 
 
 /**
- * @param {!bad.ui.Layout.CellType} cell
+ * @param {bad.ui.Layout.CellType} cell
  * @private
  */
 bad.ui.Layout.prototype.onDoubleClick_ = function(cell) {
@@ -1292,9 +1292,9 @@ bad.ui.Layout.prototype.onDragStart_ = function() {
 
 /**
  * Handle the AB-dragger drag event. Move the containers.
- * @param {!bad.ui.Layout.DraggerType} dragger The parent object to whom
+ * @param {bad.ui.Layout.DraggerType} dragger The parent object to whom
  *    this dragger belong.
- * @param {!goog.fx.DragEvent} e The event.
+ * @param {goog.fx.DragEvent} e The event.
  * @private
  */
 bad.ui.Layout.prototype.onDrag_ = function(dragger, e) {
@@ -1395,9 +1395,9 @@ bad.ui.Layout.prototype.addInteraction_ = function() {
 
 
 /**
- * @param {!bad.ui.Layout.CellType} compA
- * @param {!bad.ui.Layout.CellType} compC
- * @param {!bad.ui.Layout.DraggerType} dragAB
+ * @param {bad.ui.Layout.CellType} compA
+ * @param {bad.ui.Layout.CellType} compC
+ * @param {bad.ui.Layout.DraggerType} dragAB
  * @private
  */
 bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
@@ -1547,9 +1547,9 @@ bad.ui.Layout.prototype.addInteractionA_ = function(compA, compC, dragAB) {
 
 
 /**
- * @param {!bad.ui.Layout.CellType} compA
- * @param {!bad.ui.Layout.CellType} compC
- * @param {!bad.ui.Layout.DraggerType} dragBC
+ * @param {bad.ui.Layout.CellType} compA
+ * @param {bad.ui.Layout.CellType} compC
+ * @param {bad.ui.Layout.DraggerType} dragBC
  * @private
  */
 bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
@@ -1709,8 +1709,8 @@ bad.ui.Layout.prototype.addInteractionC_ = function(compA, compC, dragBC) {
 
 /**
  *
- * @param {!bad.ui.Layout.DraggerType} dragger
- * @param {!number} end
+ * @param {bad.ui.Layout.DraggerType} dragger
+ * @param {number} end
  * @param {?Function=} opt_callback
  * @private
  */
@@ -1719,7 +1719,7 @@ bad.ui.Layout.prototype.doAnimate_ = function(dragger, end, opt_callback) {
   const start = this.getLeft_(dragger.rect);
 
   /**
-   * @type {!goog.fx.Animation}
+   * @type {goog.fx.Animation}
    */
   const anim = new goog.fx.Animation([start], [end], this.aniDuration_);
 
@@ -1786,9 +1786,9 @@ bad.ui.Layout.EventType = {
 
 /**
  * Object representing a layout event.
- * @param {!string} type Event type.
- * @param {!Object} target Object initiating event.
- * @param {!bad.ui.Layout.EventDataType} data The data that was submitted.
+ * @param {string} type Event type.
+ * @param {Object} target Object initiating event.
+ * @param {bad.ui.Layout.EventDataType} data The data that was submitted.
  * @extends {goog.events.Event}
  * @constructor
  */
@@ -1796,17 +1796,17 @@ bad.ui.Layout.Event = function(type, target, data) {
   goog.events.Event.call(this, type, target);
 
   /**
-   * @type {!Element}
+   * @type {Element}
    */
   this.element = data.element;
 
   /**
-   * @type {!goog.math.Rect}
+   * @type {goog.math.Rect}
    */
   this.rect = data.rect;
 
   /**
-   * @type {!string}
+   * @type {string}
    */
   this.nestId = data.nestId;
 };

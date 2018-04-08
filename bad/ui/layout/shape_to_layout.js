@@ -9,11 +9,11 @@ const {makeShape} = goog.require('bad.layout.shapesNames');
 
 /**
  * @typedef {{
- * ORIENT: !string,
- * TL: !Array<!number>,
- * TR: !Array<!number>,
- * BL: !Array<!number>,
- * BR: !Array<!number>,
+ * ORIENT: string,
+ * TL: !Array<number>,
+ * TR: !Array<number>,
+ * BL: !Array<number>,
+ * BR: !Array<number>,
  * CELLS: !Array}}
  */
 let layoutLike;
@@ -22,7 +22,7 @@ let layoutLike;
 
 /**
  * @param {string} str
- * @return {!Array<!Array<!string>>}
+ * @return {Array<!Array<string>>}
  */
 const toLines = str => {
   const result = [];
@@ -37,8 +37,8 @@ const toLines = str => {
 
 
 /**
- * @param {!Array<!Array<!string>>} lines
- * @return {!Array<!Array<!number>>}
+ * @param {Array<!Array<string>>} lines
+ * @return {Array<!Array<number>>}
  */
 const findMarkers = lines => {
   const markers = [];
@@ -54,9 +54,9 @@ const findMarkers = lines => {
 
 
 /**
- * @param {!Array<!Array<!number>>} markers
- * @param {!Array<!Array<!string>>} lines
- * @return {!Array}
+ * @param {Array<!Array<number>>} markers
+ * @param {Array<!Array<string>>} lines
+ * @return {Array}
  */
 const gradeMarkers = (markers, lines) => {
   // Marker scores is binary value
@@ -142,10 +142,10 @@ const gradeMarkers = (markers, lines) => {
 
 
 /**
- * @param {!Array} gMarkers
- * @param {!Array} gMark
- * @param {!string} orient
- * @return {!layoutLike}
+ * @param {Array} gMarkers
+ * @param {Array} gMark
+ * @param {string} orient
+ * @return {layoutLike}
  */
 const parseLayoutShapes = (gMarkers, gMark, orient) => {
 
@@ -180,12 +180,12 @@ const parseLayoutShapes = (gMarkers, gMark, orient) => {
 
   const coord = gMark[1];
   /**
-   * @type {!number}
+   * @type {number}
    */
   const x = coord[0];
 
   /**
-   * @type {!number}
+   * @type {number}
    */
   const y = coord[1];
   const TL = gMark;
@@ -194,7 +194,7 @@ const parseLayoutShapes = (gMarkers, gMark, orient) => {
   const BR = findBR(x, y, TR, BL, 9);
 
   /**
-   * @type {!layoutLike}
+   * @type {layoutLike}
    */
   const layout = {ORIENT: orient, TL: gMark, TR: TR, BL: BL, BR: BR, CELLS: []};
 
@@ -237,8 +237,8 @@ const parseLayoutShapes = (gMarkers, gMark, orient) => {
 
 
 /**
- * @param {!Array} markers
- * @return {!Array<!layoutLike>}
+ * @param {Array} markers
+ * @return {Array<!layoutLike>}
  */
 const parseStartMarkers = markers => {
   const v = 'vertical';
@@ -263,9 +263,9 @@ const parseStartMarkers = markers => {
 
 
 /**
- * @param {!Array} layouts
- * @param {!Array} lines
- * @return {!Array}
+ * @param {Array} layouts
+ * @param {Array} lines
+ * @return {Array}
  */
 const parseNames = (layouts, lines) => {
   return layouts.map(layout => {
@@ -290,8 +290,8 @@ const parseNames = (layouts, lines) => {
 
 
 /**
- * @param {!layoutLike} a
- * @param {!layoutLike} b
+ * @param {layoutLike} a
+ * @param {layoutLike} b
  * @return {boolean}
  */
 const aFitsInB = (a, b) =>
@@ -301,8 +301,8 @@ const aFitsInB = (a, b) =>
 
 
 /**
- * @param {!Array<!layoutLike>} layouts
- * @return {!layoutLike}
+ * @param {Array<!layoutLike>} layouts
+ * @return {layoutLike}
  */
 const nestLayouts = layouts => {
   const nested = layouts.map(l => {
@@ -327,8 +327,8 @@ const nestLayouts = layouts => {
 
 /**
  * @param {string} id
- * @param {!layoutLike} layout
- * @return {!Array}
+ * @param {layoutLike} layout
+ * @return {Array}
  */
 const parseOuterLayout = (id, layout) => {
 
@@ -353,7 +353,7 @@ const parseOuterLayout = (id, layout) => {
 /**
  * @param {string} id
  * @param {string} str
- * @return {!Array}
+ * @return {Array}
  */
 exports.do = function(id, str) {
   const shape = makeShape(str);

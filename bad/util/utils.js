@@ -22,7 +22,7 @@ bad.utils.getElDataMap = el => {
 
 /**
  * A function to split scripts out of an HTML response string.
- * @param {!string} data The original HTML string returned from the server.
+ * @param {string} data The original HTML string returned from the server.
  * @return {{html:?Element, scripts:?NodeList}} An object literal with two
  * key value pairs:
  *  html: The the scrubbed HTML string - without any <script> tags.
@@ -31,7 +31,7 @@ bad.utils.getElDataMap = el => {
  */
 bad.utils.splitScripts = data => {
   const DF = new DOMParser().parseFromString(data, 'text/html');
-  const df = /** @type {!Document} */ (DF);
+  const df = /** @type {Document} */ (DF);
   return {
     html: goog.dom.getFirstElementChild(df.body),
     scripts: goog.dom.getElementsByTagName(goog.dom.TagName.SCRIPT, df)
@@ -40,15 +40,15 @@ bad.utils.splitScripts = data => {
 
 
 /**
- * @param {!string} t
+ * @param {string} t
  */
 bad.utils.handleTemplateProm = t => Promise.resolve(bad.utils.splitScripts(t));
 
 /**
  * Evaluates each of the scripts in the ajaxScriptsStrings_ map in turn.
  * The scripts are evaluated in the scope of this panel.
- * @param {!bad.ui.Panel} comp
- * @return {!function(?NodeList)}
+ * @param {bad.ui.Panel} comp
+ * @return {function(?NodeList)}
  */
 bad.utils.evalScripts = comp => arr => {
   arr && Array.from(arr).forEach(s => {
@@ -60,29 +60,29 @@ bad.utils.evalScripts = comp => arr => {
 
 
 /**
- * @param {!bad.ui.Panel} panel
- * @param {!bad.ui.View} view
- * @param {!string} name
+ * @param {bad.ui.Panel} panel
+ * @param {bad.ui.View} view
+ * @param {string} name
  * @param {?bad.ui.Panel=} opt_tPan The target panel
  * @param {?string=} opt_tEl Optional target element class name in target panel
- * @return {!Array<!function()>}
+ * @return {Array<function()>}
  */
 bad.utils.panelWithinPanel = (panel, view, name, opt_tPan, opt_tEl) => {
   /**
-   * @param {!string} c The class name
-   * @param {!Element} t The target element where to look from
-   * @param {!Element} def The default if we could not find it
-   * @return {!Element|!HTMLBodyElement}
+   * @param {string} c The class name
+   * @param {Element} t The target element where to look from
+   * @param {Element} def The default if we could not find it
+   * @return {Element|!HTMLBodyElement}
    */
   const getEbyCorD = (c, t, def) => goog.dom.getElementByClass(c, t) || def;
   const render = () => {
     const user = view.getUser();
-    const b = /** @type {!Element} */ (goog.dom.getDocument().body);
+    const b = /** @type {Element} */ (goog.dom.getDocument().body);
     const targetClassNAme = opt_tEl || 'tst_content';
     const target = opt_tPan ?
         getEbyCorD(
             targetClassNAme,
-            /** @type {!Element} */ (opt_tPan.getElement()), b) :
+            /** @type {Element} */ (opt_tPan.getElement()), b) :
         b;
     panel.setUser(user);
     panel.setTarget(target);
@@ -99,8 +99,8 @@ bad.utils.panelWithinPanel = (panel, view, name, opt_tPan, opt_tEl) => {
 
 /**
  * Given a string this returns an array of bytes
- * @param {!string} s
- * @return {!Array}
+ * @param {string} s
+ * @return {Array}
  */
 bad.utils.stringToBytes = s => {
   const bytes = new Array(s.length);
@@ -113,7 +113,7 @@ bad.utils.stringToBytes = s => {
  * This returns now in seconds.
  * The value returned by the Date.now() method is the number of milliseconds
  * since 1 January 1970 00:00:00 UTC. Always UTC.
- * @return {!number} The current Epoch timestamp in seconds. Rounding down.
+ * @return {number} The current Epoch timestamp in seconds. Rounding down.
  */
 bad.utils.getNowSeconds = () => Math.floor(Date.now() / 1000);
 
@@ -122,7 +122,7 @@ bad.utils.getNowSeconds = () => Math.floor(Date.now() / 1000);
  * Private function that will return an incremented counter value each time it
  * is called.
  * @param {?number=} opt_start
- * @return {!function(): number}
+ * @return {function(): number}
  */
 bad.utils.privateCounter = (opt_start) => {
   let c = opt_start ? opt_start : 0;
@@ -133,7 +133,7 @@ bad.utils.privateCounter = (opt_start) => {
 /**
  * Private function that will always return the same random string each time
  * it is called.
- * @return {!string}
+ * @return {string}
  */
 bad.utils.privateRandom = () => {
   const c = bad.utils.makeId();
@@ -145,7 +145,7 @@ bad.utils.privateRandom = () => {
  * Returns a pseudo random string. Good for ids.
  * @param {?number=} opt_length An optional length for the string. Note this
  *    clearly reduces the randomness, and increases the chances of a collision.
- * @return {!string}
+ * @return {string}
  */
 bad.utils.makeId = opt_length => {
   const s = goog.string.getRandomString();
@@ -154,9 +154,9 @@ bad.utils.makeId = opt_length => {
 
 
 /**
- * @param {!string} string
- * @param {!string} icon
- * @return {!Element}
+ * @param {string} string
+ * @param {string} icon
+ * @return {Element}
  */
 bad.utils.getIconString = (string, icon) =>
     goog.dom.createDom('span', {}, goog.dom.createDom('i', icon), string);
@@ -166,13 +166,13 @@ bad.utils.getIconString = (string, icon) =>
 /**
  * Get a list of the raw form elements. That is all the elements in the form
  * with a type.
- * @param {!HTMLFormElement} form
- * @return {!Array<!Element>}
+ * @param {HTMLFormElement} form
+ * @return {Array<!Element>}
  */
 bad.utils.getRawFormElements = form => {
   const formElements = [];
   if (form && form.elements) {
-    Array.from(/** @type {!Iterable<HTMLElement>} */ (form.elements))
+    Array.from(form.elements)
         .forEach(el => {
           if (el.type && el.type !== 'fieldset') {
             formElements.push(el);
@@ -184,15 +184,15 @@ bad.utils.getRawFormElements = form => {
 
 
 /**
- * @param {!number} number
- * @param {!string} type
+ * @param {number} number
+ * @param {string} type
  * @return {boolean}
  */
 bad.utils.creditCardValidator = function(number, type) {
   let isValid = false;
 
   /**
-   * @type {!Object}
+   * @type {Object}
    */
   let cards = {
     'mc': '5[1-5][0-9]{14}',
@@ -306,9 +306,9 @@ bad.utils.loadGoogleMaps = function(callback) {
  * As goog.math.Size object is a struct, we are not allowed to access the with
  * the '[]' notation, which means that if we have a string in hand, we need this
  * utility to be able to set the size property.
- * @param {!goog.math.Size} size
- * @param {!string} prop Only 'width' and 'height' are valid strings
- * @param {!number} value
+ * @param {goog.math.Size} size
+ * @param {string} prop Only 'width' and 'height' are valid strings
+ * @param {number} value
  */
 bad.utils.setGoogSizeProp = (size, prop, value) => {
   switch (prop) {
@@ -328,9 +328,9 @@ bad.utils.setGoogSizeProp = (size, prop, value) => {
  * As goog.math.Size object is a struct, we are not allowed to access the with
  * the '[]' notation, which means that if we have a string in hand, we need this
  * utility to be able to get the size property.
- * @param {!goog.math.Size} size
- * @param {!string} prop Only 'width' and 'height' are valid strings
- * @return {!number}
+ * @param {goog.math.Size} size
+ * @param {string} prop Only 'width' and 'height' are valid strings
+ * @return {number}
  */
 bad.utils.getGoogSizeProp = (size, prop) => {
   switch (prop) {
@@ -348,7 +348,7 @@ bad.utils.getGoogSizeProp = (size, prop) => {
  * As goog.math.Rect object is a struct, we are not allowed to access the with
  * the '[]' notation, which means that if we have a string in hand, we need this
  * utility to be able to set the size property.
- * @param {!goog.math.Rect} rect
+ * @param {goog.math.Rect} rect
  * @param {string} prop Only 'left', 'top', 'width' and 'height'
  *  are valid strings.
  * @param {number} value
@@ -377,7 +377,7 @@ bad.utils.setGoogRectProp = (rect, prop, value) => {
  * As goog.math.Size object is a struct, we are not allowed to access the with
  * the '[]' notation, which means that if we have a string in hand, we need this
  * utility to be able to get the size property.
- * @param {!goog.math.Rect} rect
+ * @param {goog.math.Rect} rect
  * @param {string} prop Only 'width' and 'height' are valid strings
  * @return {number}
  */

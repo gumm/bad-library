@@ -7,7 +7,7 @@ const bit = {};
 
 /**
  * Convert a decimal number to a binary string.
- * @param {!number} n
+ * @param {number} n
  * @return {string} A string representing a binary ie. "1011".
  */
 bit.convertNumberToBinaryString = function(n) {
@@ -16,7 +16,7 @@ bit.convertNumberToBinaryString = function(n) {
 
 /**
  * Convert a binary string to a decimal number.
- * @param {!string} s A string representing a binary ie. "1011".
+ * @param {string} s A string representing a binary ie. "1011".
  * @return {number}
  */
 bit.convertBinaryStringToNumber = function(s) {
@@ -35,8 +35,8 @@ bit.convertBinaryStringToNumber = function(s) {
  *
  * To print the result: result.toString(2)
  *
- * @param {!number} b
- * @param {!number} n
+ * @param {number} b
+ * @param {number} n
  * @return {number}
  */
 bit.getBitAt = function(b, n) {
@@ -52,8 +52,8 @@ bit.getBitAt = function(b, n) {
  * c = setBit(b,2));  // 14 // 1110
  * d = setBit(b,0));  // 11 // 1011
  *
- * @param {!number} b
- * @param {!number} n
+ * @param {number} b
+ * @param {number} n
  * @return {number}
  */
 bit.setBitAt = function(b, n) {
@@ -63,8 +63,8 @@ bit.setBitAt = function(b, n) {
 /**
  * Remove the bit at the position n of the number b. The bit is set to 0.
  * Bit count starts at 0.
- * @param {!number} b
- * @param {!number} n
+ * @param {number} b
+ * @param {number} n
  * @return {number}
  */
 bit.clearBitAt = function(b, n) {
@@ -74,8 +74,8 @@ bit.clearBitAt = function(b, n) {
 /**
  * Invert the bit at the position n of the number b.
  * Bit count starts at 0.
- * @param {!number} b
- * @param {!number} n
+ * @param {number} b
+ * @param {number} n
  * @return {number}
  */
 bit.invBitAt = function(b, n) {
@@ -85,8 +85,8 @@ bit.invBitAt = function(b, n) {
 /**
  * Return true if the bit at the given position is 1.
  * Bit count starts at 0.
- * @param {!number} b
- * @param {!number} n
+ * @param {number} b
+ * @param {number} n
  * @return {boolean}
  */
 bit.hasBitAt = function(b, n) {

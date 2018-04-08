@@ -7,11 +7,11 @@ goog.module('bad.layout.shapesNames');
 
 /**
   * @type {
-  *     {basic: !string,
-  *     sample_1: !string,
-  *     sample_2: !string,
-  *     horiz: !string,
-  *     vert: !string}}
+  *     {basic: string,
+  *     sample_1: string,
+  *     sample_2: string,
+  *     horiz: string,
+  *     vert: string}}
  */
 const shapeNames = {
   'basic': `
@@ -109,8 +109,8 @@ const shapeNames = {
 
 
 /**
- * @param {!string} shapeName
- * @return {!string}
+ * @param {string} shapeName
+ * @return {string}
  */
 const makeShape = function(shapeName) {
   return shapeNames[shapeName];

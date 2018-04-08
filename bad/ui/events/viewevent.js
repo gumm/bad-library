@@ -9,8 +9,8 @@ goog.require('goog.events.Event');
 /**
  * Object representing bad.ui.ViewEvent event.
  *
- * @param {!bad.ui.View} target The view that dispatched the event.
- * @param {!string} value Secondary event value.
+ * @param {bad.ui.View} target The view that dispatched the event.
+ * @param {string} value Secondary event value.
  * @param {*=} opt_data Optional data to include
  *    in the event.
  * @extends {goog.events.Event}
@@ -20,7 +20,7 @@ bad.ViewEvent = function(target, value, opt_data) {
   goog.events.Event.call(this, bad.EventType.VIEW, target);
 
   /**
-   * @type {!string}
+   * @type {string}
    * @private
    */
   this.value_ = value;
@@ -34,7 +34,7 @@ bad.ViewEvent = function(target, value, opt_data) {
 goog.inherits(bad.ViewEvent, goog.events.Event);
 
 /**
- * @return {!string}
+ * @return {string}
  */
 bad.ViewEvent.prototype.getValue = function() {
   return this.value_;

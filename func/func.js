@@ -6,6 +6,24 @@
 const compose = (...fns) => (...x) => fns.reduce((a, b) => c => a(b(c)))(...x);
 
 
+const mergeDeep = (target, source) => {
+  let output = Object.assign({}, target);
+  if (isObject(target) && isObject(source)) {
+    Object.keys(source).forEach(key => {
+      if (isObject(source[key])) {
+        if (!(key in target))
+          Object.assign(output, { [key]: source[key] });
+        else
+          output[key] = mergeDeep(target[key], source[key]);
+      } else {
+        Object.assign(output, { [key]: source[key] });
+      }
+    });
+  }
+  return output;
+};
+
+
 /**
  * Usage:
  * var g = partial(f, arg1, arg2);
@@ -46,6 +64,12 @@ const whatType = x => typeof x;
  * @return {boolean}
  */
 const isNumber = n => whatType(n) === 'number' && !Number.isNaN(n);
+
+/**
+ * @param {*} t
+ * @returns {*|boolean}
+ */
+const isObject = t => (t && typeof t === 'object' && !Array.isArray(t));
 
 
 /**

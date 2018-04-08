@@ -21,10 +21,10 @@ bad.ui.FieldErrs = class {
 
   /**
    * Format the message dom object and insert it into the DOM
-   * @param {!HTMLInputElement} field The field after which the
+   * @param {HTMLInputElement} field The field after which the
    *    alert will be inserted.
-   * @param {!string} msg The message in the alert.
-   * @param {!string} css A CSS class name to add to the alert div.
+   * @param {string} msg The message in the alert.
+   * @param {string} css A CSS class name to add to the alert div.
    *      This will be formatted bold.
    */
   displayAlert(field, msg, css) {
@@ -36,7 +36,7 @@ bad.ui.FieldErrs = class {
   };
 
   /**
-   * @param {!HTMLInputElement} field
+   * @param {HTMLInputElement} field
    */
   checkValidationForField(field) {
     this.clearAlertOnField(field);
@@ -44,7 +44,7 @@ bad.ui.FieldErrs = class {
   };
 
   /**
-   * @param {!HTMLInputElement} field
+   * @param {HTMLInputElement} field
    */
   clearAlertOnField(field) {
     goog.dom.classlist.remove(field, 'error');
@@ -54,8 +54,8 @@ bad.ui.FieldErrs = class {
 
   /**
    * Display the given error message on the given form field.
-   * @param {!HTMLInputElement} field
-   * @param {!string=} opt_msg
+   * @param {HTMLInputElement} field
+   * @param {string=} opt_msg
    */
   displayError(field, opt_msg) {
     let message = opt_msg || field.validationMessage;
@@ -65,8 +65,8 @@ bad.ui.FieldErrs = class {
 
   /**
    * Display the given success message on the given form field.
-   * @param {!HTMLInputElement} field
-   * @param {!string} message
+   * @param {HTMLInputElement} field
+   * @param {string} message
    */
   displaySuccess(field, message) {
     this.displayAlert(field, message, 'alert-success');
@@ -74,24 +74,24 @@ bad.ui.FieldErrs = class {
 
   /**
    * Display the given information message on the given form field.
-   * @param {!HTMLInputElement} field
-   * @param {!string} message
+   * @param {HTMLInputElement} field
+   * @param {string} message
    */
   displayInfo(field, message) {
     this.displayAlert(field, message, 'alert-info');
   };
 
   /**
-   * @param {!Event} e
+   * @param {Event} e
    */
   validateOnChange(e) {
-    this.checkValidationForField(/** @type {!HTMLInputElement} */ (e.target));
+    this.checkValidationForField(/** @type {HTMLInputElement} */ (e.target));
   }
 };
 
 
 /**
- * @param {!string=} opt_id The form element id.
+ * @param {string=} opt_id The form element id.
  * @param {?goog.dom.DomHelper=} opt_domHelper Optional DOM helper.
  * @extends {bad.ui.Panel}
  * @constructor
@@ -100,7 +100,7 @@ bad.ui.Form = function(opt_id, opt_domHelper) {
   bad.ui.Panel.call(this, opt_domHelper);
 
   /**
-   * @type {!string}
+   * @type {string}
    * @private
    */
   this.formElId_ = opt_id || '';
@@ -112,13 +112,13 @@ bad.ui.Form = function(opt_id, opt_domHelper) {
   this.form_ = null;
 
   /**
-   * @type {!bad.ui.FieldErrs}
+   * @type {bad.ui.FieldErrs}
    * @private
    */
   this.fieldErr_ = new bad.ui.FieldErrs();
 
   /**
-   * @type {!function(!bad.ui.Form):(?|null|Promise<?>)}
+   * @type {function(!bad.ui.Form):(?|null|Promise<?>)}
    */
   this.onSubmitSucFunc = panel => null;
 
@@ -146,7 +146,7 @@ bad.ui.Form.prototype.formIdElementToForm_ = function() {
         'change', e => {this.fieldErr_.validateOnChange(e)}, {passive: true});
     this.form_.addEventListener('invalid', e => {
       e.preventDefault();
-      const field = /** @type {!HTMLInputElement} */ (e.target);
+      const field = /** @type {HTMLInputElement} */ (e.target);
       this.fieldErr_.clearAlertOnField(field);
       this.fieldErr_.displayError(field);
     }, {passive: true});
@@ -155,7 +155,7 @@ bad.ui.Form.prototype.formIdElementToForm_ = function() {
 
 
 /**
- * @param {!string} string The id of the form we want to sterilise.
+ * @param {string} string The id of the form we want to sterilise.
  * @return {?HTMLFormElement}
  */
 bad.ui.Form.prototype.getFormFromId = function(string) {
@@ -163,7 +163,7 @@ bad.ui.Form.prototype.getFormFromId = function(string) {
   const el =
       goog.dom.getElement(string) || this.getElement().querySelector('form');
   if (el && el.tagName == goog.dom.TagName.FORM) {
-    form = /** @type {!HTMLFormElement} */ (el);
+    form = /** @type {HTMLFormElement} */ (el);
     }
   return form;
 };
@@ -249,7 +249,7 @@ bad.ui.Form.prototype.clearErrs = function() {
 
 //--------------------------------------------------------------[ Round Trip ]--
 /**
- * @param {!function(!bad.ui.Form):(?|null|Promise<?>)} func
+ * @param {function(!bad.ui.Form):(?|null|Promise<?>)} func
  */
 bad.ui.Form.prototype.onSubmitSuccess = function(func) {
   this.onSubmitSucFunc = func;
@@ -259,7 +259,7 @@ bad.ui.Form.prototype.onSubmitSuccess = function(func) {
  * Given a 'fetch' reply, replace the form.
  * This simply replaced the form element with what came back from the server
  * and re-reads the scripts.
- * @param {!string} reply
+ * @param {string} reply
  */
 bad.ui.Form.prototype.replaceForm = function(reply) {
 
@@ -289,7 +289,7 @@ bad.ui.Form.prototype.replaceForm = function(reply) {
 
 /**
  * Expects HTML data from a call to the back.
- * @return {!Promise} Returns a promise with this panel as value.
+ * @return {Promise} Returns a promise with this panel as value.
  */
 bad.ui.Form.prototype.refreshFromFromServer = function() {
   const usr = this.getUser();
@@ -303,8 +303,8 @@ bad.ui.Form.prototype.refreshFromFromServer = function() {
 
 
 /**
- * @param {!string} reply
- * @return {!Promise}
+ * @param {string} reply
+ * @return {Promise}
  */
 bad.ui.Form.prototype.processSubmitReply = function(reply) {
 

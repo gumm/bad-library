@@ -20,7 +20,7 @@ bad.ui.ExButtonGroup = function() {
   goog.events.EventHandler.call(this);
 
   /**
-   * @type {!Array<!(!goog.ui.ToggleButton|!bad.ui.ExButtonGroup)>}
+   * @type {Array<!(!goog.ui.ToggleButton|!bad.ui.ExButtonGroup)>}
    * @private
    */
   this.buttonSet_ = [];
@@ -46,7 +46,7 @@ bad.ui.ExButtonGroup.prototype.addExGroup = function(group) {
 
 
 /**
- * @param {!goog.events.Event} e
+ * @param {goog.events.Event} e
  */
 bad.ui.ExButtonGroup.prototype.onAction = function(e) {
   const activeButton = e.target;
@@ -59,7 +59,7 @@ bad.ui.ExButtonGroup.prototype.onAction = function(e) {
 
 
 /**
- * @param {!boolean} bool
+ * @param {boolean} bool
  */
 bad.ui.ExButtonGroup.prototype.setChecked = function(bool) {
   this.buttonSet_.forEach(button => {

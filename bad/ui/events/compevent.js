@@ -7,8 +7,8 @@ goog.require('goog.events.Event');
 
 //-------------------------------------------------------------[ Panel Event ]--
 /**
- * @param {!bad.ui.Component} target
- * @param {!string} value
+ * @param {bad.ui.Component} target
+ * @param {string} value
  * @param {?(string|number|IObject|Object)=} opt_data
  * @constructor
  * @extends {goog.events.Event}
@@ -17,7 +17,7 @@ bad.CompEvent = function(target, value, opt_data) {
   goog.events.Event.call(this, bad.EventType.COMP, target);
 
   /**
-   * @type {!string}
+   * @type {string}
    * @private
    */
   this.value_ = value;
@@ -32,7 +32,7 @@ goog.inherits(bad.CompEvent, goog.events.Event);
 
 
 /**
- * @return {!string}
+ * @return {string}
  */
 bad.CompEvent.prototype.getValue = function() {
   return this.value_;

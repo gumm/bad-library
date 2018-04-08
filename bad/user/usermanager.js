@@ -9,11 +9,11 @@ const cookies = goog.net.cookies;
  * The spinner should not be started or stopped by fetch calls while there
  * are other longer fetch calls in flight. To do that, we create a spinner
  * that only acts when it changes to and from 0
- * @return {function(!number)}
+ * @return {function(number)}
  */
 const spinner = id => {
   /**
-   * @type {!number}
+   * @type {number}
    */
   let wrapped = 0;
 
@@ -23,7 +23,7 @@ const spinner = id => {
   let e;
 
   /**
-   * @param {!number} v
+   * @param {number} v
    * @return {boolean}
    */
   const change = v => {
@@ -47,8 +47,8 @@ const stopSpin = x => {
 
 
 /**
- * @param {!Response} response
- * @return {!Promise}
+ * @param {Response} response
+ * @return {!Promise<?>}
  */
 const checkStatus = response => {
   if (response.ok) {
@@ -61,8 +61,8 @@ const checkStatus = response => {
 
 
 /**
- * @param {!bad.ui.Panel} panel
- * @return {!function(!Response):!Promise}
+ * @param {bad.ui.Panel} panel
+ * @return {function(!Response): !Promise<?>}
  */
 const checkStatusTwo = panel => response => {
   const panelUri = panel.getUri().getPath().toString();
@@ -74,8 +74,8 @@ const checkStatusTwo = panel => response => {
 
 
 /**
- * @param {!Response} response
- * @return {!Promise}
+ * @param {Response} response
+ * @return {Promise}
  */
 const getJson = response => {
   return response.json().then(
@@ -85,8 +85,8 @@ const getJson = response => {
 
 
 /**
- * @param {!Response} response
- * @return {!Promise}
+ * @param {Response} response
+ * @return {Promise}
  */
 const getText = response => {
   return response.text().then(
@@ -96,10 +96,10 @@ const getText = response => {
 
 
 /**
- * @param {!string} jwt A JWT token
- * @param {!Object} obj
- * @param {!string} method One of PATCH, PUT, POST etc.
- * @return {!Object}
+ * @param {string} jwt A JWT token
+ * @param {Object} obj
+ * @param {string} method One of PATCH, PUT, POST etc.
+ * @return {!RequestInit}
  */
 const jsonInit = (jwt, obj, method = 'POST') => {
   const h = new Headers();
@@ -116,36 +116,36 @@ const jsonInit = (jwt, obj, method = 'POST') => {
 };
 
 /**
- * @param {!string} jwt A JWT token
- * @param {!Object} obj
- * @return {!Object}
+ * @param {string} jwt A JWT token
+ * @param {Object} obj
+ * @return {Object}
  */
 const jsonPostInit = (jwt, obj) => jsonInit(jwt, obj, 'POST');
 
 /**
- * @param {!string} jwt A JWT token
- * @param {!Object} obj
- * @return {!Object}
+ * @param {string} jwt A JWT token
+ * @param {Object} obj
+ * @return {!RequestInit}
  */
 const jsonPatchInit = (jwt, obj) => jsonInit(jwt, obj, 'PATCH');
 
 /**
- * @param {!string} jwt A JWT token
- * @param {!Object} obj
- * @return {!Object}
+ * @param {string} jwt A JWT token
+ * @param {Object} obj
+ * @return {!RequestInit}
  */
 const jsonPutInit = (jwt, obj) => jsonInit(jwt, obj, 'PUT');
 
 
 /**
- * @param {!string} method PUT, POST, PATCH
- * @param {!string} jwt A JWT token
- * @param {!boolean} useDocumentCookies If set to true, we look for cookies
+ * @param {string} method PUT, POST, PATCH
+ * @param {string} jwt A JWT token
+ * @param {boolean} useDocumentCookies If set to true, we look for cookies
  *    in the document. In almost all cases where we are posting a form, this
  *    should be 'false' as the form itself carries the CSRF token.
  *    In cases where we are using AJAX, we need to grab the cookie from
  *    the document, so set this to 'true'
- * @return {!Object}
+ * @return {!RequestInit}
  */
 const basicPutPostPatchInit = (method, jwt, useDocumentCookies = false) => {
   const h = new Headers();
@@ -166,36 +166,36 @@ const basicPutPostPatchInit = (method, jwt, useDocumentCookies = false) => {
 
 
 /**
- * @param {!string} jwt A JWT token
- * @param {!boolean} useDocumentCookies
- * @return {!Object}
+ * @param {string} jwt A JWT token
+ * @param {boolean} useDocumentCookies
+ * @return {!RequestInit}
  */
 const basicPostInit = (jwt, useDocumentCookies = true) =>
     basicPutPostPatchInit('POST', jwt, useDocumentCookies);
 
 
 /**
- * @param {!string} jwt A JWT token
- * @param {!boolean} useDocumentCookies
- * @return {!Object}
+ * @param {string} jwt A JWT token
+ * @param {boolean} useDocumentCookies
+ * @return {!RequestInit}
  */
 const basicPutInit = (jwt, useDocumentCookies = true) =>
     basicPutPostPatchInit('PUT', jwt, useDocumentCookies);
 
 
 /**
- * @param {!string} jwt A JWT token
- * @param {!boolean} useDocumentCookies
- * @return {!Object}
+ * @param {string} jwt A JWT token
+ * @param {boolean} useDocumentCookies
+ * @return {!RequestInit}
  */
 const basicPatchInit = (jwt, useDocumentCookies = true) =>
     basicPutPostPatchInit('PATCH', jwt, useDocumentCookies);
 
 
 /**
- * @param {!string} jwt A JWT token
- * @param {!bad.ui.Form} formPanel
- * @return {!Object}
+ * @param {string} jwt A JWT token
+ * @param {bad.ui.Form} formPanel
+ * @return {!RequestInit}
  */
 const formPostInit = (jwt, formPanel) => {
   const useDocumentCookies = false;
@@ -206,14 +206,18 @@ const formPostInit = (jwt, formPanel) => {
 
 
 /**
- * @param {!string} jwt A JWT token
- * @return {!Object}
+ * @param {string} jwt A JWT token
+ * @return {!RequestInit}
  */
 const basicGetInit = jwt => {
   const h = new Headers();
   h.append('Authorization', `bearer ${jwt}`);
   h.append('X-Requested-With', 'XMLHttpRequest');
-  return {cache: 'no-cache', headers: h, credentials: 'include'};
+  return {
+    cache: 'no-cache',
+    headers: h,
+    credentials: 'include'
+  };
 };
 
 
@@ -224,25 +228,25 @@ const basicGetInit = jwt => {
  */
 bad.UserManager = function(data) {
   /**
-   * @type {!bad.UserLike}
+   * @type {bad.UserLike}
    * @private
    */
   this.user_ = {};
 
   /**
-   * @type {!string}
+   * @type {string}
    * @private
    */
   this.jwt = '';
 
   /**
-   * @type {!Request}
+   * @type {Request}
    */
   this.JWTTokenRequest = new Request('/api/v3/tokens/login/');
 
 
   /**
-   * @type {!Request}
+   * @type {Request}
    */
   this.loginRequest = new Request('/accounts/login/');
 
@@ -253,22 +257,22 @@ bad.UserManager = function(data) {
 
 
 /** @typedef {{
-*     first_name: (!string|undefined),
-*     last_name: (!string|undefined),
-*     email: (!string|undefined),
-*     username: (!string|undefined),
-*     id: (!number|undefined),
-*     is_active: (!boolean|undefined),
-*     is_staff: (!boolean|undefined),
-*     is_superuser: (!boolean|undefined)
+*     first_name: (string|undefined),
+*     last_name: (string|undefined),
+*     email: (string|undefined),
+*     username: (string|undefined),
+*     id: (number|undefined),
+*     is_active: (boolean|undefined),
+*     is_staff: (boolean|undefined),
+*     is_superuser: (boolean|undefined)
 *     }}
  */
 bad.UserLike;
 
 
 /**
- * @param {!Object} data
- * @return {!Promise}
+ * @param {Object} data
+ * @return {Promise}
  * @private
  */
 bad.UserManager.prototype.updateProfileFromJwt = function(data) {
@@ -299,7 +303,7 @@ bad.UserManager.prototype.updateToken = function(t) {
 
 
 /**
- * @return {!number|undefined}
+ * @return {number|undefined}
  */
 bad.UserManager.prototype.getId = function() {
   return this.user_['id'];
@@ -336,8 +340,8 @@ bad.UserManager.prototype.getSalutation = function() {
 
 
 /**
- * @param {!bad.ui.Form} formPanel
- * @return {!Promise}
+ * @param {bad.ui.Form} formPanel
+ * @return {Promise}
  */
 bad.UserManager.prototype.formSubmit = function(formPanel) {
   const req = new Request(formPanel.getUri().toString());
@@ -356,8 +360,8 @@ bad.UserManager.prototype.formSubmit = function(formPanel) {
 
 
 /**
- * @param {!goog.Uri} uri
- * @return {!Promise}
+ * @param {goog.Uri} uri
+ * @return {Promise}
  */
 bad.UserManager.prototype.putPostPatchNobody = function(uri, init) {
   const req = new Request(uri.toString());
@@ -369,16 +373,16 @@ bad.UserManager.prototype.putPostPatchNobody = function(uri, init) {
 
 
 /**
- * @param {!goog.Uri} uri
- * @return {!Promise}
+ * @param {goog.Uri} uri
+ * @return {Promise}
  */
 bad.UserManager.prototype.putNoBody = function(uri) {
   return this.putPostPatchNobody(uri, basicPutInit(''))
 };
 
 /**
- * @param {!goog.Uri} uri
- * @return {!Promise}
+ * @param {goog.Uri} uri
+ * @return {Promise}
  */
 bad.UserManager.prototype.fetch = function(uri) {
   const req = new Request(uri.toString());
@@ -396,16 +400,16 @@ bad.UserManager.prototype.fetch = function(uri) {
 /**
  * Use this if you want to directly get a parsed template that does not go
  * through panel logic.
- * @param {!goog.Uri} uri
- * @return {!Promise}
+ * @param {goog.Uri} uri
+ * @return {Promise}
  */
 bad.UserManager.prototype.fetchAndSplit = function(uri) {
   return this.fetch(uri).then(bad.utils.handleTemplateProm)
 };
 
 /**
- * @param {!goog.Uri} uri
- * @return {!Promise}
+ * @param {goog.Uri} uri
+ * @return {Promise}
  */
 bad.UserManager.prototype.fetchJson = function(uri) {
   const req = new Request(uri.toString());
@@ -421,9 +425,9 @@ bad.UserManager.prototype.fetchJson = function(uri) {
 };
 
 /**
- * @param {!goog.Uri} uri
- * @param {!Object} payload
- * @return {!Promise}
+ * @param {goog.Uri} uri
+ * @param {Object} payload
+ * @return {Promise}
  */
 bad.UserManager.prototype.patchJson = function(uri, payload) {
   const req = new Request(uri.toString());

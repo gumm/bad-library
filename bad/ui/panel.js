@@ -19,7 +19,7 @@ bad.ui.Panel = function(opt_domHelper) {
   bad.ui.Component.call(this, opt_domHelper);
 
   /**
-   * @type {!goog.Uri}
+   * @type {goog.Uri}
    * @private
    */
   this.uri_ = new goog.Uri();
@@ -28,7 +28,7 @@ bad.ui.Panel = function(opt_domHelper) {
   /**
    * Set to true if we can detect that the response from the fetch was
    * redirected. Useful form managing form redirects.
-   * @type {!boolean}
+   * @type {boolean}
    */
   this.redirected = false;
 
@@ -39,20 +39,20 @@ bad.ui.Panel = function(opt_domHelper) {
   this.nest_ = null;
 
   /**
-   * @type {!number}
+   * @type {number}
    * @private
    */
   this.defaultSlideSize_ = 350;
 
   /**
    * An array of classes to be added to the panel element when it is created.
-   * @type {!Array}
+   * @type {Array}
    * @private
    */
   this.elementClasses_ = [];
 
   /**
-   * @type {!Function}
+   * @type {Function}
    */
   this.evalScripts = bad.utils.evalScripts(this);
 
@@ -72,7 +72,7 @@ bad.ui.Panel.prototype.initDom = goog.nullFunction;
 
 
 /**
- * @param {!boolean} bool
+ * @param {boolean} bool
  * @param {?string} url
  */
 bad.ui.Panel.prototype.setIsRedirected = function(bool, url) {
@@ -88,7 +88,7 @@ bad.ui.Panel.prototype.setIsRedirected = function(bool, url) {
  * the panel. This is useful for when you only want to attach the new panel to
  * the view right before you render it - meaning the existing panel stays in
  * place on the DOM for the duration of the fetch call.
- * @return {!Promise} Returns a promise with this panel as value.
+ * @return {Promise} Returns a promise with this panel as value.
  */
 bad.ui.Panel.prototype.renderWithTemplate = function(opt_callback) {
   const usr = this.getUser();
@@ -106,7 +106,7 @@ bad.ui.Panel.prototype.renderWithTemplate = function(opt_callback) {
 
 
 /**
- * @return {!Promise}
+ * @return {Promise}
  */
 bad.ui.Panel.prototype.refreshTemplateFromServer = function() {
   const usr = this.getUser();
@@ -120,7 +120,7 @@ bad.ui.Panel.prototype.refreshTemplateFromServer = function() {
 
 
 /**
- * @param {!string} reply
+ * @param {string} reply
  */
 bad.ui.Panel.prototype.replacePanelContent = function(reply) {
   this.responseObject = bad.utils.splitScripts(reply);
@@ -138,7 +138,7 @@ bad.ui.Panel.prototype.replacePanelContent = function(reply) {
 /**
  * Equivalent to the @code{renderWithTemplate} method in that it is guaranteed
  * that a reply from the callback is received before @code{render} is called.
- * @param {!function(?goog.events.EventLike)} callback The callback function
+ * @param {function(?goog.events.EventLike)} callback The callback function
  *      that will receive the reply event.
  */
 bad.ui.Panel.prototype.renderWithJSON = function(callback) {
@@ -153,9 +153,9 @@ bad.ui.Panel.prototype.renderWithJSON = function(callback) {
 
 
 /**
- * @param {!string} s
+ * @param {string} s
  * @private
- * @return {!Promise}
+ * @return {Promise}
  */
 bad.ui.Panel.prototype.onRenderWithTemplateReply = function(s) {
 
@@ -170,10 +170,10 @@ bad.ui.Panel.prototype.onRenderWithTemplateReply = function(s) {
 
 /**
  * On reply from a GET call to the panel URI
- * @param {!function(?goog.events.EventLike)} callback The callback function
+ * @param {function(?goog.events.EventLike)} callback The callback function
  *      that will receive the reply event.
  * @param {?goog.events.EventLike} e Event object.
- * @return {!Promise}
+ * @return {Promise}
  */
 bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
 
@@ -186,8 +186,8 @@ bad.ui.Panel.prototype.onRenderWithJSON = function(callback, e) {
 
 
 /**
- * @param {!string} zCode
- * @param {!Object} json
+ * @param {string} zCode
+ * @param {Object} json
  */
 bad.ui.Panel.prototype.onAsyncJsonReply = function(zCode, json) {
   // Stub
@@ -373,7 +373,7 @@ bad.ui.Panel.prototype.enterDocument = function() {
 
 
 /**
- * @param {!bad.ui.Layout.CellType|undefined} nest
+ * @param {bad.ui.Layout.CellType|undefined} nest
  */
 bad.ui.Panel.prototype.setNestAsTarget = function(nest) {
   if (nest) {
@@ -384,7 +384,7 @@ bad.ui.Panel.prototype.setNestAsTarget = function(nest) {
 
 
 /**
- * @param {!bad.ui.Layout.CellType|undefined} nest
+ * @param {bad.ui.Layout.CellType|undefined} nest
  */
 bad.ui.Panel.prototype.setSlideNest = function(nest) {
   if (nest) {
@@ -404,7 +404,7 @@ bad.ui.Panel.prototype.getSlideNest = function() {
 /**
  * The size to which the panel opens by default.
  * Given in pixels.
- * @param {!number} size
+ * @param {number} size
  */
 bad.ui.Panel.prototype.setSlideSize = function(size) {
   this.defaultSlideSize_ = size;
@@ -412,7 +412,7 @@ bad.ui.Panel.prototype.setSlideSize = function(size) {
 
 
 /**
- * @return {!number}
+ * @return {number}
  */
 bad.ui.Panel.prototype.getSlideSize = function() {
   return this.defaultSlideSize_;
@@ -420,7 +420,7 @@ bad.ui.Panel.prototype.getSlideSize = function() {
 
 
 /**
- * @param {!goog.Uri} uri
+ * @param {goog.Uri} uri
  */
 bad.ui.Panel.prototype.setUri = function(uri) {
   this.uri_ = uri;
@@ -428,7 +428,7 @@ bad.ui.Panel.prototype.setUri = function(uri) {
 
 
 /**
- * @return {!goog.Uri}
+ * @return {goog.Uri}
  */
 bad.ui.Panel.prototype.getUri = function() {
   return this.uri_;
@@ -436,7 +436,7 @@ bad.ui.Panel.prototype.getUri = function() {
 
 
 /**
- * @param {!bad.UserManager} user
+ * @param {bad.UserManager} user
  */
 bad.ui.Panel.prototype.setUser = function(user) {
   this.user_ = user;
@@ -452,7 +452,7 @@ bad.ui.Panel.prototype.getUser = function() {
 
 
 /**
- * @param {!string} className
+ * @param {string} className
  */
 bad.ui.Panel.prototype.addElementClass = function(className) {
   this.elementClasses_.push(className);
@@ -460,7 +460,7 @@ bad.ui.Panel.prototype.addElementClass = function(className) {
 
 
 /**
- * @return {!boolean}
+ * @return {boolean}
  */
 bad.ui.Panel.prototype.isOpen = function() {
   return this.slideNest_.isOpen();
@@ -471,15 +471,15 @@ bad.ui.Panel.prototype.isOpen = function() {
  * Listen to an event on a Listenable.  If the function is omitted then the
  * EventHandler's handleEvent method will be used.
  * @param {goog.events.ListenableType} src Event source.
- * @param {!string|!Array<string>|
+ * @param {string|!Array<string>|
  *     !goog.events.EventId<EVENTOBJ>|
  *     !Array<!goog.events.EventId<EVENTOBJ>>} type Event type to listen
  *     for or array of event types.
  * @param {function(EVENTOBJ):?|{handleEvent:function(?):?}|null=} opt_fn
  *     Optional callback function to be used as the listener or an object with
  *     handleEvent function.
- * @param {!boolean=} opt_capture Optional whether to use capture phase.
- * @return {!goog.events.EventHandler} This object, allowing for
+ * @param {boolean=} opt_capture Optional whether to use capture phase.
+ * @return {goog.events.EventHandler} This object, allowing for
  *     chaining of calls.
  * @template EVENTOBJ
  */
@@ -490,7 +490,7 @@ bad.ui.Panel.prototype.listenToThis = function(
 
 
 /**
- * @return {!goog.format.JsonPrettyPrinter}
+ * @return {goog.format.JsonPrettyPrinter}
  */
 bad.ui.Panel.prototype.getPrettyPrinter = function() {
   return new goog.format.JsonPrettyPrinter(
@@ -505,7 +505,7 @@ bad.ui.Panel.prototype.getPrettyPrinter = function() {
  */
 bad.ui.Panel.prototype.parsePrettyJson = function(val, el) {
 
-  let pre = goog.dom.createDom('pre');
+  const pre = goog.dom.createDom('pre');
   pre.innerHTML = this.getPrettyPrinter().format(val);
   goog.dom.append(el, pre);
 };
