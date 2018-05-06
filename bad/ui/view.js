@@ -68,6 +68,12 @@ bad.ui.View = function() {
    */
   this.panelMap = new Map();
 
+  /**
+   * @type {!bad.UserManager|undefined}
+   * @private
+   */
+  this.user_ = void 0;
+
 };
 goog.inherits(bad.ui.View, goog.events.EventTarget);
 
@@ -185,7 +191,7 @@ bad.ui.View.prototype.displayPanels = goog.nullFunction;
 
 
 /**
- * @param {bad.CompEvent} e
+ * @param {!bad.CompEvent} e
  */
 bad.ui.View.prototype.onPanelAction = function(e) {
   const eventValue = e.getValue();
@@ -225,7 +231,7 @@ bad.ui.View.prototype.setNests = function(nests) {
 
 
 /**
- * @param {bad.UserManager} user
+ * @param {!bad.UserManager} user
  */
 bad.ui.View.prototype.setUser = function(user) {
   this.user_ = user;
@@ -234,9 +240,12 @@ bad.ui.View.prototype.setUser = function(user) {
 
 
 /**
- * @return {bad.UserManager}
+ * @return {!bad.UserManager}
  */
 bad.ui.View.prototype.getUser = function() {
+  if (!this.user_) {
+    throw 'User is not defined';
+  }
   return this.user_;
 };
 

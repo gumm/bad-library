@@ -65,7 +65,7 @@ bad.utils.evalScripts = comp => arr => {
  * @param {string} name
  * @param {?bad.ui.Panel=} opt_tPan The target panel
  * @param {?string=} opt_tEl Optional target element class name in target panel
- * @return {Array<function()>}
+ * @return {!Array<function()>}
  */
 bad.utils.panelWithinPanel = (panel, view, name, opt_tPan, opt_tEl) => {
   /**

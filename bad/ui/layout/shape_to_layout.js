@@ -328,7 +328,7 @@ const nestLayouts = layouts => {
 /**
  * @param {string} id
  * @param {layoutLike} layout
- * @return {Array}
+ * @return {!Array}
  */
 const parseOuterLayout = (id, layout) => {
 
@@ -353,7 +353,7 @@ const parseOuterLayout = (id, layout) => {
 /**
  * @param {string} id
  * @param {string} str
- * @return {Array}
+ * @return {!Array}
  */
 exports.do = function(id, str) {
   const shape = makeShape(str);
