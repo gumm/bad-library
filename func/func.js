@@ -36,9 +36,9 @@ const mergeDeep = (target, source) => {
  * @return {!Function} A partially-applied form of the function goog.partial()
  *     was invoked as a method of.
  */
-const partial = function (fn, var_args) {
+const partial = function(fn, var_args) {
   let args = Array.prototype.slice.call(arguments, 1);
-  return function () {
+  return function() {
     let newArgs = args.slice();
     newArgs.push.apply(newArgs, arguments);
     return fn.apply(this, newArgs);
@@ -1784,3 +1784,89 @@ B1 -> 1B
 
   // ---------------------------------------------------------------------------
 })();
+
+
+//------------------------------------------------------------------------------
+// Rosetta Code: Damm Algorithm
+// http://rosettacode.org/wiki/Damm_algorithm
+
+(() => {
+
+      const table = [
+        [0, 3, 1, 7, 5, 9, 8, 6, 4, 2],
+        [7, 0, 9, 2, 1, 5, 4, 8, 6, 3],
+        [4, 2, 0, 6, 8, 7, 1, 3, 5, 9],
+        [1, 7, 5, 0, 9, 8, 3, 4, 2, 6],
+        [6, 1, 2, 3, 0, 4, 5, 9, 7, 8],
+        [3, 6, 7, 4, 2, 0, 9, 5, 8, 1],
+        [5, 8, 6, 9, 7, 2, 0, 1, 3, 4],
+        [8, 9, 4, 5, 3, 6, 2, 0, 1, 7],
+        [9, 4, 3, 8, 6, 1, 7, 2, 0, 5],
+        [2, 5, 8, 1, 4, 3, 6, 7, 9, 0],
+      ];
+
+      const lookup = (p, c) => table[p][parseInt(c, 10)]
+      const damm = input => [...input].reduce(lookup, 0) === 0;
+
+      // ----------------------------------------------------------[ Run Tests ]----
+      const test = () => ["5724", "5727", "112946", "112949"].forEach(e =>
+          console.log(`${e} => ${damm(e) ? 'Pass' : 'Fail'}`)
+      );
+      test();
+      // ---------------------------------------------------------------------------
+    }
+)();
+console.log('\n');
+
+
+//------------------------------------------------------------------------------
+// Rosetta Code: Nonoblock Algorithm
+// http://rosettacode.org/wiki/Nonoblock
+(() => {
+
+  const sumArr = arr => arr.reduce((a, b) => a + b, 0);
+  const sumsTo = val => arr => sumArr(arr) === val;
+  const isEven = val => val % 2 === 0;
+  const zipper = b => (p, c, i) => b[i] ? [...p, c, b[i]] : [...p, c];
+  const zip = (a, b) => a.reduce(zipper(b), []);
+  const hasInnerZero = arr => arr.slice(1, -1).indexOf(0) >= 0;
+  const print = arr => arr.reduce(
+      (p, c, i) => c ? p + '|' + Array(c).fill(isEven(i) ? '_' : c).join('|') : p,
+      '') + '|';
+
+  const looper = (arr, max, acc = [[...arr]], idx = 0) => {
+    if (idx !== arr.length) {
+      const b = looper([...arr], max, acc, idx + 1)[0];
+      if (b[idx] !== max) {
+        b[idx] = b[idx] + 1;
+        acc.push(looper([...b], max, acc, idx)[0]);
+      }
+    }
+    return [arr, acc];
+  };
+
+  const permutations = (grpSize, trgVal, minVal = 1) => {
+    const maxVal = trgVal - grpSize * minVal + minVal;
+    return maxVal <= 0 ? [] : (looper(Array(grpSize).fill(minVal), maxVal)[1])
+        .filter(sumsTo(trgVal));
+  }
+
+  const build = (cells, ...blocks) => {
+    console.log(`\n${cells} cells. Block order: ${blocks}`);
+    permutations(blocks.length + 1, cells - sumArr(blocks), 0)
+        .filter(e => !hasInnerZero(e))
+        .forEach(gapArr => console.log(print(zip(gapArr, [...blocks]))));
+  };
+
+
+  build(5, 2, 1);
+  build(5);
+  build(6, 5);
+  build(10, 8);
+  build(15, 2, 3, 2, 3);
+  build(10, 4, 3);
+  build(10, 3, 1);
+  build(5, 2, 3);
+
+})();
+
