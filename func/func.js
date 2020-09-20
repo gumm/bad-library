@@ -1824,15 +1824,18 @@ console.log('\n');
 // http://rosettacode.org/wiki/Nonoblock
 (() => {
 
+  const compose = (...fn) => (...x) => fn.reduce((a, b) => c => a(b(c)))(...x);
   const sumArr = arr => arr.reduce((a, b) => a + b, 0);
   const sumsTo = val => arr => sumArr(arr) === val;
   const isEven = val => val % 2 === 0;
   const zipper = b => (p, c, i) => b[i] ? [...p, c, b[i]] : [...p, c];
   const zip = (a, b) => a.reduce(zipper(b), []);
-  const hasInnerZero = arr => arr.slice(1, -1).indexOf(0) >= 0;
-  const print = arr => arr.reduce(
-      (p, c, i) => c ? p + '|' + Array(c).fill(isEven(i) ? '_' : c).join('|') : p,
-      '') + '|';
+  const zipArr = arr => a => zip(a, arr);
+  const hasInner = v => arr => arr.slice(1, -1).indexOf(v) >= 0;
+  const noInnerZero = e => !hasInner(0)(e);
+  const toStr = (c, i) => Array(c).fill(isEven(i) ? '_' : c).join('|');
+  const printer = (p, c, i) => c ? p + '|' + toStr(c, i) : p;
+  const print = arr => arr.reduce(printer, '') + '|';
 
   const looper = (arr, max, acc = [[...arr]], idx = 0) => {
     if (idx !== arr.length) {
@@ -1845,17 +1848,19 @@ console.log('\n');
     return [arr, acc];
   };
 
-  const permutations = (grpSize, trgVal, minVal = 1) => {
+  const permutations = (grpSize, trgVal, minVal = 0) => {
     const maxVal = trgVal - grpSize * minVal + minVal;
     return maxVal <= 0 ? [] : (looper(Array(grpSize).fill(minVal), maxVal)[1])
-        .filter(sumsTo(trgVal));
+        .filter(sumsTo(trgVal))
+        .filter(noInnerZero);
   }
 
   const build = (cells, ...blocks) => {
-    console.log(`\n${cells} cells. Block order: ${blocks}`);
-    permutations(blocks.length + 1, cells - sumArr(blocks), 0)
-        .filter(e => !hasInnerZero(e))
-        .forEach(gapArr => console.log(print(zip(gapArr, [...blocks]))));
+    console.log(`\n${cells} cells. Blocks: ${blocks}`);
+    const output = compose(console.log, print, zipArr([...blocks]));
+    const grpSize = blocks.length + 1;
+    const targetVal = cells - sumArr(blocks);
+    permutations(grpSize, targetVal).map(output);
   };
 
 
