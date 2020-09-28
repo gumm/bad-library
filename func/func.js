@@ -1825,17 +1825,18 @@ console.log('\n');
 (() => {
 
   const compose = (...fn) => (...x) => fn.reduce((a, b) => c => a(b(c)))(...x);
+  const inv = b => !b;
+  const arrJoin = str => arr => arr.join(str);
+  const mkArr = (l, f) => Array(l).fill(f);
   const sumArr = arr => arr.reduce((a, b) => a + b, 0);
   const sumsTo = val => arr => sumArr(arr) === val;
-  const isEven = val => val % 2 === 0;
-  const zipper = b => (p, c, i) => b[i] ? [...p, c, b[i]] : [...p, c];
+  const zipper = arr => (p, c, i) => arr[i] ? [...p, c, arr[i]] : [...p, c];
   const zip = (a, b) => a.reduce(zipper(b), []);
   const zipArr = arr => a => zip(a, arr);
   const hasInner = v => arr => arr.slice(1, -1).indexOf(v) >= 0;
-  const noInnerZero = e => !hasInner(0)(e);
-  const toStr = (c, i) => Array(c).fill(isEven(i) ? '_' : c).join('|');
-  const printer = (p, c, i) => c ? p + '|' + toStr(c, i) : p;
-  const print = arr => arr.reduce(printer, '') + '|';
+  const toBin = f => arr => arr.reduce(
+      (p, c, i) => [...p, ...mkArr(c, f(c, i))], []);
+
 
   const looper = (arr, max, acc = [[...arr]], idx = 0) => {
     if (idx !== arr.length) {
@@ -1848,30 +1849,114 @@ console.log('\n');
     return [arr, acc];
   };
 
-  const permutations = (grpSize, trgVal, minVal = 0) => {
-    const maxVal = trgVal - grpSize * minVal + minVal;
-    return maxVal <= 0 ? [] : (looper(Array(grpSize).fill(minVal), maxVal)[1])
-        .filter(sumsTo(trgVal))
-        .filter(noInnerZero);
+  const gapPerms = (grpSize, numGaps, minVal = 0) => {
+    const maxVal = numGaps - grpSize * minVal + minVal;
+    return maxVal <= 0
+        ? (grpSize === 2 ? [[0]] : [])
+        : looper(mkArr(grpSize, minVal), maxVal)[1];
   }
 
-  const build = (cells, ...blocks) => {
-    console.log(`\n${cells} cells. Blocks: ${blocks}`);
-    const output = compose(console.log, print, zipArr([...blocks]));
+  const test = (cells, ...blocks) => {
     const grpSize = blocks.length + 1;
-    const targetVal = cells - sumArr(blocks);
-    permutations(grpSize, targetVal).map(output);
+    const numGaps = cells - sumArr(blocks);
+
+    // Filter functions
+    const sumsToTrg = sumsTo(numGaps);
+    const noInnerZero = compose(inv, hasInner(0));
+
+    // Output formatting
+    const getChar = i => String.fromCharCode(65 + i);
+    const combine = zipArr([...blocks]);
+    const mkLine = (c, i) => i % 2 === 0 ? '_|' : `${getChar(i / 2)}|`
+    const choices = toBin(mkLine);
+    const prependPipe = s => `|${s}`;
+    const expand = compose(combine);
+    const output = compose(console.log, prependPipe, arrJoin(''), choices);
+
+    console.log(`\n${cells} cells. Blocks: ${blocks}`);
+    gapPerms(grpSize, numGaps)
+        .filter(noInnerZero)
+        .filter(sumsToTrg)
+        .map(compose(output, expand));
   };
 
+  test(5);
+  test(5, 5);
+  test(5, 6);
+  test(5, 1, 1, 1);
+  test(5, 2, 1);
+  test(5, 2, 3);
+  test(10, 8);
+  test(10, 4, 3);
+  test(15, 2, 3, 2, 3);
 
-  build(5, 2, 1);
-  build(5);
-  build(6, 5);
-  build(10, 8);
-  build(15, 2, 3, 2, 3);
-  build(10, 4, 3);
-  build(10, 3, 1);
-  build(5, 2, 3);
+
+})();
+console.log('\n');
+
+(() => {
+  const intToArr = (i, acc = []) => {
+    const k = i / 10;
+    const v = Math.round(k % 1 * 10);
+    const r = Math.floor(k);
+    return r > 0 ? intToArr(r,[v, ...acc]) : [v, ...acc];
+  }
+
+  console.log(intToArr(95322020));
+
+})();
+console.log('\n');
+
+
+//------------------------------------------------------------------------------
+// Rosetta Code: Next highest int from digits
+// http://rosettacode.org/wiki/Next_highest_int_from_digits
+(() => {
+
+  const compose = (...fn) => (...x) => fn.reduce((a, b) => c => a(b(c)))(...x);
+  const toString = x => x + '';
+  const reverse = x => Array.from(x).reduce((p, c) => [c, ...p], []);
+  const minBiggerThanN = (arr, n) => arr.filter(e => e > n).sort()[0];
+  const remEl = (arr, e) => {
+    const r = arr.indexOf(e);
+    return arr.filter((e,i) => i !== r);
+  }
+
+  const nextHighest = itr => {
+    const seen = [];
+    let result = 0;
+    for (const [i,v] of itr.entries()) {
+      const n = +v;
+      if (Math.max(n, ...seen) !== n) {
+        const right = itr.slice(i + 1);
+        const swap = minBiggerThanN(seen, n);
+        const rem = remEl(seen, swap);
+        const rest = [n, ...rem].sort();
+        result = [...reverse(right), swap, ...rest].join('');
+        break;
+      } else {
+        seen.push(n);
+      }
+    }
+    return result;
+  };
+
+  const check = compose(nextHighest, reverse, toString);
+
+  const test = v => {
+    console.log(v, '=>', check(v));
+  }
+
+  test(0);
+  test(9);
+  test(12);
+  test(21);
+  test(12453);
+  test(738440);
+  test(45072010);
+  test(95322020);
+  test('9589776899767587796600');
+
 
 })();
 
