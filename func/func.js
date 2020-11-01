@@ -2234,6 +2234,386 @@ GACCGGGGACTTGCATGATGGGAGCAGCTTTGTTAAACTACGAACGTAAT`
 })()
 
 
+console.log('\n\n');
+
+
+//------------------------------------------------------------------------------
+// Rosetta Code: Canonicalize CIDR
+// http://rosettacode.org/wiki/Canonicalize_CIDR
+(() => {
+
+  const chunk = (p, c, i) => (!(i % 8)) ? p.push([c]) && p : p[p.length - 1].push(c) && p;
+  const intToBinStr = i => (i).toString(2).padStart(8, 0);
+  const binStrToInt = s => parseInt(s, 2);
+  const decStrToInt = s => parseInt(s, 10);
+  const concat = (a, b) => a.concat(b);
+  const replace = v => (e, i) => i < v ? e : 0;
+  const join = s => a => a.join(s);
+  const maybePad = arr => (v, i) => arr[i] ? arr[i] : 0;
+
+  const canonicalize = str => {
+    const [a, c] = str.split('/');
+    const cidr = decStrToInt(c || '32');
+    const arr = a.split('.');
+    return Array(4).fill(0)
+        .map(maybePad(arr))
+        .map(decStrToInt)
+        .map(intToBinStr)
+        .reduce(concat).split('')
+        .map(decStrToInt)
+        .map(replace(cidr))
+        .reduce(chunk, [])
+        .map(join(''))
+        .map(binStrToInt).join('.') + `/${cidr}`;
+  }
+
+// Test output
+  const test = s => console.log(s, '->', canonicalize(s));
+  [
+    '87.70.141.1/22',
+    '36.18.154.103/12',
+    '62.62.197.11/29',
+    '67.137.119.181/4',
+    '161.214.74.21/24',
+    '184.232.176.184/18',
+    '10.207.219.251/32',
+    '10.207.219.251',
+    '110.200.21/4',
+    '10..55/8',
+    '10.../8'
+  ].forEach(test);
+
+})();
+
+(() => {
+  const canonicalize = s => {
+
+    // Prepare a DataView over a 16 Byte Array buffer.
+    // Initialised to all zeros.
+    const dv = new DataView(new ArrayBuffer(16));
+
+    // Get the ip-address and cidr components
+    const [ip, cidr] = s.split('/');
+
+    // Make sure the cidr component is a usable int, and
+    // default to 32 if it does not exist.
+    const cidrInt = parseInt(cidr || 32, 10);
+
+    // Populate the buffer with uint8 ip address components.
+    // Use zero as the default for shorthand pool definitions.
+    ip.split('.').forEach(
+        (e, i) => dv.setUint8(i, parseInt(e || 0, 10))
+    );
+
+    // Grab the whole buffer as a uint32
+    const ipAsInt = dv.getUint32(0);
+
+    // Zero out the lower bits as per the CIDR number.
+    const normIpInt = (ipAsInt >> 32 - cidrInt) << 32 - cidrInt;
+
+    // Plonk it back into the buffer
+    dv.setUint32(0, normIpInt);
+
+    // Read each of the uint8 slots in the buffer and join them with a dot.
+    const canonIp = [...'0123'].map((e, i) => dv.getUint8(i)).join('.');
+
+    // Attach the cidr number to the back of the normalised IP address.
+    return [canonIp, cidrInt].join('/');
+  }
+
+  const test = s => console.log(s, '->', canonicalize(s));
+  [
+    '255.255.255.255/10',
+    '87.70.141.1/22',
+    '36.18.154.103/12',
+    '62.62.197.11/29',
+    '67.137.119.181/4',
+    '161.214.74.21/24',
+    '184.232.176.184/18',
+    '10.207.219.251/32',
+    '10.207.219.251',
+    '110.200.21/4',
+    '10..55/8',
+    '10.../8'
+  ].forEach(test)
+})();
+
+console.log('\n\n');
+
+
+//------------------------------------------------------------------------------
+// Rosetta Code: Calendar
+// http://rosettacode.org/wiki/Calendar
+(() => {
+  /**
+   * Given a width, return a function that takes a string, and
+   * pads it at both ends to the given width
+   * @param {number} width
+   * @returns {function(string): string}
+   */
+  const printCenter = width =>
+      s => s.padStart(width / 2 + s.length / 2, ' ').padEnd(width);
+
+  /**
+   * Given an locale string and options, return a function that takes a date
+   * object, and retrurns the date formatted to the locale and options.
+   * @param {string} locale
+   * @param {DateTimeFormatOptions} options
+   * @returns {function(Date): string}
+   */
+  const localeName = (locale, options) => {
+    const formatter = new Intl.DateTimeFormat(locale, options);
+    return date => formatter.format(date);
+  };
+
+  /**
+   * Increment the date by number.
+   * @param {Date} date
+   * @param {number} inc
+   * @returns {Date}
+   */
+  const addDay = (date, inc = 1) => {
+    const res = new Date(date.valueOf());
+    res.setDate(date.getDate() + inc);
+    return res;
+  }
+
+  /**
+   * Given a date, build a string of the week, and return it along with
+   * the mutated date object.
+   * @param {Date} date
+   * @returns {[boolean, Date, string]}
+   */
+  const makeWeek = date => {
+    const month = date.getMonth();
+    let [wdi, md, m] = [date.getUTCDay(), date.getDate(), date.getMonth()];
+    const line = Array(7).fill('  ').map((e, i) => {
+      if (i === wdi && m === month) {
+        const result = (md + '').padStart(2, ' ');
+        date = addDay(date);
+        [wdi, md, m] = [date.getUTCDay(), date.getDate(), date.getMonth()];
+        return result;
+      } else {
+        return e;
+      }
+    }).join(' ');
+    return [month !== m, date, line];
+  }
+
+  /**
+   * Print a nicely formatted calender for the given year in the given locale.
+   * @param {number} year The required year of the calender
+   * @param {string} locale The locale string. Defaults to US English.
+   * @param {number} cols The number of columns for the months. Defaults to 3.
+   * @param {number} coll_space The space between the columns. Defaults to 5.
+   */
+  const cal = (year, locale = 'en-US', cols = 3, coll_space = 5) => {
+    const MONTH_LINES = 9;  // Number of lines that make up a month.
+    const MONTH_COL_WIDTH = 20;  // Character width of a month
+    const COL_SPACE = ' '.padStart(coll_space);
+    const FULL_WIDTH = MONTH_COL_WIDTH * cols + coll_space * (cols - 1);
+
+    const collArr = Array(cols).fill('');
+    const monthName = localeName(locale, {month: 'long'});
+    const weekDayShort = localeName(locale, {weekday: 'short'});
+    const monthCenter = printCenter(MONTH_COL_WIDTH);
+    const pageCenter = printCenter(FULL_WIDTH);
+
+    // Get the weekday in the given locale.
+    const sun = new Date(Date.UTC(2017, 0, 1)); // A sunday
+    const weekdays = Array(7).fill('').map((e, i) =>
+        weekDayShort(addDay(sun, i)).padStart(2, ' ').substring(0, 2)).join(' ');
+
+    // The start date.
+    let date = new Date(Date.UTC(year, 0, 1, 0, 0, 0));
+    let nextMonth = true;
+    let line = '';
+    const fullYear = date.getUTCFullYear();
+
+    // The array into which each of the lines are populated.
+    const accumulate = [];
+
+    // Populate the month table heading and columns.
+    const preAmble = date => {
+      accumulate.push(monthCenter(' '))
+      accumulate.push(monthCenter(monthName(date)));
+      accumulate.push(weekdays);
+    };
+
+    // Accumulate the week lines for the year.
+    while (date.getUTCFullYear() === fullYear) {
+      if (nextMonth) {
+        if (accumulate.length % MONTH_LINES !== 0) {
+          accumulate.push(monthCenter(' '))
+        }
+        preAmble(date);
+      }
+      [nextMonth, date, line] = makeWeek(date);
+      accumulate.push(line);
+    }
+
+    // Print the calendar.
+    console.log(pageCenter(String.fromCodePoint(0x1F436)));
+    console.log(pageCenter(`--- ${fullYear} ---`));
+    accumulate.reduce((p, e, i) => {
+      if (!p.includes(i)) {
+        const indexes = collArr.map((e, ci) => i + ci * MONTH_LINES);
+        console.log(indexes.map(e => accumulate[e]).join(COL_SPACE));
+        p.push(...indexes);
+      }
+      return p;
+    }, []);
+  };
+
+  cal(1969, 'en-US', 3);
+})()
+
+
+console.log('\n\n');
+
+
+//------------------------------------------------------------------------------
+// Rosetta Code: ASCII art diagram converter
+// http://rosettacode.org/wiki/ASCII_art_diagram_converter
+(() => {
+  // ------------------------------------------------------------[ Boilerplate ]--
+  const trimWhitespace = s => s.trim();
+  const isNotEmpty = s => s !== '';
+  const stringLength = s => s.length;
+  const hexToBin4 = s => parseInt(s, 16).toString(2).padStart(4, '0');
+  const concatHexToBin = (binStr, hexStr) => binStr.concat('', hexToBin4(hexStr));
+  const alignRight = n => s => `${s}`.padStart(n, ' ');
+  const alignLeft = n => s => `${s}`.padEnd(n, ' ');
+  const repeatChar = c => n => c.padStart(n, c);
+  const joinWith = c => arr => arr.join(c);
+  const joinNl = joinWith('\n');
+  const joinSp = joinWith(' ');
+
+  const printDiagramInfo = map => {
+    const pName = alignLeft(8);
+    const p5 = alignRight(5);
+    const line = repeatChar('-');
+    const res = [];
+    res.push(joinSp([pName('Name'), p5('Size'), p5('Start'), p5('End')]));
+    res.push(joinSp([line(8), line(5), line(5), line(5)]));
+    [...map.values()].forEach(({label, bitLength, start, end}) => {
+      res.push(joinSp([pName(label), p5(bitLength), p5(start), p5(end)]));
+    })
+    return res;
+  }
+
+// -------------------------------------------------------------------[ Main ]--
+  const parseDiagram = dia => {
+
+    const arr = dia.split('\n').map(trimWhitespace).filter(isNotEmpty);
+
+    const hLine = arr[0];
+    const bitTokens = hLine.split('+').map(trimWhitespace).filter(isNotEmpty);
+    const bitWidth = bitTokens.length;
+    const bitTokenWidth = bitTokens[0].length;
+
+    const fields = arr.filter(e => e !== hLine);
+    const allFields = fields.reduce((p, c) => [...p, ...c.split('|')], [])
+        .filter(isNotEmpty);
+
+    const lookupMap = Array(bitWidth).fill('').reduce((p, c, i) => {
+      const v = i + 1;
+      const stringWidth = (v * bitTokenWidth) + (v - 1);
+      p.set(stringWidth, v);
+      return p;
+    }, new Map())
+
+    const fieldMetaMap = allFields.reduce((p, e, i) => {
+      const bitLength = lookupMap.get(e.length);
+      const label = trimWhitespace(e);
+      const start = i ? p.get(i - 1).end + 1 : 0;
+      const end = start - 1 + bitLength;
+      p.set(i, {label, bitLength, start, end})
+      return p;
+    }, new Map());
+
+    const pName = alignLeft(8);
+    const pBit = alignRight(5);
+    const pPat = alignRight(18);
+    const line = repeatChar('-');
+    const nl = '\n';
+    return hexStr => {
+      const binString = [...hexStr].reduce(concatHexToBin, '');
+
+      const res = printDiagramInfo(fieldMetaMap);
+      res.unshift(joinNl(['Diagram:', ...arr, nl]));
+      res.push(joinNl([nl, 'Test string in hex:', hexStr]));
+      res.push(joinNl(['Test string in binary:', binString, nl]));
+      res.push(joinSp([pName('Name'), pBit('Size'), pPat('Pattern')]));
+      res.push(joinSp([line(8), line(5), line(18)]));
+
+      [...fieldMetaMap.values()].forEach(({label, bitLength, start, end}) => {
+        res.push(joinSp(
+            [pName(label), pBit(bitLength),
+              pPat(binString.substr(start, bitLength))]))
+      })
+      return joinNl(res);
+    }
+  }
+
+// --------------------------------------------------------------[ Run tests ]--
+
+  const dia = `
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                      ID                       |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |QR|   Opcode  |AA|TC|RD|RA|   Z    |   RCODE   |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                    QDCOUNT                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                    ANCOUNT                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                    NSCOUNT                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                    ARCOUNT                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    `;
+
+  const parser = parseDiagram(dia);
+
+  console.log(parser('78477bbf5496e12e1bf169a4'));
+
+})();
+
+console.log('\n\n');
+
+
+//------------------------------------------------------------------------------
+// Rosetta Code: First-class functions/Use numbers analogously
+// http://rosettacode.org/wiki/First-class_functions/Use_numbers_analogously
+(() => {
+  const x = 2.0;
+  const xi = 0.5;
+  const y = 4.0;
+  const yi = 0.25;
+  const z = x + y;
+  const zi = 1.0 / (x + y);
+  const pairs = [[x, xi], [y, yi], [z, zi]];
+  const testVal = 0.5;
+
+  const multiplier = (a, b) => m => a * b * m;
+
+  const test = () => {
+    return pairs.map(([a, b], i) => {
+      const f = multiplier(a, b);
+      const result = f(testVal);
+      return `${a} * ${b} * ${testVal} = ${result}`;
+    });
+  }
+
+  console.log(test().join('\n'));
+})()
+
+
+
+
+
+
 
 
 
