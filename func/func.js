@@ -2661,7 +2661,7 @@ console.log('\n\n');
     return result.join('\n');
   }
 
-  console.log(displayCA(240, 57, 31, 28));
+  console.log(displayCA(225, 57, 31, 28));
 })();
 
 
