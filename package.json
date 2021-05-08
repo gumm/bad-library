@@ -27,7 +27,7 @@
     "be-sert": "*",
     "dag-solve": "^2.3.11",
     "google-closure-compiler": "^20180402.0.0",
-    "google-closure-library": "^20180405.0.0",
+    "google-closure-library": "^20200315.0.0",
     "less": "*",
     "less-middleware": "*",
     "less-plugin-clean-css": "*",
